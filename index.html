@@ -100,3 +100,73 @@ margin-top:10px;
 
 </body>
 </html>
+
+<div id="menuOverlay" onclick="toggleMenu()"></div>
+
+<div id="menu">
+<div class="menuHeader">
+<span>Menu</span>
+<button onclick="toggleMenu()">✕</button>
+</div>
+
+<div class="menuItem" onclick="returnHotel()">🏨 Return Hotel</div>
+<div class="menuItem" onclick="navigateDay()">🗺 Navigate Day Route</div>
+<div class="menuItem" onclick="showMap()">🗺 Map</div>
+<div class="menuItem" onclick="nearbyCoffee()">☕ Coffee Nearby</div>
+<div class="menuItem" onclick="nearbyFood()">🍜 Food Nearby</div>
+<div class="menuItem" onclick="sendMyLocation()">📍 Share My Location</div>
+
+</div>
+
+<style>
+
+#menuOverlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.4);
+opacity:0;
+pointer-events:none;
+transition:opacity .25s;
+z-index:90;
+}
+
+#menu{
+position:fixed;
+top:0;
+left:-260px;
+width:260px;
+height:100%;
+background:white;
+box-shadow:2px 0 12px rgba(0,0,0,.2);
+transition:left .25s;
+z-index:100;
+padding:16px;
+}
+
+#menu.open{
+left:0;
+}
+
+#menuOverlay.open{
+opacity:1;
+pointer-events:auto;
+}
+
+.menuHeader{
+display:flex;
+justify-content:space-between;
+font-weight:600;
+margin-bottom:20px;
+}
+
+.menuItem{
+padding:12px 0;
+border-bottom:1px solid #eee;
+cursor:pointer;
+}
+
+</style>
+
