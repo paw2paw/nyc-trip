@@ -14,7 +14,7 @@ document.getElementById("dayMeta").innerText="DAY "+(dayIndex+1)
 document.getElementById("title").innerText=day.title
 let html=""
 day.stops.forEach((s,i)=>{
-html+=`<div class="stop">${i+1}. ${s.name}<br>${s.address}</div>`
+html+=`<div class="stop"><b>${i+1}. ${s.name}</b><br>${s.address}</div>`
 })
 document.getElementById("stops").innerHTML=html
 }

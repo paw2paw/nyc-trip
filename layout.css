@@ -1,5 +1,7 @@
-body{font-family:-apple-system;margin:0;background:#f4f2ec}
-header{display:flex;justify-content:space-between;padding:12px;background:#111;color:white}
+body{font-family:-apple-system,BlinkMacSystemFont;margin:0;background:#f5f3ee}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px;background:#111;color:white}
+#title{font-size:22px;text-align:center;padding:10px}
+#stops{padding:12px}
+.stop{background:white;margin-bottom:10px;padding:12px;border-radius:10px}
 #menu{display:none;padding:12px;background:white}
 #menu.open{display:block}
-.stop{background:white;margin:10px;padding:12px;border-radius:10px}
