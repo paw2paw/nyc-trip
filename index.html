@@ -3,22 +3,25 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NYC Trip</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500&display=swap" rel="stylesheet">
 <style>
-body{font-family:-apple-system,system-ui;background:#f5f5f7;color:#111;margin:0}
-header{display:flex;justify-content:space-between;align-items:center;padding:12px;background:white;border-bottom:1px solid #ddd}
+body{font-family:-apple-system,system-ui;background:#F3EFE6;color:#1E1E1E;margin:0}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:white;border-bottom:2px solid #C9A227}
+#topLine{font-size:12px;color:#666;text-align:center;margin-top:2px}
 #dayNav{display:flex;gap:10px;align-items:center}
-#dayNav button{background:#eee;color:#111}
-#weatherBar{padding:8px;background:#f0f0f0;border-bottom:1px solid #ddd;font-size:14px}
-#stops{padding:16px}
-.stop{background:white;padding:14px;border-radius:12px;margin-bottom:12px;box-shadow:0 2px 6px rgba(0,0,0,.08)}
-.transport{font-size:13px;color:#555;margin:6px 0}
+#dayTitle{font-family:"Playfair Display",serif;font-size:18px}
+#weatherBar{padding:8px;background:#f8f6f2;border-bottom:1px solid #d7d2c8;font-size:14px}
+#stops{padding:16px;padding-bottom:100px}
+.stop{background:white;padding:14px;border-radius:10px;margin-bottom:12px;border-left:4px solid #C9A227;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.stop div:first-child{font-weight:600;margin-bottom:4px}
+.transport{font-size:13px;color:#666;margin:4px 0}
 button{padding:8px 10px;border-radius:8px;border:none;background:#007aff;color:white;margin-top:6px}
-.actions{position:fixed;bottom:0;width:100%;background:white;padding:10px;display:flex;gap:10px;border-top:1px solid #ddd}
+.actions{position:fixed;bottom:0;width:100%;background:white;padding:10px;display:flex;gap:10px;border-top:1px solid #d7d2c8}
 .actions button{flex:1}
-#menu{position:fixed;top:0;left:-260px;width:260px;height:100%;background:white;box-shadow:2px 0 10px rgba(0,0,0,.2);transition:left .25s;padding:20px;z-index:1000}
+#menu{position:fixed;top:0;left:-100%;width:80%;max-width:300px;height:100%;background:white;box-shadow:2px 0 10px rgba(0,0,0,.2);transition:left .25s;padding:20px;z-index:1000}
 #menu.open{left:0}
-.menuItem{padding:12px 0;border-bottom:1px solid #eee}
-#map{height:300px;margin:10px;border-radius:10px}
+.menuItem{padding:12px 0;border-bottom:1px solid #eee;font-size:16px}
+#map{display:none;height:300px;margin:10px;border-radius:10px}
 </style>
 </head>
 <body>
@@ -26,9 +29,9 @@ button{padding:8px 10px;border-radius:8px;border:none;background:#007aff;color:w
 <div id="menu">
 <div class="menuItem" onclick="goHotel()">🏨 Return Hotel</div>
 <div class="menuItem" onclick="openRoute()">🗺 Full Route</div>
-<div class="menuItem" onclick="nextStop()">➡️ Next Stop</div>
+<div class="menuItem" onclick="nextStop()">➡ Navigate Next Stop</div>
 <div class="menuItem" onclick="meetHere()">📍 Meet Here</div>
-<div class="menuItem" onclick="showMap()">🗺 Map</div>
+<div class="menuItem" onclick="showMap()">🗺 Show Map</div>
 <div class="menuItem" onclick="nearbyCoffee()">☕ Nearby Coffee</div>
 <div class="menuItem" onclick="nearbyFood()">🍜 Nearby Food</div>
 </div>
@@ -36,10 +39,13 @@ button{padding:8px 10px;border-radius:8px;border:none;background:#007aff;color:w
 <header>
 <button onclick="toggleMenu()">☰</button>
 
+<div>
+<div id="topLine" id="ddd">DAY · NYC</div>
 <div id="dayNav">
 <button onclick="prevDay()">←</button>
-<h3 id="dayTitle">NYC</h3>
+<div id="dayTitle">Day</div>
 <button onclick="nextDay()">→</button>
+</div>
 </div>
 
 <button onclick="meetHere()">Meet</button>
@@ -60,6 +66,6 @@ button{padding:8px 10px;border-radius:8px;border:none;background:#007aff;color:w
 <button onclick="showMap()">Map</button>
 </div>
 
-<script src="app.js?v=12"></script>
+<script src="app.js?v=13"></script>
 </body>
 </html>

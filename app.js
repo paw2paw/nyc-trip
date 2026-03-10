@@ -1,9 +1,9 @@
 let data
 let currentIndex=0
 let dayIndex=0
-let map
+let mapLoaded=false
 
-fetch("./data.json?v=12").then(r=>r.json()).then(d=>{data=d;init()})
+fetch("./data.json?v=13").then(r=>r.json()).then(d=>{data=d;init()})
 
 function init(){
 loadDay()
@@ -17,6 +17,7 @@ document.getElementById("menu").classList.toggle("open")
 function loadDay(){
 let day=data.days[dayIndex]
 document.getElementById("dayTitle").innerText=day.title
+document.getElementById("topLine").innerText=`DAY ${dayIndex+1} · NYC`
 
 const container=document.getElementById("stops")
 container.innerHTML=""
@@ -26,13 +27,11 @@ addStop(container,s.icon+" "+s.name,s.address)
 
 if(i<day.stops.length-1){
 let next=day.stops[i+1]
-
 let t=document.createElement("div")
 t.className="transport"
-t.innerHTML=`🚶 <a target="_blank" href="https://www.google.com/maps/dir/${encodeURIComponent(s.address)}/${encodeURIComponent(next.address)}/data=!3m1!4b1!4m2!4m1!3e2">Walk</a> · 🚇 <a target="_blank" href="https://www.google.com/maps/dir/${encodeURIComponent(s.address)}/${encodeURIComponent(next.address)}/data=!3m1!4b1!4m2!4m1!3e3">Subway</a> · 🚕 <a target="_blank" href="https://www.google.com/maps/dir/${encodeURIComponent(s.address)}/${encodeURIComponent(next.address)}/data=!3m1!4b1!4m2!4m1!3e0">Taxi</a>`
+t.innerText="Walk / Subway / Taxi available"
 container.appendChild(t)
 }
-
 })
 }
 
@@ -98,13 +97,12 @@ navigate(hotel.address)
 }
 
 function showMap(){
-if(!map){
-navigator.geolocation.getCurrentPosition(pos=>{
-let lat=pos.coords.latitude
-let lng=pos.coords.longitude
-map=L.map('map').setView([lat,lng],13)
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map)
-})
+let mapEl=document.getElementById("map")
+mapEl.style.display="block"
+
+if(!mapLoaded){
+mapEl.innerHTML='<iframe width="100%" height="100%" style="border:0" loading="lazy" src="https://maps.google.com/maps?q=New%20York&z=13&output=embed"></iframe>'
+mapLoaded=true
 }
 }
 
@@ -132,7 +130,6 @@ fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&c
 document.getElementById("temp").innerText=`🌡 ${w.current_weather.temperature}°`
 let rain=w.hourly?.precipitation_probability?.[0]||0
 document.getElementById("rain").innerText=`🌧 ${rain}%`
-if(rain>50){alert("Rain likely today — consider indoor stops")}
 })
 })
 }
