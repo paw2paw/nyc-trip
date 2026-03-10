@@ -1,8 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2a2a2a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>NYC Trip</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Josefin+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="layout.css">
 </head>
 
@@ -10,22 +18,56 @@
 
 <div id="menuOverlay" onclick="toggleMenu()"></div>
 
-<div id="menu">
-<div onclick="openDayMap()">🗺 Day Map</div>
-<div onclick="returnHotel()">🏨 Return Hotel</div>
-<div onclick="nearbyCoffee()">☕ Coffee Nearby</div>
-<div onclick="nearbyFood()">🍜 Food Nearby</div>
+<nav id="menu" role="navigation" aria-label="Quick actions">
+<div class="menu-close" onclick="toggleMenu()" aria-label="Close menu">
+<svg viewBox="0 0 64 80" fill="none">
+<!-- Empire State Building -->
+<rect x="24" y="8" width="16" height="4" fill="#c9a84c"/>
+<rect x="30" y="2" width="4" height="6" fill="#c9a84c"/>
+<rect x="22" y="12" width="20" height="4" fill="#c9a84c"/>
+<rect x="20" y="16" width="24" height="6" fill="#c9a84c"/>
+<rect x="18" y="22" width="28" height="50" fill="#c9a84c"/>
+<rect x="22" y="26" width="3" height="4" rx="0" fill="#1a1a1a" opacity="0.3"/>
+<rect x="27" y="26" width="3" height="4" rx="0" fill="#1a1a1a" opacity="0.3"/>
+<rect x="34" y="26" width="3" height="4" rx="0" fill="#1a1a1a" opacity="0.3"/>
+<rect x="39" y="26" width="3" height="4" rx="0" fill="#1a1a1a" opacity="0.3"/>
+<rect x="22" y="34" width="3" height="4" rx="0" fill="#1a1a1a" opacity="0.3"/>
+<rect x="27" y="34" width="3" height="4" rx="0" fill="#1a1a1a" opacity="0.3"/>
+<rect x="34" y="34" width="3" height="4" rx="0" fill="#1a1a1a" opacity="0.3"/>
+<rect x="39" y="34" width="3" height="4" rx="0" fill="#1a1a1a" opacity="0.3"/>
+<rect x="22" y="42" width="3" height="4" rx="0" fill="#1a1a1a" opacity="0.3"/>
+<rect x="27" y="42" width="3" height="4" rx="0" fill="#1a1a1a" opacity="0.3"/>
+<rect x="34" y="42" width="3" height="4" rx="0" fill="#1a1a1a" opacity="0.3"/>
+<rect x="39" y="42" width="3" height="4" rx="0" fill="#1a1a1a" opacity="0.3"/>
+<!-- King Kong -->
+<ellipse cx="48" cy="14" rx="6" ry="7" fill="#f5f0e8"/>
+<rect x="43" y="19" width="10" height="10" rx="3" fill="#f5f0e8"/>
+<rect x="40" y="16" width="4" height="10" rx="2" fill="#f5f0e8"/>
+<rect x="52" y="18" width="4" height="8" rx="2" fill="#f5f0e8"/>
+<circle cx="46" cy="13" r="1" fill="#1a1a1a"/>
+<circle cx="50" cy="13" r="1" fill="#1a1a1a"/>
+<rect x="45" y="28" width="4" height="6" rx="1" fill="#f5f0e8"/>
+<rect x="50" y="28" width="4" height="6" rx="1" fill="#f5f0e8"/>
+</svg>
 </div>
+<div class="menu-item" id="menuHotel" onclick="returnHotel()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M2 16V7l7-5 7 5v9H2zm3-2h3v-4h2v4h3V8L9 4 4 8v6z"/></svg> Back to Hotel</div>
+<div class="menu-item" onclick="nearbyCoffee()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M3 5h9v1h2a3 3 0 010 6h-2v1H3V5zm9 5h2a1 1 0 000-2h-2v2zM4 15h8v1H4z"/></svg> Coffee</div>
+<div class="menu-item" onclick="nearbyFood()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M3 2v7a3 3 0 002 2.83V16h2v-4.17A3 3 0 009 9V2H7v5H6V2H4v5H3V2zm10 0v14h2V9h2V5a3 3 0 00-3-3h-1z"/></svg> Food</div>
+<div class="menu-item" onclick="openGuides()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M3 2h9v1h1v1h1v10h-1v1h-1v1H3V2zm2 2v10h7V4H5zm1 2h5v1H6zm0 2h5v1H6zm0 2h3v1H6z"/></svg> Explore</div>
+<div class="menu-item" onclick="openBackups()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M9 1l2 4 4.5.7-3.2 3.1.8 4.5L9 11.2 4.9 13.3l.8-4.5L2.5 5.7 7 5z"/></svg> Backups</div>
+<div class="menu-item" onclick="openEmergency()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M9 1a8 8 0 100 16A8 8 0 009 1zm-.5 4h1v5h-1V5zm0 7h1v1h-1v-1z"/></svg> Emergency</div>
+<div class="menu-item" onclick="openSettings()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M7.5 1.5l-.4 1.9a5.5 5.5 0 00-1.6.9L3.6 3.5l-1.5 2.6 1.5 1.3a5.6 5.6 0 000 1.8l-1.5 1.3 1.5 2.6 1.9-.8c.5.4 1 .7 1.6.9l.4 1.9h3l.4-1.9a5.5 5.5 0 001.6-.9l1.9.8 1.5-2.6-1.5-1.3a5.6 5.6 0 000-1.8l1.5-1.3-1.5-2.6-1.9.8a5.5 5.5 0 00-1.6-.9L10.5 1.5h-3zM9 6a2.5 2.5 0 110 5 2.5 2.5 0 010-5z"/></svg> Settings</div>
+</nav>
 
 <header>
 
 <div class="headerRow">
 
-<button class="headerBtn" onclick="toggleMenu()">☰</button>
+<button class="headerBtn" onclick="toggleMenu()" aria-label="Menu"><svg viewBox="0 0 24 32" fill="currentColor"><path d="M11 2h2v3h-2zM10 5h4v2h-4zM9 7h6v2h-6zM8 9h8v3h-8zM9 12h6v2h-6zM10 14h4v2h-4zM7 16h10v2h-10zM6 18h12v3h-12zM5 21h14v3h-14zM4 24h16v3h-16zM3 27h18v3h-18z"/></svg></button>
 
-<div id="dayCarousel"></div>
+<div id="dayCarousel" role="tablist" aria-label="Trip days"></div>
 
-<button class="headerBtn" onclick="sendMyLocation()">📍</button>
+<button class="headerBtn" onclick="sendMyLocation()" aria-label="Send my location"><svg viewBox="0 0 24 32" fill="currentColor"><path d="M12 2C8 2 5 5.6 5 10c0 6 7 16 7 16s7-10 7-16c0-4.4-3-8-7-8zm0 11a3 3 0 110-6 3 3 0 010 6z"/></svg></button>
 
 </div>
 
@@ -34,6 +76,71 @@
 </header>
 
 <div id="stops"></div>
+
+<div id="guidesOverlay" onclick="closeGuides()"></div>
+<div id="guidesSheet">
+<div class="sheetHeader">
+<span>Explore</span>
+<button onclick="closeGuides()" aria-label="Close">✕</button>
+</div>
+<div id="guidesContent"></div>
+</div>
+
+<div id="backupOverlay" onclick="closeBackups()"></div>
+<div id="backupSheet">
+<div class="sheetHeader">
+<span>Backup Ideas</span>
+<button onclick="closeBackups()" aria-label="Close">✕</button>
+</div>
+<div id="backupContent"></div>
+</div>
+
+<div id="emergencyOverlay" onclick="closeEmergency()"></div>
+<div id="emergencySheet">
+<div class="sheetHeader">
+<span>Emergency Info</span>
+<button onclick="closeEmergency()" aria-label="Close">✕</button>
+</div>
+<div id="emergencyContent"></div>
+</div>
+
+<div id="settingsOverlay" onclick="closeSettings()"></div>
+<div id="settingsSheet">
+<div class="sheetHeader">
+<span>Settings</span>
+<button onclick="closeSettings()" aria-label="Close">✕</button>
+</div>
+<div id="settingsContent">
+<label class="settingsLabel">I Am</label>
+<div class="settingsToggle">
+<button id="iAmPaw" class="toggleBtn active" onclick="setUser('PAW')">PAW</button>
+<button id="iAmLaw" class="toggleBtn" onclick="setUser('LAW')">LAW</button>
+</div>
+<label class="settingsLabel">PAW Phone</label>
+<input id="pawPhoneInput" type="tel" class="settingsInput" placeholder="+44 ..." oninput="savePhones()">
+<label class="settingsLabel">LAW Phone</label>
+<input id="lawPhoneInput" type="tel" class="settingsInput" placeholder="+44 ..." oninput="savePhones()">
+<p class="settingsNote">Used for the 📍 Send Location feature. Update when you get your eSIMs.</p>
+<label class="settingsLabel">Theme</label>
+<div class="settingsToggle">
+<button id="themeLight" class="toggleBtn" onclick="setTheme('light')">Light</button>
+<button id="themeDark" class="toggleBtn" onclick="setTheme('dark')">Dark</button>
+<button id="themeSystem" class="toggleBtn active" onclick="setTheme('system')">System</button>
+</div>
+<label class="settingsLabel">Temperature</label>
+<div class="settingsToggle">
+<button id="tempF" class="toggleBtn active" onclick="setTempUnit('fahrenheit')">°F</button>
+<button id="tempC" class="toggleBtn" onclick="setTempUnit('celsius')">°C</button>
+</div>
+<label class="settingsLabel">Google Maps API Key</label>
+<div class="settingsInputRow">
+<input id="gmapsKeyInput" type="text" class="settingsInput" placeholder="AIza..." value="AIzaSyBql5cJfu7zX3___6-jB6TlXvCLOAvxYKo" oninput="saveGmapsKey()">
+<button class="copyBtn" onclick="copyGmapsKey()" aria-label="Copy API key">Copy</button>
+</div>
+<p class="settingsNote">Enables real-time walk, subway and taxi durations between stops.</p>
+<div id="settingsVersion" class="settingsVersion"></div>
+</div>
+</div>
 
 <script src="app.js" defer></script>
 

@@ -1,114 +1,219 @@
 {
-"users":["PAW","LAW"],
-"lawPhone":"447956801171",
+"pawPhone": "447768485153",
+"lawPhone": "447956801171",
 
-"hotels":[
-{"from":"2026-03-12","name":"The Dominick","address":"246 Spring St, New York"},
-{"from":"2026-03-16","name":"1 Hotel Brooklyn Bridge","address":"60 Furman St, Brooklyn"}
+"hotels": [
+  {"from": "2026-03-12", "name": "The Dominick", "address": "246 Spring St, New York"},
+  {"from": "2026-03-16", "name": "1 Hotel Brooklyn Bridge", "address": "60 Furman St, Brooklyn"}
 ],
 
-"days":[
+"days": [
 
-{
-"date":"2026-03-12",
-"title":"Arrival SoHo",
-"stops":[
-{"name":"La Cabra","address":"284 Lafayette St, New York","icon":"☕"},
-{"name":"McNally Jackson Books","address":"134 Prince St, New York","icon":"📚"},
-{"name":"SoHo Cast Iron District","address":"Prince St, New York","icon":"🏙"},
-{"name":"Rubirosa","address":"235 Mulberry St, New York","icon":"🍕"},
-{"name":"Temple Bar","address":"332 Lafayette St, New York","icon":"🍸"},
-{"name":"Washington Square Park","address":"Washington Square, New York","icon":"🌳"}
-]
-},
+  {
+    "date": "2026-03-12",
+    "title": "Arrival SoHo",
+    "stops": [
+      {"name": "La Cabra", "address": "284 Lafayette St, New York", "icon": "☕", "type": "flexible", "note": "Scandinavian specialty coffee, great pastries"},
+      {"name": "McNally Jackson Books", "address": "134 Prince St, New York", "icon": "📚", "type": "flexible", "note": "Independent bookshop, lovely stationery section"},
+      {"name": "SoHo Cast Iron District", "address": "Prince St, New York", "icon": "🏙", "type": "flexible", "note": "Walk Greene St & Broome St for best facades"},
+      {"name": "Rubirosa", "address": "235 Mulberry St, New York", "icon": "🍕", "type": "flexible", "note": "Thin crust vodka pie is the move. Cash only bar"},
+      {"name": "Ear Inn", "address": "326 Spring St, New York", "icon": "🍺", "type": "flexible", "note": "One of NYC's oldest bars (1817). No frills, great pints. 2 min from hotel"},
+      {"name": "The Django", "address": "2 6th Ave, New York", "icon": "🎷", "type": "flexible", "note": "Live jazz in the Roxy Hotel basement. No cover, great cocktails. Locals' favourite"},
+      {"name": "Washington Square Park", "address": "Washington Square, New York", "icon": "🌳", "type": "flexible", "note": "Street performers, iconic arch. NYU campus surrounds"}
+    ]
+  },
 
-{
-"date":"2026-03-13",
-"title":"High Line & Theatre",
-"stops":[
-{"name":"Birch Coffee","address":"56 Crosby St, New York","icon":"☕"},
-{"name":"Little Island","address":"Pier 55 Hudson River Park","icon":"🌿"},
-{"name":"High Line Walk","address":"820 Washington St, New York","icon":"🚶"},
-{"name":"Chelsea Market","address":"75 9th Ave, New York","icon":"🍜"},
-{"name":"Bar Centrale","address":"324 W 46th St, New York","icon":"🍸"},
-{"name":"Buena Vista Social Club – RESERVED 19:00","address":"236 W 45th St, New York","icon":"🎭"}
-]
-},
+  {
+    "date": "2026-03-13",
+    "title": "High Line & Theatre",
+    "stops": [
+      {"name": "Birch Coffee", "address": "56 Crosby St, New York", "icon": "☕", "type": "flexible", "note": "Local NYC chain, solid flat white"},
+      {"name": "Little Island", "address": "Pier 55 Hudson River Park, New York", "icon": "🌿", "type": "flexible", "note": "Free timed tickets may be needed, check website"},
+      {"name": "High Line Walk", "address": "820 Washington St, New York", "icon": "🚶", "type": "flexible", "note": "Enter at Gansevoort St, walk north. Art installations throughout"},
+      {"name": "Chelsea Market", "address": "75 9th Ave, New York", "icon": "🍜", "type": "flexible", "note": "Los Tacos No.1 is the must-try. Gets busy at lunch"},
+      {"name": "Bar Centrale", "address": "324 W 46th St, New York", "icon": "🍸", "type": "flexible", "note": "Hidden above Joe Allen's, Broadway actors hang here"},
+      {"name": "Buena Vista Social Club", "address": "236 W 45th St, New York", "icon": "🎭", "type": "reserved", "time": "19:00", "note": "Musical. Arrive 15 min early"}
+    ]
+  },
 
-{
-"date":"2026-03-14",
-"title":"Chinatown & Williamsburg",
-"stops":[
-{"name":"Devoción Coffee","address":"69 Grand St, Brooklyn","icon":"☕"},
-{"name":"Columbus Park Chinatown","address":"67 Mulberry St, New York","icon":"🌳"},
-{"name":"Doyers Street","address":"Doyers St, New York","icon":"📷"},
-{"name":"Nom Wah Tea Parlor","address":"13 Doyers St, New York","icon":"🥟"},
-{"name":"Xi'an Famous Foods","address":"81 St Marks Pl, New York","icon":"🍜"},
-{"name":"Williamsburg Bridge Walk","address":"Delancey St Bridge Entrance","icon":"🌉"},
-{"name":"Domino Park","address":"15 River St, Brooklyn","icon":"🌳"},
-{"name":"Laser Wolf – RESERVED 20:00","address":"97 Wythe Ave, Brooklyn","icon":"🍽"}
-]
-},
+  {
+    "date": "2026-03-14",
+    "title": "Chinatown & Williamsburg",
+    "stops": [
+      {"name": "Round K", "address": "99 Allen St, New York", "icon": "☕", "type": "flexible", "note": "Hong Kong–style coffee and egg waffles. Right by Chinatown"},
+      {"name": "Columbus Park Chinatown", "address": "67 Mulberry St, New York", "icon": "🌳", "type": "flexible", "note": "Morning tai chi, mahjong games to watch"},
+      {"name": "Doyers Street", "address": "Doyers St, New York", "icon": "📷", "type": "flexible", "note": "The 'Bloody Angle' — great photo op, old school barbers"},
+      {"name": "Nom Wah Tea Parlor", "address": "13 Doyers St, New York", "icon": "🥟", "type": "flexible", "note": "NYC's oldest dim sum. Get the OG egg roll"},
+      {"name": "Xi'an Famous Foods", "address": "81 St Marks Pl, New York", "icon": "🍜", "type": "flexible", "note": "Spicy cumin lamb noodles. Cash or card, no tips"},
+      {"name": "Williamsburg Bridge Walk", "address": "Delancey St Bridge Entrance, New York", "icon": "🌉", "type": "flexible", "note": "20 min walk, bike lane separate. Great skyline views"},
+      {"name": "Devoción Coffee", "address": "69 Grand St, Brooklyn", "icon": "☕", "type": "flexible", "note": "Afternoon pick-me-up. Stunning greenhouse interior"},
+      {"name": "Domino Park", "address": "15 River St, Brooklyn", "icon": "🌅", "type": "flexible", "note": "Manhattan skyline views, good sunset spot"},
+      {"name": "Laser Wolf", "address": "97 Wythe Ave, Brooklyn", "icon": "🍽", "type": "reserved", "time": "20:00", "note": "Israeli grill, rooftop. The salatim spread is unreal"}
+    ]
+  },
 
-{
-"date":"2026-03-15",
-"title":"Jazz Brunch & Theatre",
-"stops":[
-{"name":"Ivy Room Jazz Brunch – RESERVED 11:15","address":"66 E 55th St, New York","icon":"🎷"},
-{"name":"Central Park South Walk","address":"Central Park South","icon":"🌳"},
-{"name":"MoMA","address":"11 W 53rd St, New York","icon":"🖼"},
-{"name":"Death Becomes Her – RESERVED 15:00","address":"205 W 46th St, New York","icon":"🎭"},
-{"name":"Joe's Pizza","address":"7 Carmine St, New York","icon":"🍕"},
-{"name":"West Village Walk","address":"Bleecker St, New York","icon":"🚶"}
-]
-},
+  {
+    "date": "2026-03-15",
+    "title": "Jazz Brunch & Theatre",
+    "stops": [
+      {"name": "Ivy Room Jazz Brunch", "address": "66 E 55th St, New York", "icon": "🎷", "type": "reserved", "time": "11:15", "note": "Live jazz, cocktails. Smart casual"},
+      {"name": "Central Park South Walk", "address": "Central Park South, New York", "icon": "🌳", "type": "flexible", "note": "Enter at Columbus Circle, walk along The Mall"},
+      {"name": "MoMA", "address": "11 W 53rd St, New York", "icon": "🖼", "type": "flexible", "note": "$25 entry. Starry Night floor 5. Free Fridays 4-8pm"},
+      {"name": "Death Becomes Her", "address": "205 W 46th St, New York", "icon": "🎭", "type": "reserved", "time": "15:00", "note": "Musical. Lunt-Fontanne Theatre"},
+      {"name": "Joe's Pizza", "address": "7 Carmine St, New York", "icon": "🍕", "type": "flexible", "note": "Classic NYC slice. Cash only, always a queue"},
+      {"name": "West Village Walk", "address": "Bleecker St, New York", "icon": "🚶", "type": "flexible", "note": "Perry St, Grove St for pretty brownstones. Friends building on Bedford"},
+      {"name": "Smalls Jazz Club", "address": "183 W 10th St, New York", "icon": "🎷", "type": "flexible", "note": "Legendary basement jazz. $20 cover, BYOB. Sets from 7:30pm, late night jams after midnight"}
+    ]
+  },
 
-{
-"date":"2026-03-16",
-"title":"Move to Brooklyn",
-"stops":[
-{"name":"Felix Roasting Co","address":"450 Park Ave South, New York","icon":"☕"},
-{"name":"Brooklyn Bridge Park","address":"334 Furman St, Brooklyn","icon":"🌳"},
-{"name":"Jane's Carousel","address":"1 Old Fulton St, Brooklyn","icon":"🎠"},
-{"name":"DUMBO Waterfront","address":"1 Water St, Brooklyn","icon":"📷"},
-{"name":"Time Out Market","address":"55 Water St, Brooklyn","icon":"🍜"},
-{"name":"Harriet's Rooftop","address":"60 Furman St, Brooklyn","icon":"🍸"}
-]
-},
+  {
+    "date": "2026-03-16",
+    "title": "Move to Brooklyn",
+    "stops": [
+      {"name": "Maman", "address": "239 Centre St, New York", "icon": "☕", "type": "flexible", "note": "French-inspired café, locals love it. Great pastries. On the path to Brooklyn Bridge"},
+      {"name": "Brooklyn Bridge Park", "address": "334 Furman St, Brooklyn", "icon": "🌳", "type": "flexible", "note": "Walk the bridge from Manhattan side for best views"},
+      {"name": "Jane's Carousel", "address": "1 Old Fulton St, Brooklyn", "icon": "🎠", "type": "flexible", "note": "$2 ride, glass pavilion by Jean Nouvel"},
+      {"name": "DUMBO Waterfront", "address": "1 Water St, Brooklyn", "icon": "📷", "type": "flexible", "note": "Washington St for the classic bridge-between-buildings shot"},
+      {"name": "Time Out Market", "address": "55 Water St, Brooklyn", "icon": "🍜", "type": "flexible", "note": "Food hall, rooftop has great views. Clinton St Baking Co inside"},
+      {"name": "Vinegar Hill House", "address": "72 Hudson Ave, Brooklyn", "icon": "🍽", "type": "flexible", "note": "Hidden gem on cobblestone streets near DUMBO. Farm-to-table, candlelit. Locals only know this one"},
+      {"name": "Harriet's Rooftop", "address": "60 Furman St, Brooklyn", "icon": "🍸", "type": "flexible", "note": "At 1 Hotel. Sunset cocktails with Manhattan skyline"}
+    ]
+  },
 
-{
-"date":"2026-03-17",
-"title":"Brooklyn Day",
-"stops":[
-{"name":"Butler Coffee","address":"40 Water St, Brooklyn","icon":"☕"},
-{"name":"Brooklyn Heights Promenade","address":"Montague St, Brooklyn","icon":"🌉"},
-{"name":"Beacon's Closet","address":"74 Guernsey St, Brooklyn","icon":"🛍"},
-{"name":"Domino Park Sunset","address":"15 River St, Brooklyn","icon":"🌅"},
-{"name":"Juliana's Pizza","address":"19 Old Fulton St, Brooklyn","icon":"🍕"},
-{"name":"Westlight Rooftop","address":"111 N 12th St, Brooklyn","icon":"🍸"}
-]
-},
+  {
+    "date": "2026-03-17",
+    "title": "Brooklyn Day",
+    "stops": [
+      {"name": "Butler Coffee", "address": "40 Water St, Brooklyn", "icon": "☕", "type": "flexible", "note": "Excellent cold brew, small but cosy"},
+      {"name": "Brooklyn Heights Promenade", "address": "Montague St, Brooklyn", "icon": "🌉", "type": "flexible", "note": "Best unobstructed Manhattan skyline view"},
+      {"name": "Juliana's Pizza", "address": "19 Old Fulton St, Brooklyn", "icon": "🍕", "type": "flexible", "note": "Coal-fired, better than Grimaldi's next door. Lunch before heading north"},
+      {"name": "Beacon's Closet", "address": "74 Guernsey St, Brooklyn", "icon": "🛍", "type": "flexible", "note": "Vintage clothing, big Greenpoint location"},
+      {"name": "Domino Park Sunset", "address": "15 River St, Brooklyn", "icon": "🌅", "type": "flexible", "note": "Sunset around 7pm mid-March. Taco stand nearby"},
+      {"name": "Pete's Candy Store", "address": "709 Lorimer St, Brooklyn", "icon": "🎵", "type": "flexible", "note": "Free live music nightly in the back room. Very local Williamsburg dive. Check set times"},
+      {"name": "Westlight Rooftop", "address": "111 N 12th St, Brooklyn", "icon": "🍸", "type": "flexible", "note": "22nd floor of William Vale hotel. Stunning 360 views"}
+    ]
+  },
 
-{
-"date":"2026-03-18",
-"title":"Flatiron & Departure",
-"stops":[
-{"name":"Birch Coffee Flatiron","address":"21 E 27th St, New York","icon":"☕"},
-{"name":"Flatiron Building","address":"175 5th Ave, New York","icon":"🏙"},
-{"name":"Madison Square Park","address":"11 Madison Ave, New York","icon":"🌳"},
-{"name":"Eataly Flatiron","address":"200 5th Ave, New York","icon":"🍝"}
-]
-}
+  {
+    "date": "2026-03-18",
+    "title": "Flatiron & Departure",
+    "stops": [
+      {"name": "Birch Coffee Flatiron", "address": "21 E 27th St, New York", "icon": "☕", "type": "flexible", "note": "Last NYC coffee before flight!"},
+      {"name": "Kalustyan's", "address": "123 Lexington Ave, New York", "icon": "🛍", "type": "flexible", "note": "Legendary spice shop since 1944. Their sandwiches are an NYC secret. Grab gifts to take home"},
+      {"name": "Flatiron Building", "address": "175 5th Ave, New York", "icon": "🏙", "type": "flexible", "note": "Recently reopened after renovation. Photo from Broadway side"},
+      {"name": "Madison Square Park", "address": "11 Madison Ave, New York", "icon": "🌳", "type": "flexible", "note": "Original Shake Shack location here"},
+      {"name": "Eataly Flatiron", "address": "200 5th Ave, New York", "icon": "🍝", "type": "flexible", "note": "Italian market, rooftop restaurant. Great last meal spot"}
+    ]
+  }
 
 ],
 
-"backups":[
-{"name":"Joe's Pizza","area":"Greenwich Village","type":"food","address":"7 Carmine St"},
-{"name":"Banh Mi Saigon","area":"Chinatown","type":"food","address":"198 Grand St"},
-{"name":"Apotheke","area":"Chinatown","type":"bar","address":"9 Doyers St"},
-{"name":"Attaboy","area":"Lower East Side","type":"bar","address":"134 Eldridge St"},
-{"name":"Comedy Cellar","area":"Greenwich Village","type":"comedy","address":"117 MacDougal St"},
-{"name":"Gotham Comedy Club","area":"Chelsea","type":"comedy","address":"208 W 23rd St"}
+"guides": [
+  {
+    "title": "Block Walks",
+    "icon": "🚶",
+    "items": [
+      {"name": "Greene St, SoHo", "note": "Best cast iron facades in the city. Cobblestones, fire escapes, great light", "address": "Greene St, New York"},
+      {"name": "Bleecker to Bank St", "note": "West Village brownstones, tree-lined, classic NYC", "address": "Bleecker St & Bank St, New York"},
+      {"name": "Perry St to Grove St", "note": "Film-location pretty. Quiet, leafy, the NYC dream", "address": "Perry St, New York"},
+      {"name": "Cranberry St, Brooklyn Heights", "note": "Gorgeous brownstones, quiet, near the Promenade", "address": "Cranberry St, Brooklyn"},
+      {"name": "Stone St, Financial District", "note": "Cobblestoned pedestrian street with outdoor dining. Old Dutch NYC", "address": "Stone St, New York"},
+      {"name": "Freeman Alley, LES", "note": "Hidden alley off Rivington. Graffiti, speakeasy entrance, very moody", "address": "Freeman Alley, New York"}
+    ]
+  },
+  {
+    "title": "Secret & Rooftop Bars",
+    "icon": "🍸",
+    "items": [
+      {"name": "Attaboy", "note": "No menu — tell them what you like. LES speakeasy legend", "address": "134 Eldridge St, New York"},
+      {"name": "Apotheke", "note": "Apothecary-themed cocktails in old Chinatown opium den", "address": "9 Doyers St, New York"},
+      {"name": "Please Don't Tell (PDT)", "note": "Enter through phone booth in Crif Dogs. Reservations essential", "address": "113 St Marks Pl, New York"},
+      {"name": "Westlight", "note": "22nd floor of William Vale hotel. 360° views, stunning at sunset", "address": "111 N 12th St, Brooklyn"},
+      {"name": "Harriet's Rooftop", "note": "At 1 Hotel Brooklyn Bridge. Manhattan skyline cocktails", "address": "60 Furman St, Brooklyn"},
+      {"name": "The Campbell", "note": "Grand Central's hidden bar. Painted ceilings, old-money glamour", "address": "15 Vanderbilt Ave, New York"},
+      {"name": "Dear Irving on Hudson", "note": "39th floor of Aliz Hotel. Themed rooms, jaw-dropping views", "address": "310 W 40th St, New York"}
+    ]
+  },
+  {
+    "title": "Only in NYC",
+    "icon": "✨",
+    "items": [
+      {"name": "Comedy Cellar", "note": "Drop-in comedy. Famous comedians test material here", "address": "117 MacDougal St, New York"},
+      {"name": "Strand Bookstore", "note": "18 miles of books. Rare books room upstairs, tote bags as souvenirs", "address": "828 Broadway, New York"},
+      {"name": "Grand Central Whispering Gallery", "note": "Stand in opposite corners of the archway and whisper. It works", "address": "89 E 42nd St, New York"},
+      {"name": "The Vessel (Hudson Yards)", "note": "Honeycomb staircase sculpture. Free timed tickets", "address": "20 Hudson Yards, New York"},
+      {"name": "Smorgasburg Williamsburg", "note": "Outdoor food market, Saturdays only. 100+ vendors", "address": "90 Kent Ave, Brooklyn"},
+      {"name": "Brooklyn Flea", "note": "Vintage, antiques, handmade. Weekends, check location before going", "address": "80 Pearl St, Brooklyn"}
+    ]
+  },
+  {
+    "title": "Jazz & Live Music",
+    "icon": "🎷",
+    "items": [
+      {"name": "Village Vanguard", "note": "The most legendary jazz club in the world. Operating since 1935. Book ahead", "address": "178 7th Ave S, New York"},
+      {"name": "Smalls Jazz Club", "note": "Basement jazz, $20 cover, BYOB. Late-night jams after midnight are the real move", "address": "183 W 10th St, New York"},
+      {"name": "Mezzrow", "note": "Intimate piano jazz bar below street level. Same owners as Smalls, more chill", "address": "7 W 10th St, New York"},
+      {"name": "The Django", "note": "Live jazz in Roxy Hotel basement. No cover, great cocktails, Tribeca", "address": "2 6th Ave, New York"},
+      {"name": "Dizzy's Club", "note": "Jazz at Lincoln Center. Floor-to-ceiling Central Park views. Worth the splurge", "address": "33 W 60th St, New York"},
+      {"name": "Nublu", "note": "Eclectic live music — jazz, funk, Afrobeat. East Village, very local crowd", "address": "151 Avenue C, New York"},
+      {"name": "Pete's Candy Store", "note": "Free live music in the back room nightly. Williamsburg local dive", "address": "709 Lorimer St, Brooklyn"},
+      {"name": "Barbès", "note": "Tiny Park Slope bar, world music and jazz. $10 suggested donation. Beloved by locals", "address": "376 9th St, Brooklyn"}
+    ]
+  },
+  {
+    "title": "Locals' Food Spots",
+    "icon": "🍴",
+    "items": [
+      {"name": "Russ & Daughters", "note": "Bagels & lox since 1914. The classic NYC breakfast. Go early to avoid the line", "address": "179 E Houston St, New York"},
+      {"name": "Prince Street Pizza", "note": "The pepperoni square is iconic. Crispy cups of pepperoni, worth the queue", "address": "27 Prince St, New York"},
+      {"name": "Superiority Burger", "note": "Best veggie burger in NYC, maybe anywhere. Tiny East Village spot, big flavour", "address": "119 Avenue A, New York"},
+      {"name": "Lucali", "note": "BYOB pizza in Carroll Gardens. Jay-Z's favourite. Cash only, expect a wait", "address": "575 Henry St, Brooklyn"},
+      {"name": "Scarr's Pizza", "note": "LES slice joint. House-milled flour, old-school vibes. Locals swear by it", "address": "22 Orchard St, New York"},
+      {"name": "Thai Diner", "note": "Thai-American diner mashup in Nolita. Khao soi french dip is unreal", "address": "186 Mott St, New York"},
+      {"name": "Kalustyan's", "note": "Legendary spice shop. Their sandwiches are a cult favourite — get the #1 Special", "address": "123 Lexington Ave, New York"},
+      {"name": "Court Street Grocers", "note": "Best deli sandwiches in Brooklyn. Carroll Gardens & DUMBO locations", "address": "485 Court St, Brooklyn"}
+    ]
+  },
+  {
+    "title": "Comedy Clubs",
+    "icon": "😂",
+    "items": [
+      {"name": "Comedy Cellar", "note": "The one. Chappelle, Schumer, CK all drop in to test material. Book online, sells out fast", "address": "117 MacDougal St, New York"},
+      {"name": "Comedy Cellar at the Village Underground", "note": "Sister venue, same calibre lineups. Slightly bigger room, easier to get tickets", "address": "130 W 3rd St, New York"},
+      {"name": "The Stand", "note": "Gramercy spot, great food and full bar. More upscale room, strong lineups", "address": "116 E 16th St, New York"},
+      {"name": "Gotham Comedy Club", "note": "Chelsea. Polished room, bigger names. Good date-night comedy spot", "address": "208 W 23rd St, New York"},
+      {"name": "New York Comedy Club", "note": "East Village. Cheaper tickets, raw energy. Late shows get wild", "address": "241 E 24th St, New York"},
+      {"name": "Eastville Comedy Club", "note": "Intimate basement in the East Village. $5–10 shows, surprisingly great acts", "address": "85 E 4th St, New York"}
+    ]
+  }
+],
+
+"backups": [
+  {"name": "Joe's Pizza", "area": "Greenwich Village", "category": "food", "address": "7 Carmine St, New York", "icon": "🍕"},
+  {"name": "Banh Mi Saigon", "area": "Chinatown", "category": "food", "address": "198 Grand St, New York", "icon": "🍜"},
+  {"name": "Apotheke", "area": "Chinatown", "category": "bar", "address": "9 Doyers St, New York", "icon": "🍸"},
+  {"name": "Attaboy", "area": "Lower East Side", "category": "bar", "address": "134 Eldridge St, New York", "icon": "🍸"},
+  {"name": "Comedy Cellar", "area": "Greenwich Village", "category": "comedy", "address": "117 MacDougal St, New York", "icon": "🎭"},
+  {"name": "Gotham Comedy Club", "area": "Chelsea", "category": "comedy", "address": "208 W 23rd St, New York", "icon": "🎭"},
+  {"name": "Temple Bar", "area": "NoHo", "category": "bar", "address": "332 Lafayette St, New York", "icon": "🍸"},
+  {"name": "Felix Roasting Co", "area": "Flatiron", "category": "coffee", "address": "450 Park Ave South, New York", "icon": "☕"},
+  {"name": "Mezzrow", "area": "West Village", "category": "jazz", "address": "7 W 10th St, New York", "icon": "🎷"},
+  {"name": "Village Vanguard", "area": "West Village", "category": "jazz", "address": "178 7th Ave S, New York", "icon": "🎷"},
+  {"name": "Dante", "area": "Greenwich Village", "category": "bar", "address": "79 MacDougal St, New York", "icon": "🍸"},
+  {"name": "Dead Rabbit", "area": "Financial District", "category": "bar", "address": "30 Water St, New York", "icon": "🍸"},
+  {"name": "Bemelmans Bar", "area": "Upper East Side", "category": "bar", "address": "35 E 76th St, New York", "icon": "🎹"},
+  {"name": "Dizzy's Club", "area": "Columbus Circle", "category": "jazz", "address": "33 W 60th St, New York", "icon": "🎷"},
+  {"name": "Russ & Daughters", "area": "Lower East Side", "category": "food", "address": "179 E Houston St, New York", "icon": "🥯"},
+  {"name": "Prince Street Pizza", "area": "SoHo", "category": "food", "address": "27 Prince St, New York", "icon": "🍕"},
+  {"name": "Scarr's Pizza", "area": "Lower East Side", "category": "food", "address": "22 Orchard St, New York", "icon": "🍕"},
+  {"name": "Superiority Burger", "area": "East Village", "category": "food", "address": "119 Avenue A, New York", "icon": "🍔"},
+  {"name": "Thai Diner", "area": "Nolita", "category": "food", "address": "186 Mott St, New York", "icon": "🍜"},
+  {"name": "Barbès", "area": "Park Slope", "category": "jazz", "address": "376 9th St, Brooklyn", "icon": "🎷"},
+  {"name": "Lucali", "area": "Carroll Gardens", "category": "food", "address": "575 Henry St, Brooklyn", "icon": "🍕"},
+  {"name": "Court Street Grocers", "area": "Carroll Gardens", "category": "food", "address": "485 Court St, Brooklyn", "icon": "🥪"},
+  {"name": "Nublu", "area": "East Village", "category": "music", "address": "151 Avenue C, New York", "icon": "🎵"},
+  {"name": "Rudy's Bar & Grill", "area": "Hell's Kitchen", "category": "bar", "address": "627 9th Ave, New York", "icon": "🍺"},
+  {"name": "Please Don't Tell (PDT)", "area": "East Village", "category": "bar", "address": "113 St Marks Pl, New York", "icon": "🍸"}
 ]
 
 }
