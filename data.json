@@ -1,0 +1,29 @@
+{
+"users":["PAW","LAW"],
+"lawPhone":"447000000000",
+"hotels":[
+{"from":"2026-03-12","name":"The Dominick","address":"246 Spring St NYC"},
+{"from":"2026-03-16","name":"1 Hotel Brooklyn Bridge","address":"60 Furman St Brooklyn"}
+],
+"days":[
+{"date":"2026-03-12","title":"Arrival SoHo","stops":[
+{"name":"La Cabra","address":"284 Lafayette St NYC","icon":"☕"},
+{"name":"McNally Jackson","address":"134 Prince St NYC","icon":"📚"},
+{"name":"Rubirosa","address":"235 Mulberry St NYC","icon":"🍕"},
+{"name":"Temple Bar","address":"332 Lafayette St NYC","icon":"🍸"}
+]},
+{"date":"2026-03-13","title":"High Line","stops":[
+{"name":"Birch Coffee","address":"56 Crosby St NYC","icon":"☕"},
+{"name":"Little Island","address":"Pier 55 NYC","icon":"🌿"},
+{"name":"High Line","address":"High Line NYC","icon":"🚶"},
+{"name":"Chelsea Market","address":"75 9th Ave NYC","icon":"🍜"},
+{"name":"Bar Centrale","address":"324 W 46th St NYC","icon":"🍸"},
+{"name":"Gerald Schoenfeld Theatre","address":"236 W 45th St NYC","icon":"🎭","time":"19:00"}
+]}
+],
+"backups":[
+{"name":"Joe's Pizza","area":"SoHo","type":"food","address":"7 Carmine St NYC"},
+{"name":"Banh Mi Saigon","area":"Chinatown","type":"food","address":"198 Grand St NYC"},
+{"name":"Apotheke","area":"Chinatown","type":"bar","address":"9 Doyers St NYC"}
+]
+}

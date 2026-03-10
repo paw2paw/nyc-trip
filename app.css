@@ -1,0 +1,11 @@
+body{font-family:-apple-system;background:#111;color:white;margin:0}
+header{display:flex;justify-content:space-between;padding:14px;background:#1b1b1b}
+#weatherBar{padding:10px;background:#222}
+#stops{padding:16px}
+.stop{background:#1e1e1e;padding:16px;border-radius:12px;margin-bottom:12px}
+.transport{padding:8px;font-size:13px;opacity:.8}
+.actions{position:fixed;bottom:0;width:100%;background:#111;padding:10px;display:flex;gap:10px}
+button{flex:1;padding:14px;border-radius:10px;border:none;background:#2b7cff;color:white}
+.hidden{display:none}
+#backupPanel{position:fixed;bottom:0;background:#222;width:100%;padding:20px}
+@media (orientation:landscape){#stops{display:grid;grid-template-columns:1fr 1fr;gap:12px}}

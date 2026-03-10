@@ -1,0 +1,8 @@
+{
+"name":"NYC Trip",
+"short_name":"NYC Trip",
+"display":"standalone",
+"start_url":"index.html",
+"background_color":"#111",
+"theme_color":"#111"
+}

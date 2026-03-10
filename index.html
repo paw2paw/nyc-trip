@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NYC Trip</title>
+<link rel="stylesheet" href="app.css">
+<link rel="manifest" href="manifest.json">
+</head>
+<body>
+<header>
+<button id="menuBtn">☰</button>
+<h1 id="dayTitle">NYC Trip</h1>
+<button id="meetBtn">Meet LAW</button>
+</header>
+<div id="weatherBar"><span id="temp"></span> <span id="rain"></span></div>
+<div id="stops"></div>
+<div class="actions">
+<button id="routeBtn">Open Route</button>
+<button id="backupBtn">Add Backup</button>
+<button id="hotelBtn">Return Hotel</button>
+</div>
+<div id="backupPanel" class="hidden">
+<h3>Backups</h3>
+<select id="backupType">
+<option value="food">Food</option>
+<option value="bar">Bar</option>
+<option value="coffee">Coffee</option>
+<option value="late">Late</option>
+</select>
+<select id="backupArea">
+<option>SoHo</option>
+<option>Chinatown</option>
+<option>LES</option>
+<option>Williamsburg</option>
+<option>DUMBO</option>
+</select>
+<div id="backupList"></div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
