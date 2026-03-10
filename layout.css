@@ -1,0 +1,164 @@
+body{
+font-family:-apple-system,system-ui;
+background:#F3EFE6;
+margin:0;
+color:#1e1e1e;
+}
+
+/* HEADER /
+
+header{
+background:white;
+border-bottom:2px solid #C9A227;
+padding:10px 14px;
+}
+
+.headerRow{
+display:flex;
+align-items:center;
+justify-content:space-between;
+}
+
+.headerCenter{
+flex:1;
+text-align:center;
+}
+
+#dayMeta{
+font-size:12px;
+letter-spacing:1px;
+color:#666;
+}
+
+#dayTitle{
+font-size:22px;
+font-weight:600;
+}
+
+.iconBtn{
+background:none;
+border:none;
+font-size:22px;
+padding:6px 10px;
+cursor:pointer;
+}
+
+/ STOP LIST /
+
+#stops{
+padding:14px;
+padding-bottom:90px;
+}
+
+.stop{
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:white;
+border-radius:12px;
+padding:14px;
+margin-bottom:12px;
+}
+
+.stop.current{
+border-left:6px solid #C9A227;
+background:#F8F3E7;
+}
+
+.left{
+display:flex;
+align-items:center;
+gap:12px;
+}
+
+.badge{
+width:34px;
+height:34px;
+display:flex;
+align-items:center;
+justify-content:center;
+border:2px solid #C9A227;
+font-weight:700;
+font-family:Georgia,serif;
+}
+
+.title{
+font-weight:600;
+}
+
+.address{
+font-size:13px;
+color:#666;
+}
+
+.weather{
+text-align:right;
+font-size:12px;
+color:#666;
+}
+
+/ NEXT BUTTON /
+
+#nextBtn{
+margin:14px;
+margin-bottom:calc(20px + env(safe-area-inset-bottom));
+padding:16px;
+font-size:16px;
+border:none;
+border-radius:10px;
+background:#1e73e8;
+color:white;
+width:calc(100% - 28px);
+}
+
+/ BURGER MENU /
+
+#menu{
+position:fixed;
+top:0;
+left:-280px;
+width:280px;
+height:100%;
+background:white;
+box-shadow:2px 0 14px rgba(0,0,0,.25);
+transition:left .28s;
+z-index:1000;
+padding:20px;
+}
+
+#menu.open{
+left:0;
+}
+
+#menuOverlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.35);
+opacity:0;
+pointer-events:none;
+transition:opacity .25s;
+z-index:900;
+}
+
+#menuOverlay.open{
+opacity:1;
+pointer-events:auto;
+}
+
+.menuItem{
+padding:12px 0;
+border-bottom:1px solid #eee;
+}
+
+/ MAP */
+
+#map{
+display:none;
+height:320px;
+margin:14px;
+border-radius:12px;
+overflow:hidden;
+}
