@@ -10,16 +10,27 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 #stops{padding:16px}
 .stop{background:white;padding:16px;border-radius:12px;margin-bottom:12px;box-shadow:0 2px 6px rgba(0,0,0,.08)}
 button{padding:10px 12px;border-radius:8px;border:none;background:#007aff;color:white;margin-top:8px}
-.actions{position:sticky;bottom:0;background:white;padding:10px;display:flex;gap:10px;border-top:1px solid #ddd}
+.actions{position:fixed;bottom:0;width:100%;background:white;padding:10px;display:flex;gap:10px;border-top:1px solid #ddd}
 .actions button{flex:1}
+.transport{font-size:14px;color:#555;margin:6px 0}
+#menu{position:fixed;top:0;left:-260px;width:260px;height:100%;background:white;box-shadow:2px 0 10px rgba(0,0,0,.2);transition:left .25s;padding:20px;z-index:1000}
+#menu.open{left:0}
+.menuItem{padding:12px 0;border-bottom:1px solid #eee;font-size:16px}
 </style>
 </head>
 <body>
 
+<div id="menu">
+<div class="menuItem" onclick="goHotel()">🏨 Return Hotel</div>
+<div class="menuItem" onclick="openRoute()">🗺 Full Route</div>
+<div class="menuItem" onclick="nextStop()">➡️ Next Stop</div>
+<div class="menuItem" onclick="meetHere()">📍 Meet Here</div>
+</div>
+
 <header>
-<button onclick="location.reload()">☰</button>
-<h1 id="dayTitle">NYC Trip</h1>
-<button id="meetBtn">Meet</button>
+<button onclick="toggleMenu()">☰</button>
+<h2 id="dayTitle">NYC Trip</h2>
+<button onclick="meetHere()">Meet</button>
 </header>
 
 <div id="weatherBar">
@@ -30,14 +41,12 @@ button{padding:10px 12px;border-radius:8px;border:none;background:#007aff;color:
 <div id="stops"></div>
 
 <div class="actions">
-<button id="routeBtn">Open Route</button>
-<button id="backupBtn">Add Backup</button>
-<button id="hotelBtn">Return Hotel</button>
+<button onclick="nextStop()">Next Stop</button>
+<button onclick="openRoute()">Route</button>
+<button onclick="showBackups()">Backups</button>
 </div>
 
-<div id="backupPanel" style="display:none"></div>
-
-<script src="app.js?v=10"></script>
+<script src="app.js?v=11"></script>
 
 </body>
 </html>
