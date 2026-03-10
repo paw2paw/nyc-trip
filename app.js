@@ -137,3 +137,23 @@ render()
 }
 }
 
+
+let touchStartX=0
+
+document.addEventListener("touchstart",e=>{
+touchStartX=e.touches[0].clientX
+})
+
+document.addEventListener("touchend",e=>{
+let touchEndX=e.changedTouches[0].clientX
+let diff=touchEndX-touchStartX
+
+if(Math.abs(diff)<60)return
+
+if(diff<0){
+nextDay()
+}else{
+prevDay()
+}
+})
+
