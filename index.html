@@ -1,21 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>NYC Trip</title>
-<link rel="stylesheet" href="layout.css?v=60">
+<link rel="stylesheet" href="layout.css">
 </head>
 <body>
-
-<div id="menuOverlay" onclick="toggleMenu()"></div>
-
-<div id="menu">
-<h3>Menu</h3>
-<div onclick="returnHotel()">🏨 Return Hotel</div>
-<div onclick="showMap()">🗺 Map</div>
-<div onclick="nearbyCoffee()">☕ Coffee Nearby</div>
-<div onclick="nearbyFood()">🍜 Food Nearby</div>
-</div>
 
 <header>
 <button onclick="toggleMenu()">☰</button>
@@ -23,78 +13,18 @@
 <button onclick="sendMyLocation()">💬</button>
 </header>
 
-<div id="title"></div>
+<div id="menu">
+<div onclick="returnHotel()">🏨 Return Hotel</div>
+<div onclick="showMap()">🗺 Map</div>
+<div onclick="nearbyCoffee()">☕ Coffee Nearby</div>
+<div onclick="nearbyFood()">🍜 Food Nearby</div>
+</div>
+
+<h2 id="title"></h2>
 
 <div id="stops"></div>
 
-<button id="nextBtn">Next Stop</button>
-
-<script src="app.js?v=60"></script>
+<script src="app.js"></script>
 
 </body>
 </html>
-
-cat <<'EOF' > layout.css
-body{
-font-family:-apple-system,BlinkMacSystemFont;
-margin:0;
-background:#f5f3ee;
-}
-
-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:12px;
-background:#111;
-color:white;
-}
-
-#title{
-font-size:22px;
-text-align:center;
-padding:10px;
-}
-
-#stops{
-padding:12px;
-}
-
-.stop{
-background:white;
-margin-bottom:10px;
-padding:12px;
-border-radius:10px;
-}
-
-#menu{
-position:fixed;
-top:0;
-left:-260px;
-width:240px;
-height:100%;
-background:white;
-padding:20px;
-box-shadow:2px 0 10px rgba(0,0,0,.2);
-transition:left .3s;
-z-index:10;
-}
-
-#menu.open{
-left:0;
-}
-
-#menuOverlay{
-position:fixed;
-top:0;
-left:0;
-right:0;
-bottom:0;
-background:rgba(0,0,0,.3);
-display:none;
-z-index:9;
-}
-
-#menuOverlay.show{
-display:block;
-}
