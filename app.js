@@ -1,10 +1,12 @@
 let data
 let currentIndex=0
+let dayIndex=0
+let map
 
-fetch("./data.json?v=11").then(r=>r.json()).then(d=>{data=d;init()})
+fetch("./data.json?v=12").then(r=>r.json()).then(d=>{data=d;init()})
 
 function init(){
-loadToday()
+loadDay()
 loadWeather()
 }
 
@@ -12,27 +14,12 @@ function toggleMenu(){
 document.getElementById("menu").classList.toggle("open")
 }
 
-function todayString(){
-return new Date().toISOString().slice(0,10)
-}
-
-function currentHotel(){
-let today=todayString()
-let hotel=data.hotels[0]
-data.hotels.forEach(h=>{if(today>=h.from)hotel=h})
-return hotel
-}
-
-function loadToday(){
-let today=todayString()
-let day=data.days.find(d=>d.date===today)||data.days[0]
+function loadDay(){
+let day=data.days[dayIndex]
 document.getElementById("dayTitle").innerText=day.title
+
 const container=document.getElementById("stops")
 container.innerHTML=""
-
-let hotel=currentHotel()
-
-addStop(container,"🏨 "+hotel.name,hotel.address)
 
 day.stops.forEach((s,i)=>{
 addStop(container,s.icon+" "+s.name,s.address)
@@ -42,30 +29,31 @@ let next=day.stops[i+1]
 
 let t=document.createElement("div")
 t.className="transport"
-
-t.innerHTML=`
-🚶 <a target="_blank" href="https://www.google.com/maps/dir/${encodeURIComponent(s.address)}/${encodeURIComponent(next.address)}/data=!3m1!4b1!4m2!4m1!3e2">Walk</a> ·
-🚇 <a target="_blank" href="https://www.google.com/maps/dir/${encodeURIComponent(s.address)}/${encodeURIComponent(next.address)}/data=!3m1!4b1!4m2!4m1!3e3">Subway</a> ·
-🚕 <a target="_blank" href="https://www.google.com/maps/dir/${encodeURIComponent(s.address)}/${encodeURIComponent(next.address)}/data=!3m1!4b1!4m2!4m1!3e0">Taxi</a>
-`
-
+t.innerHTML=`🚶 <a target="_blank" href="https://www.google.com/maps/dir/${encodeURIComponent(s.address)}/${encodeURIComponent(next.address)}/data=!3m1!4b1!4m2!4m1!3e2">Walk</a> · 🚇 <a target="_blank" href="https://www.google.com/maps/dir/${encodeURIComponent(s.address)}/${encodeURIComponent(next.address)}/data=!3m1!4b1!4m2!4m1!3e3">Subway</a> · 🚕 <a target="_blank" href="https://www.google.com/maps/dir/${encodeURIComponent(s.address)}/${encodeURIComponent(next.address)}/data=!3m1!4b1!4m2!4m1!3e0">Taxi</a>`
 container.appendChild(t)
 }
 
 })
+}
 
-addStop(container,"🏨 Return "+hotel.name,hotel.address)
+function prevDay(){
+dayIndex--
+if(dayIndex<0) dayIndex=data.days.length-1
+loadDay()
+}
+
+function nextDay(){
+dayIndex++
+if(dayIndex>=data.days.length) dayIndex=0
+loadDay()
 }
 
 function addStop(container,name,address){
 let el=document.createElement("div")
 el.className="stop"
-el.innerHTML=`
-<div>${name}</div>
-<div>${address}</div>
+el.innerHTML=`<div>${name}</div><div>${address}</div>
 <button onclick="navigate('${address}')">Directions</button>
-<button onclick="meetPlace('${name}','${address}')">Meet</button>
-`
+<button onclick="meetPlace('${name}','${address}')">Meet</button>`
 container.appendChild(el)
 }
 
@@ -74,35 +62,18 @@ window.open(`https://www.google.com/maps/search/${encodeURIComponent(addr)}`)
 }
 
 function openRoute(){
-let today=todayString()
-let day=data.days.find(d=>d.date===today)||data.days[0]
-let hotel=currentHotel()
-
-let stops=[hotel.address,...day.stops.map(s=>s.address),hotel.address]
-
+let day=data.days[dayIndex]
+let stops=day.stops.map(s=>s.address)
 let url="https://www.google.com/maps/dir/"+stops.map(s=>encodeURIComponent(s)).join("/")
-
 window.open(url)
 }
 
 function nextStop(){
-let today=todayString()
-let day=data.days.find(d=>d.date===today)||data.days[0]
-
+let day=data.days[dayIndex]
 let stop=day.stops[currentIndex]
-
 navigate(stop.address)
-
 currentIndex++
-
-if(currentIndex>=day.stops.length){
-currentIndex=0
-}
-}
-
-function goHotel(){
-let hotel=currentHotel()
-navigate(hotel.address)
+if(currentIndex>=day.stops.length) currentIndex=0
 }
 
 function meetHere(){
@@ -121,19 +92,47 @@ let url=`https://wa.me/${data.lawPhone}?text=${encodeURIComponent(msg)}`
 window.open(url)
 }
 
-function showBackups(){
-alert("Backup feature coming next upgrade")
+function goHotel(){
+let hotel=data.hotels[0]
+navigate(hotel.address)
+}
+
+function showMap(){
+if(!map){
+navigator.geolocation.getCurrentPosition(pos=>{
+let lat=pos.coords.latitude
+let lng=pos.coords.longitude
+map=L.map('map').setView([lat,lng],13)
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map)
+})
+}
+}
+
+function nearbyCoffee(){
+navigator.geolocation.getCurrentPosition(pos=>{
+let url=`https://www.google.com/maps/search/coffee/@${pos.coords.latitude},${pos.coords.longitude},15z`
+window.open(url)
+})
+}
+
+function nearbyFood(){
+navigator.geolocation.getCurrentPosition(pos=>{
+let url=`https://www.google.com/maps/search/food/@${pos.coords.latitude},${pos.coords.longitude},15z`
+window.open(url)
+})
 }
 
 function loadWeather(){
 navigator.geolocation.getCurrentPosition(pos=>{
 let lat=pos.coords.latitude
 let lon=pos.coords.longitude
-
-fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
+fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=precipitation_probability`)
 .then(r=>r.json())
 .then(w=>{
 document.getElementById("temp").innerText=`🌡 ${w.current_weather.temperature}°`
+let rain=w.hourly?.precipitation_probability?.[0]||0
+document.getElementById("rain").innerText=`🌧 ${rain}%`
+if(rain>50){alert("Rain likely today — consider indoor stops")}
 })
 })
 }
