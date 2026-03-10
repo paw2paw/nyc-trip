@@ -17,7 +17,7 @@ fetch("https://api.open-meteo.com/v1/forecast?latitude=40.72&longitude=-74.00&cu
 .then(r=>r.json())
 .then(w=>{
 weatherTemp=Math.round(w.current_weather.temperature)
-weatherRain=w.hourly.precipitation_probability[0]
+weatherRain=w.hourly?.precipitation_probability?.[0] ?? 0
 render()
 })
 }
@@ -38,7 +38,7 @@ let active=i===stopIndex?"active":""
 
 html+=`
 <div class="stop ${active}" onclick="setStop(${i})">
-<div><span class="seq">${(i+1).toString().padStart(2,"0")}</span> <b>${s.icon||""} ${s.name}</b></div>
+<div><span class="seq">${(i+1).toString().padStart(2,"0")}</span><b>${s.icon||""} ${s.name}</b></div>
 ${s.address}
 <div class="weather">🌡 ${weatherTemp}° &nbsp; 🌧 ${weatherRain}%</div>
 </div>
@@ -54,11 +54,9 @@ let drive=`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(s.
 
 html+=`
 <div class="travel">
-🚶 <a href="${walk}" target="_blank">Walk</a>
-&nbsp;&nbsp;
-🚇 <a href="${transit}" target="_blank">Subway</a>
-&nbsp;&nbsp;
-🚕 <a href="${drive}" target="_blank">Taxi</a>
+🚶 <a onclick="event.stopPropagation()" href="${walk}" target="_blank">Walk</a>
+🚇 <a onclick="event.stopPropagation()" href="${transit}" target="_blank">Subway</a>
+🚕 <a onclick="event.stopPropagation()" href="${drive}" target="_blank">Taxi</a>
 </div>
 `
 }
@@ -66,7 +64,6 @@ html+=`
 }
 
 document.getElementById("stops").innerHTML=html
-
 updateNext()
 }
 
