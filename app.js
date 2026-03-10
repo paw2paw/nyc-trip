@@ -31,13 +31,14 @@ document.getElementById("title").innerText=day.title
 
 let html=""
 
-day.stops.forEach((s,i)=>{
+for(let i=0;i<day.stops.length;i++){
 
+let s=day.stops[i]
 let active=i===stopIndex?"active":""
 
 html+=`
 <div class="stop ${active}" onclick="setStop(${i})">
-<div><span class="seq">${(i+1).toString().padStart(2,"0")}</span><b>${s.icon||""} ${s.name}</b></div>
+<div><span class="seq">${(i+1).toString().padStart(2,"0")}</span> <b>${s.icon||""} ${s.name}</b></div>
 ${s.address}
 <div class="weather">🌡 ${weatherTemp}° &nbsp; 🌧 ${weatherRain}%</div>
 </div>
@@ -53,14 +54,16 @@ let drive=`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(s.
 
 html+=`
 <div class="travel">
-<a href="${walk}" target="_blank">🚶 Walk</a>
-<a href="${transit}" target="_blank">🚇 Subway</a>
-<a href="${drive}" target="_blank">🚕 Taxi</a>
+🚶 <a href="${walk}" target="_blank">Walk</a>
+&nbsp;&nbsp;
+🚇 <a href="${transit}" target="_blank">Subway</a>
+&nbsp;&nbsp;
+🚕 <a href="${drive}" target="_blank">Taxi</a>
 </div>
 `
 }
 
-})
+}
 
 document.getElementById("stops").innerHTML=html
 
@@ -107,14 +110,29 @@ render()
 }
 
 let touchStartX=0
+let touchStartY=0
+let swipeActive=false
+
 document.addEventListener("touchstart",e=>{
 touchStartX=e.touches[0].clientX
+touchStartY=e.touches[0].clientY
+swipeActive=true
 })
+
+document.addEventListener("touchmove",e=>{
+if(!swipeActive)return
+let dx=e.touches[0].clientX-touchStartX
+let dy=e.touches[0].clientY-touchStartY
+if(Math.abs(dy)>Math.abs(dx)) swipeActive=false
+})
+
 document.addEventListener("touchend",e=>{
+if(!swipeActive)return
 let endX=e.changedTouches[0].clientX
 let diff=endX-touchStartX
-if(Math.abs(diff)<60)return
+if(Math.abs(diff)<90)return
 if(diff<0){nextDay()}else{prevDay()}
+swipeActive=false
 })
 
 function toggleMenu(){
@@ -144,12 +162,7 @@ window.open("https://maps.google.com/search/food+near+me")
 }
 
 function sendMyLocation(){
-
-if(!navigator.geolocation){
-alert("Location not supported")
-return
-}
-
+if(!navigator.geolocation){alert("Location not supported");return}
 navigator.geolocation.getCurrentPosition(p=>{
 let lat=p.coords.latitude
 let lon=p.coords.longitude
