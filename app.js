@@ -1,10 +1,11 @@
 "use strict"
 
-const APP_VERSION = "1.1.0"
+const APP_VERSION = "1.3.0"
 
 // --- SVG icons ---
 
 const SVG_WALK = '<svg class="travel-icon" viewBox="0 0 14 14" fill="currentColor"><path d="M8 1.5a1.2 1.2 0 11-2.4 0 1.2 1.2 0 012.4 0zM6.2 4L4.5 6.5l1.3.7L7 6h.5l1 1.5 2 1-.5 1-1.5-.8-1.8-2.5-.8.8V9L7.5 11l-.8.8L5 9V6.5L3.5 8.5l-.8-.6L5 4.5c.3-.3.7-.5 1.2-.5z"/></svg>'
+const SVG_PIN = '<svg class="pin-icon" viewBox="0 0 14 14" fill="currentColor"><path d="M7 1C4.8 1 3 2.9 3 5.3 3 8.5 7 13 7 13s4-4.5 4-7.7C11 2.9 9.2 1 7 1zm0 5.8a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/></svg>'
 const SVG_SUBWAY = '<svg class="travel-icon" viewBox="0 0 14 14" fill="currentColor"><path d="M4 1h6a2 2 0 012 2v6a2 2 0 01-2 2l1.5 2h-1.2L9 11H5l-1.3 2H2.5L4 11a2 2 0 01-2-2V3a2 2 0 012-2zm0 1.5v3h2.5v-3H4zm3.5 0v3H10v-3H7.5zM5 8a.8.8 0 100 1.6A.8.8 0 005 8zm4 0a.8.8 0 100 1.6A.8.8 0 009 8z"/></svg>'
 const SVG_CAR = '<svg class="travel-icon" viewBox="0 0 14 14" fill="currentColor"><path d="M3.5 2h7l1.5 4v5a.5.5 0 01-.5.5h-1a.5.5 0 01-.5-.5V10.5h-6V11a.5.5 0 01-.5.5h-1A.5.5 0 012 11V6l1.5-4zm.3 1.5L3 6h8l-.8-2.5H3.8zM4 7.5a1 1 0 100 2 1 1 0 000-2zm6 0a1 1 0 100 2 1 1 0 000-2z"/></svg>'
 
@@ -37,6 +38,7 @@ let hourlyWeather = null
 let travelTimes = {}
 let travelRenderTimer = null
 let swapTarget = null // index of stop being swapped
+let mapCache = {} // dayIndex -> { key, node }
 
 function loadState() {
   try {
@@ -44,14 +46,16 @@ function loadState() {
     if (saved) {
       state.day = saved.day ?? 0
       state.stop = saved.stop ?? 0
-      state.swaps = saved.swaps ?? {}
       state.done = saved.done ?? {}
+      // Clear swaps if version changed (indices may have shifted)
+      if (saved.version !== APP_VERSION) state.swaps = {}
+      else state.swaps = saved.swaps ?? {}
     }
   } catch (e) { /* ignore */ }
 }
 
 function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...state, version: APP_VERSION }))
 }
 
 function autoSelectToday() {
@@ -69,11 +73,22 @@ function clampState() {
 
 // --- Get effective stop (with swap applied) ---
 
+function getAllAlternatives() {
+  const items = []
+  data.guides.forEach(guide => {
+    guide.items.forEach(item => {
+      items.push({ ...item, icon: item.icon || guide.icon })
+    })
+  })
+  return items
+}
+
 function getStop(dayIndex, stopIndex) {
   const key = dayIndex + "-" + stopIndex
   const swapIdx = state.swaps[key]
-  if (swapIdx != null && data.backups[swapIdx]) {
-    return data.backups[swapIdx]
+  if (swapIdx != null) {
+    const alts = getAllAlternatives()
+    if (alts[swapIdx]) return alts[swapIdx]
   }
   return data.days[dayIndex].stops[stopIndex]
 }
@@ -125,6 +140,8 @@ fetch("data.json")
     }
     loadWeather()
     render()
+    if (anyAlertsEnabled()) requestAlertPermission()
+    setTimeout(checkAlerts, 3000)
   })
   .catch(() => {
     document.getElementById("stops").append(
@@ -135,7 +152,7 @@ fetch("data.json")
 // --- Weather ---
 
 function getTempUnit() {
-  return localStorage.getItem("nyc-temp-unit") || "fahrenheit"
+  return localStorage.getItem("nyc-temp-unit") || "celsius"
 }
 
 function setTempUnit(unit) {
@@ -238,9 +255,11 @@ function stopCard(stop, i, dayIndex) {
     onclick: (e) => { e.stopPropagation(); toggleDone(dayIndex, i) }
   }, done ? "✓" : (i + 1).toString().padStart(2, "0"))
 
+  const mapsUrl = "https://www.google.com/maps/search/" + encodeURIComponent(stop.name + ", " + stop.address)
   const header = el("div", { className: "stopHeader" },
     checkBtn,
-    el("b", null, (stop.icon || "") + " " + stop.name)
+    el("a", { className: "stopName", href: mapsUrl, target: "_blank", onclick: (e) => e.stopPropagation() },
+      (stop.icon || "") + " " + stop.name)
   )
 
   const badge = reserved && stop.time
@@ -263,7 +282,7 @@ function stopCard(stop, i, dayIndex) {
 
   const addr = el("a", {
     className: "stopAddr",
-    href: "https://www.google.com/maps/search/" + encodeURIComponent(stop.name + ", " + stop.address),
+    href: mapsUrl,
     target: "_blank",
     onclick: (e) => e.stopPropagation()
   }, stop.address)
@@ -312,6 +331,11 @@ function routeCard(dayIndex) {
   const origin = encodeURIComponent(hotel.address)
   const dest = encodeURIComponent(hotel.address)
   const waypoints = stops.map(s => encodeURIComponent(s.address)).join("|")
+  const cacheKey = origin + "|" + waypoints + "|" + dest
+
+  const cached = mapCache[dayIndex]
+  if (cached && cached.key === cacheKey) return cached.node
+
   const mapsUrl = "https://www.google.com/maps/dir/?api=1&origin=" + origin + "&destination=" + dest + "&waypoints=" + waypoints + "&travelmode=walking"
 
   const apiKey = localStorage.getItem("nyc-gmaps-key")
@@ -341,16 +365,19 @@ function routeCard(dayIndex) {
     mapContent = el("div", { className: "routeMapWrap" }, placeholder)
   }
 
-  return el("div", { className: "routeCard" },
+  const node = el("div", { className: "routeCard" },
     mapContent,
     el("a", { className: "routeCardLabel", href: mapsUrl, target: "_blank" }, "Open day route ›")
   )
+  mapCache[dayIndex] = { key: cacheKey, node }
+  return node
 }
 
 // --- Hotel row ---
 
-function hotelRow(name) {
-  return el("div", { className: "stop hotel" }, "🏨 " + name)
+function hotelRow(name, address) {
+  const url = "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(address)
+  return el("a", { className: "stop hotel", href: url, target: "_blank" }, "🏨 " + name)
 }
 
 // --- Travel row (SVG icons) ---
@@ -368,11 +395,75 @@ function travelRow(a, b, travelKey) {
   const transitDur = times.transit ? " " + times.transit : loading
   const uberDur = times.drive ? " " + times.drive : loading
 
+  // Distance badge (walk distance)
+  const distBadge = times.walkDist
+    ? el("span", { className: "travelDist", innerHTML: SVG_PIN + " " + times.walkDist })
+    : null
+
   const walkLink = el("a", { href: mapsBase + "&travelmode=walking", target: "_blank", innerHTML: SVG_WALK + walkDur, onclick: (e) => e.stopPropagation() })
   const transitLink = el("a", { href: mapsBase + "&travelmode=transit", target: "_blank", innerHTML: SVG_SUBWAY + transitDur, onclick: (e) => e.stopPropagation() })
   const uberLink = el("a", { href: uberUrl, target: "_blank", className: "uberLink", innerHTML: SVG_CAR + uberDur, onclick: (e) => e.stopPropagation() })
 
-  return el("div", { className: "travel" }, walkLink, transitLink, uberLink)
+  return el("div", { className: "travel" }, distBadge, walkLink, transitLink, uberLink)
+}
+
+// --- Alert rows ---
+
+function alertRow(icon, text, cls) {
+  return el("div", { className: "alertRow" + (cls ? " " + cls : "") },
+    el("span", { className: "alertRowIcon" }, icon),
+    el("span", { className: "alertRowText" }, text)
+  )
+}
+
+function weatherAlertRow(dayIndex) {
+  if (!getAlertPref("weather") || !hourlyWeather) return null
+  const day = data.days[dayIndex]
+  const rainy = []
+  day.stops.forEach((_, i) => {
+    const stop = getStop(dayIndex, i)
+    const hour = stop.time ? parseInt(stop.time.split(":")[0], 10) : getStopHour(i, day.stops.length)
+    const rain = hourlyWeather.precipitation_probability[hour]
+    if (rain >= 50) rainy.push({ rain, name: stop.name, hour })
+  })
+  if (rainy.length === 0) return null
+  const worst = rainy.reduce((a, b) => a.rain > b.rain ? a : b)
+  const hourLabel = (worst.hour % 12 || 12) + (worst.hour >= 12 ? "pm" : "am")
+  return alertRow("🌧", "Rain " + worst.rain + "% at " + hourLabel + " (" + worst.name + ") — bring an umbrella", "alertWeather")
+}
+
+function reservationAlertRow(stop) {
+  if (!getAlertPref("reservations")) return null
+  if (stop.type !== "reserved" || !stop.time) return null
+  return alertRow("🔔", "Alerts at " + subtractTime(stop.time, 60) + " & " + subtractTime(stop.time, 15) + " — " + stop.name + " at " + stop.time, "alertReservation")
+}
+
+function leaveNowAlertRow(stop, travelKey) {
+  if (!getAlertPref("leaveNow")) return null
+  if (!stop.time) return null
+  const times = travelTimes[travelKey]
+  if (!times || !times.walk) return null
+  const walkMatch = times.walk.match(/(\d+)/)
+  if (!walkMatch) return null
+  const walkMins = parseInt(walkMatch[1], 10)
+  const leaveTime = subtractTime(stop.time, walkMins + 5)
+  return alertRow("🚶", "Leave by " + leaveTime + " (" + times.walk + " walk to arrive by " + stop.time + ")", "alertLeave")
+}
+
+function sunsetAlertRow(stop) {
+  if (!getAlertPref("sunset")) return null
+  const text = (stop.note || "") + " " + (stop.name || "")
+  if (!/sunset|rooftop|skyline|golden/i.test(text)) return null
+  return alertRow("🌅", "Golden hour ~6:25pm — head here for sunset at ~7:10pm", "alertSunset")
+}
+
+function subtractTime(timeStr, mins) {
+  const [h, m] = timeStr.split(":").map(Number)
+  let total = h * 60 + m - mins
+  if (total < 0) total += 1440
+  const rh = Math.floor(total / 60)
+  const rm = total % 60
+  return String(rh).padStart(2, "0") + ":" + String(rm).padStart(2, "0")
 }
 
 // --- Main render ---
@@ -385,15 +476,35 @@ function render() {
   document.getElementById("menuHotel").lastChild.textContent = " Back to " + hotel.name
   renderCarousel()
 
+  const mapContainer = document.getElementById("routeMapContainer")
+  const mapNode = routeCard(state.day)
+  if (mapContainer.firstChild !== mapNode) {
+    mapContainer.replaceChildren(mapNode)
+  }
+
   const nodes = []
-  nodes.push(routeCard(state.day))
-  nodes.push(hotelRow(hotel.name))
+
+  // Weather alert banner
+  const wxRow = weatherAlertRow(state.day)
+  if (wxRow) nodes.push(wxRow)
+
+  nodes.push(hotelRow(hotel.name, hotel.address))
 
   const firstStop = getStop(state.day, 0)
   nodes.push(travelRow(hotel, firstStop, state.day + "-h0"))
 
   day.stops.forEach((s, i) => {
     const effective = getStop(state.day, i)
+
+    // Alert rows before each stop
+    const tKey = i === 0 ? state.day + "-h0" : state.day + "-" + (i - 1)
+    const resRow = reservationAlertRow(effective)
+    if (resRow) nodes.push(resRow)
+    const leaveRow = leaveNowAlertRow(effective, tKey)
+    if (leaveRow) nodes.push(leaveRow)
+    const sunRow = sunsetAlertRow(effective)
+    if (sunRow) nodes.push(sunRow)
+
     nodes.push(stopCard(effective, i, state.day))
     if (i < day.stops.length - 1) {
       const next = getStop(state.day, i + 1)
@@ -403,7 +514,7 @@ function render() {
 
   const lastStop = getStop(state.day, day.stops.length - 1)
   nodes.push(travelRow(lastStop, hotel, state.day + "-h1"))
-  nodes.push(hotelRow("Return to " + hotel.name))
+  nodes.push(hotelRow("Return to " + hotel.name, hotel.address))
 
   document.getElementById("stops").replaceChildren(...nodes)
   saveState()
@@ -489,6 +600,227 @@ function nearbyFood() {
   window.open("https://www.google.com/maps/search/food+near+me")
 }
 
+function nearbyShopping() {
+  closeMenu()
+  window.open("https://www.google.com/maps/search/shopping+near+me")
+}
+
+function nearbyRestrooms() {
+  closeMenu()
+  window.open("https://www.google.com/maps/search/public+restroom+near+me")
+}
+
+function nearbyPharmacy() {
+  closeMenu()
+  window.open("https://www.google.com/maps/search/pharmacy+near+me")
+}
+
+// --- Subway map viewer (pan + pinch zoom) ---
+
+let subwayZoom = { scale: 1, x: 0, y: 0 }
+let subwayDrag = null
+let subwayPinch = null
+
+function openSubwayMap() {
+  closeMenu()
+  resetSubwayZoom()
+  document.getElementById("subwayMapSheet").classList.add("open")
+  document.getElementById("subwayMapOverlay").classList.add("show")
+
+  const content = document.getElementById("subwayMapContent")
+  const img = document.getElementById("subwayMapImg")
+
+  // Fit map to viewport on open
+  const fitMap = () => {
+    const cw = content.clientWidth
+    const ch = content.clientHeight
+    const iw = img.naturalWidth || 2500
+    const ih = img.naturalHeight || 2700
+    subwayZoom.scale = Math.min(cw / iw, ch / ih)
+    subwayZoom.x = (cw - iw * subwayZoom.scale) / 2
+    subwayZoom.y = (ch - ih * subwayZoom.scale) / 2
+    applySubwayTransform()
+  }
+
+  if (img.naturalWidth) fitMap()
+  else img.onload = fitMap
+}
+
+function closeSubwayMap() {
+  document.getElementById("subwayMapSheet").classList.remove("open")
+  document.getElementById("subwayMapOverlay").classList.remove("show")
+}
+
+function resetSubwayZoom() {
+  const content = document.getElementById("subwayMapContent")
+  const img = document.getElementById("subwayMapImg")
+  if (!content || !img) return
+  const cw = content.clientWidth
+  const ch = content.clientHeight
+  const iw = img.naturalWidth || 2500
+  const ih = img.naturalHeight || 2700
+  subwayZoom.scale = Math.min(cw / iw, ch / ih)
+  subwayZoom.x = (cw - iw * subwayZoom.scale) / 2
+  subwayZoom.y = (ch - ih * subwayZoom.scale) / 2
+  applySubwayTransform()
+}
+
+function applySubwayTransform() {
+  const img = document.getElementById("subwayMapImg")
+  if (img) img.style.transform = "translate(" + subwayZoom.x + "px," + subwayZoom.y + "px) scale(" + subwayZoom.scale + ")"
+}
+
+function pinchDist(touches) {
+  const dx = touches[0].clientX - touches[1].clientX
+  const dy = touches[0].clientY - touches[1].clientY
+  return Math.sqrt(dx * dx + dy * dy)
+}
+
+function pinchCenter(touches) {
+  return {
+    x: (touches[0].clientX + touches[1].clientX) / 2,
+    y: (touches[0].clientY + touches[1].clientY) / 2
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const content = document.getElementById("subwayMapContent")
+  if (!content) return
+
+  content.addEventListener("touchstart", e => {
+    if (!document.getElementById("subwayMapSheet").classList.contains("open")) return
+    if (e.touches.length === 2) {
+      e.preventDefault()
+      subwayPinch = { dist: pinchDist(e.touches), scale: subwayZoom.scale, center: pinchCenter(e.touches) }
+      subwayDrag = null
+    } else if (e.touches.length === 1) {
+      subwayDrag = { x: e.touches[0].clientX - subwayZoom.x, y: e.touches[0].clientY - subwayZoom.y }
+      subwayPinch = null
+    }
+  }, { passive: false })
+
+  content.addEventListener("touchmove", e => {
+    if (!document.getElementById("subwayMapSheet").classList.contains("open")) return
+    e.preventDefault()
+    if (e.touches.length === 2 && subwayPinch) {
+      const newDist = pinchDist(e.touches)
+      const center = pinchCenter(e.touches)
+      const rect = content.getBoundingClientRect()
+      const cx = center.x - rect.left
+      const cy = center.y - rect.top
+      const newScale = Math.min(Math.max(subwayPinch.scale * (newDist / subwayPinch.dist), 0.3), 8)
+      const ratio = newScale / subwayZoom.scale
+      subwayZoom.x = cx - (cx - subwayZoom.x) * ratio
+      subwayZoom.y = cy - (cy - subwayZoom.y) * ratio
+      subwayZoom.scale = newScale
+      applySubwayTransform()
+    } else if (e.touches.length === 1 && subwayDrag) {
+      subwayZoom.x = e.touches[0].clientX - subwayDrag.x
+      subwayZoom.y = e.touches[0].clientY - subwayDrag.y
+      applySubwayTransform()
+    }
+  }, { passive: false })
+
+  content.addEventListener("touchend", e => {
+    if (e.touches.length < 2) subwayPinch = null
+    if (e.touches.length < 1) subwayDrag = null
+  })
+
+  // Mouse wheel zoom for desktop
+  content.addEventListener("wheel", e => {
+    if (!document.getElementById("subwayMapSheet").classList.contains("open")) return
+    e.preventDefault()
+    const rect = content.getBoundingClientRect()
+    const cx = e.clientX - rect.left
+    const cy = e.clientY - rect.top
+    const factor = e.deltaY > 0 ? 0.9 : 1.1
+    const newScale = Math.min(Math.max(subwayZoom.scale * factor, 0.3), 8)
+    const ratio = newScale / subwayZoom.scale
+    subwayZoom.x = cx - (cx - subwayZoom.x) * ratio
+    subwayZoom.y = cy - (cy - subwayZoom.y) * ratio
+    subwayZoom.scale = newScale
+    applySubwayTransform()
+  }, { passive: false })
+
+  // Mouse drag for desktop
+  let mouseDrag = null
+  content.addEventListener("mousedown", e => {
+    if (!document.getElementById("subwayMapSheet").classList.contains("open")) return
+    mouseDrag = { x: e.clientX - subwayZoom.x, y: e.clientY - subwayZoom.y }
+    content.style.cursor = "grabbing"
+  })
+  window.addEventListener("mousemove", e => {
+    if (!mouseDrag) return
+    subwayZoom.x = e.clientX - mouseDrag.x
+    subwayZoom.y = e.clientY - mouseDrag.y
+    applySubwayTransform()
+  })
+  window.addEventListener("mouseup", () => {
+    mouseDrag = null
+    if (content) content.style.cursor = ""
+  })
+})
+
+// --- Currency converter ---
+
+function openCurrency() {
+  closeMenu()
+  const input = document.getElementById("currencyInput")
+  const result = document.getElementById("currencyResult")
+  input.value = ""
+  result.textContent = ""
+  fetchExchangeRate()
+  document.getElementById("currencySheet").classList.add("open")
+  document.getElementById("currencyOverlay").classList.add("show")
+  setTimeout(() => input.focus(), 100)
+}
+
+function closeCurrency() {
+  document.getElementById("currencySheet").classList.remove("open")
+  document.getElementById("currencyOverlay").classList.remove("show")
+}
+
+let exchangeRate = null
+
+function fetchExchangeRate() {
+  if (exchangeRate) return
+  fetch("https://open.er-api.com/v6/latest/GBP")
+    .then(r => r.json())
+    .then(d => {
+      if (d.rates && d.rates.USD) {
+        exchangeRate = d.rates.USD
+        document.getElementById("currencyRate").textContent = "1 GBP = " + exchangeRate.toFixed(4) + " USD"
+      }
+    })
+    .catch(() => {
+      document.getElementById("currencyRate").textContent = "Rate unavailable — using 1.27"
+      exchangeRate = 1.27
+    })
+}
+
+function convertCurrency() {
+  const input = document.getElementById("currencyInput")
+  const result = document.getElementById("currencyResult")
+  const dir = document.getElementById("currencyDir").value
+  const val = parseFloat(input.value)
+  if (isNaN(val) || !exchangeRate) {
+    result.textContent = ""
+    return
+  }
+  if (dir === "gbp-usd") {
+    result.textContent = "$" + (val * exchangeRate).toFixed(2) + " USD"
+  } else {
+    result.textContent = "\u00a3" + (val / exchangeRate).toFixed(2) + " GBP"
+  }
+}
+
+function flipCurrency() {
+  const dir = document.getElementById("currencyDir")
+  dir.value = dir.value === "gbp-usd" ? "usd-gbp" : "gbp-usd"
+  document.getElementById("currencyFromLabel").textContent = dir.value === "gbp-usd" ? "GBP" : "USD"
+  convertCurrency()
+}
+
 // --- Phones (overridable via settings) ---
 
 function getPhone(key) {
@@ -537,10 +869,13 @@ function sendMyLocation() {
     const lon = p.coords.longitude
     const msg = "Meet here https://maps.google.com/?q=" + lat + "," + lon
     const url = "https://wa.me/" + phone + "?text=" + encodeURIComponent(msg)
-    location.href = url
-  }, () => {
-    alert("Could not get location")
-  })
+    window.open(url, "_blank")
+  }, err => {
+    const reasons = {1: "Permission denied", 2: "Position unavailable", 3: "Timed out"}
+    if (confirm("Could not get location: " + (reasons[err.code] || "Unknown error") + "\n\nCheck your browser/device location permissions.\n\nOpen Settings?")) {
+      openSettings()
+    }
+  }, {enableHighAccuracy: false, timeout: 10000})
 }
 
 // --- Emergency sheet ---
@@ -610,6 +945,7 @@ function openSettings() {
   document.getElementById("themeDark").classList.toggle("active", theme === "dark")
   document.getElementById("themeSystem").classList.toggle("active", theme === "system")
   document.getElementById("gmapsKeyInput").value = localStorage.getItem("nyc-gmaps-key") || "AIzaSyBql5cJfu7zX3___6-jB6TlXvCLOAvxYKo"
+  initAlertSettings()
   document.getElementById("settingsVersion").textContent = "v" + APP_VERSION
   document.getElementById("settingsSheet").classList.add("open")
   document.getElementById("settingsOverlay").classList.add("show")
@@ -620,6 +956,7 @@ function saveGmapsKey() {
   if (key) localStorage.setItem("nyc-gmaps-key", key)
   else localStorage.removeItem("nyc-gmaps-key")
   travelTimes = {}
+  mapCache = {}
   render()
 }
 
@@ -636,6 +973,23 @@ function copyGmapsKey() {
 function closeSettings() {
   document.getElementById("settingsSheet").classList.remove("open")
   document.getElementById("settingsOverlay").classList.remove("show")
+}
+
+function forceReload() {
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.getRegistrations().then(regs => {
+      const promises = regs.map(r => r.unregister())
+      Promise.all(promises).then(() => {
+        caches.keys().then(keys => {
+          Promise.all(keys.map(k => caches.delete(k))).then(() => {
+            location.reload()
+          })
+        })
+      })
+    })
+  } else {
+    location.reload()
+  }
 }
 
 // --- Google Maps & Travel Times ---
@@ -686,6 +1040,7 @@ function fetchTravelTimes() {
           if (status === "OK" && res.rows[0]?.elements[0]?.status === "OK") {
             if (!travelTimes[key]) travelTimes[key] = {}
             travelTimes[key][localKey] = res.rows[0].elements[0].duration.text
+            if (localKey === "walk") travelTimes[key].walkDist = res.rows[0].elements[0].distance.text
             clearTimeout(travelRenderTimer)
             travelRenderTimer = setTimeout(render, 200)
           }
@@ -695,229 +1050,457 @@ function fetchTravelTimes() {
   }).catch(() => {})
 }
 
-// --- Guides sheet ---
+// --- Explore sheet (browse + swap) ---
+
+let exploreFilter = new Set() // empty = all shown
+let exploreDistances = {}
+let exploreOriginLabel = ""
+let exploreOriginMode = "auto" // "auto" (geo then fallback), "geo", "stop"
+let exploreRenderTimer = null
 
 function openGuides() {
   closeMenu()
-  renderGuides()
+  swapTarget = null
+  exploreFilter = new Set()
+  exploreDistances = {}
+  exploreOriginLabel = ""
+  exploreOriginMode = "auto"
+  showExploreSheet()
+}
+
+function openSwap(stopIndex) {
+  swapTarget = stopIndex
+  exploreFilter = new Set()
+  exploreDistances = {}
+  exploreOriginLabel = ""
+  exploreOriginMode = "auto"
+  showExploreSheet()
+}
+
+function showExploreSheet() {
+  renderExploreFilters()
+  renderExplore()
   document.getElementById("guidesSheet").classList.add("open")
   document.getElementById("guidesOverlay").classList.add("show")
+  fetchExploreDistances()
 }
 
 function closeGuides() {
   document.getElementById("guidesSheet").classList.remove("open")
   document.getElementById("guidesOverlay").classList.remove("show")
+  swapTarget = null
 }
 
-function renderGuides() {
-  const container = document.getElementById("guidesContent")
-  const nodes = []
-
+function getExploreItems() {
+  const items = []
   data.guides.forEach(guide => {
-    nodes.push(el("div", { className: "backupCategory" }, guide.icon + " " + guide.title.toUpperCase()))
-
     guide.items.forEach(item => {
-      const mapsUrl = "https://www.google.com/maps/search/" + encodeURIComponent(item.name + ", " + item.address)
-      const card = el("div", { className: "guideItem", onclick: () => window.open(mapsUrl, "_blank") },
-        el("div", { className: "guideName" }, item.name),
-        el("div", { className: "guideNote" }, item.note)
-      )
-      nodes.push(card)
+      items.push({
+        name: item.name,
+        note: item.note,
+        address: item.address,
+        icon: item.icon || guide.icon,
+        category: guide.title,
+        flatIndex: items.length
+      })
     })
   })
-
-  container.replaceChildren(...nodes)
+  return items
 }
 
-// --- Backup sheet ---
-
-function openBackups() {
-  closeMenu()
-  swapTarget = null
-  backupDistances = {}
-  renderBackups()
-  document.getElementById("backupSheet").classList.add("open")
-  document.getElementById("backupOverlay").classList.add("show")
+function isAllFilters() {
+  return exploreFilter.size === 0
 }
 
-function openSwap(stopIndex) {
-  swapTarget = stopIndex
-  backupDistances = {}
-  renderBackups()
-  document.getElementById("backupSheet").classList.add("open")
-  document.getElementById("backupOverlay").classList.add("show")
+function toggleFilter(cat) {
+  if (isAllFilters()) {
+    // From "All" mode, tapping a chip enters filter mode with just that category
+    exploreFilter = new Set([cat])
+  } else if (exploreFilter.has(cat)) {
+    exploreFilter.delete(cat)
+    // If none left, go back to "All"
+    if (exploreFilter.size === 0) exploreFilter = new Set()
+  } else {
+    exploreFilter.add(cat)
+  }
+  renderExploreFilters()
+  renderExplore()
 }
 
-function closeBackups() {
-  document.getElementById("backupSheet").classList.remove("open")
-  document.getElementById("backupOverlay").classList.remove("show")
-  swapTarget = null
-}
+function renderExploreFilters() {
+  const container = document.getElementById("guidesFilters")
+  const cats = data.guides.map(g => ({ title: g.title, icon: g.icon }))
+  const allOn = isAllFilters()
+  const chips = []
 
-let backupDistances = {}
+  chips.push(el("button", {
+    className: "filterChip" + (allOn ? " active" : ""),
+    title: "All",
+    onclick: () => { exploreFilter = new Set(); renderExploreFilters(); renderExplore() }
+  }, "All"))
 
-const CATEGORY_SEARCH = {
-  food: "restaurants",
-  bar: "bars+cocktails",
-  comedy: "comedy+clubs",
-  coffee: "coffee",
-  other: "things+to+do"
-}
-
-function renderBackups() {
-  const container = document.getElementById("backupContent")
-  const groups = {}
-
-  data.backups.forEach((b, i) => {
-    const cat = b.category || "other"
-    if (!groups[cat]) groups[cat] = []
-    groups[cat].push({ ...b, index: i })
+  cats.forEach(cat => {
+    const isOn = !allOn && exploreFilter.has(cat.title)
+    const chip = el("button", {
+      className: "filterChip filterChip-icon" + (isOn ? " active" : ""),
+      title: cat.title,
+      onclick: () => toggleFilter(cat.title)
+    }, cat.icon)
+    let pressTimer = null
+    let tooltip = null
+    const showTooltip = (e) => {
+      e.preventDefault()
+      if (tooltip) return
+      tooltip = el("div", { className: "chipTooltip" }, cat.title)
+      chip.appendChild(tooltip)
+      setTimeout(() => { if (tooltip) { tooltip.remove(); tooltip = null } }, 1500)
+    }
+    chip.addEventListener("touchstart", (e) => { pressTimer = setTimeout(() => showTooltip(e), 400) }, { passive: false })
+    chip.addEventListener("touchend", () => { clearTimeout(pressTimer); setTimeout(() => { if (tooltip) { tooltip.remove(); tooltip = null } }, 300) })
+    chip.addEventListener("touchcancel", () => { clearTimeout(pressTimer) })
+    chips.push(chip)
   })
 
-  const nodes = []
+  container.replaceChildren(...chips)
+}
 
-  for (const [cat, items] of Object.entries(groups)) {
-    // Sort by distance if available
+function cycleExploreOrigin() {
+  if (exploreOriginLabel === "You") {
+    // Currently GPS — switch to selected stop
+    exploreOriginMode = "stop"
+  } else {
+    // Currently a stop — switch to GPS
+    exploreOriginMode = "geo"
+  }
+  exploreDistances = {}
+  fetchExploreDistances()
+  renderExplore()
+}
+
+function renderExplore() {
+  const container = document.getElementById("guidesContent")
+  const headerEl = document.getElementById("guidesTitle")
+  const originBtn = document.getElementById("guidesOriginBtn")
+
+  if (swapTarget != null) {
+    const original = data.days[state.day].stops[swapTarget]
+    headerEl.textContent = "Swap"
+    originBtn.innerHTML = SVG_PIN + " " + (original.icon || "") + " " + original.name
+    originBtn.style.display = "none"
+  } else {
+    headerEl.innerHTML = "&#9733;"
+    if (exploreOriginLabel) {
+      const isGeo = exploreOriginLabel === "You"
+      originBtn.innerHTML = (isGeo ? SVG_PIN : SVG_PIN) + " " + exploreOriginLabel
+      originBtn.title = isGeo ? "From your location — tap for selected stop" : "From " + exploreOriginLabel + " — tap for your location"
+      originBtn.style.display = ""
+    } else {
+      originBtn.style.display = "none"
+    }
+  }
+
+  let items = getExploreItems()
+  const allOn = isAllFilters()
+
+  if (!allOn) {
+    items = items.filter(it => exploreFilter.has(it.category))
+  }
+
+  const hasDistances = Object.keys(exploreDistances).length > 0
+  if (hasDistances) {
     items.sort((a, b) => {
-      const da = backupDistances[a.index]
-      const db = backupDistances[b.index]
+      const da = exploreDistances[a.flatIndex]
+      const db = exploreDistances[b.flatIndex]
       if (!da && !db) return 0
       if (!da) return 1
       if (!db) return -1
-      return parseFloat(da) - parseFloat(db)
+      return da.seconds - db.seconds
     })
+  }
 
-    nodes.push(el("div", { className: "backupCategory" }, cat.toUpperCase()))
+  // Determine if we need section headings (multiple categories visible, no distance sort)
+  const activeCats = new Set(items.map(it => it.category))
+  const showSections = activeCats.size > 1 && !hasDistances
+  const catIcons = {}
+  data.guides.forEach(g => { catIcons[g.title] = g.icon })
 
-    items.forEach(b => {
-      const dist = backupDistances[b.index]
-      const distLabel = dist ? " · " + dist : ""
-      const card = el("div", { className: "backupItem", onclick: () => selectBackup(b.index) },
-        el("div", { className: "backupName" }, (b.icon || "") + " " + b.name),
-        el("div", { className: "backupArea" }, b.area + distLabel)
+  const nodes = []
+  let lastCat = null
+
+  items.forEach(item => {
+    if (showSections && item.category !== lastCat) {
+      lastCat = item.category
+      nodes.push(el("div", { className: "exploreSectionHead" }, catIcons[item.category] + " " + item.category))
+    }
+
+    const dist = exploreDistances[item.flatIndex]
+    const mapsUrl = "https://www.google.com/maps/search/" + encodeURIComponent(item.name + ", " + item.address)
+
+    const rightSide = dist
+      ? el("div", { className: "exploreDist" })
+      : (hasDistances ? el("div", { className: "exploreDist travelLoading" }, "...") : null)
+    if (dist) rightSide.innerHTML = SVG_PIN + " " + dist.text
+
+    const card = el("div", {
+      className: "guideItem" + (swapTarget != null ? " swappable" : ""),
+      onclick: () => {
+        if (swapTarget != null) selectAlternative(item.flatIndex)
+        else window.open(mapsUrl, "_blank")
+      }
+    },
+      el("div", { className: "exploreCardTop" },
+        el("div", { className: "exploreCardInfo" },
+          el("div", { className: "guideName" }, item.icon + " " + item.name),
+          el("a", { className: "guideAddr", href: mapsUrl, target: "_blank", onclick: (e) => e.stopPropagation() }, item.address),
+          el("div", { className: "guideNote" }, item.note)
+        ),
+        rightSide
       )
-      nodes.push(card)
-    })
+    )
+    nodes.push(card)
+  })
 
-    const searchTerm = CATEGORY_SEARCH[cat] || CATEGORY_SEARCH.other
-    const findMore = el("a", {
-      className: "backupFindMore",
-      href: "https://www.google.com/maps/search/" + searchTerm + "+near+me",
-      target: "_blank",
-      onclick: (e) => e.stopPropagation()
-    }, "Find more " + cat + " nearby ›")
-    nodes.push(findMore)
+  if (items.length === 0) {
+    nodes.push(el("div", { className: "guideNote", style: "text-align:center;padding:20px" }, "No items in this category"))
   }
 
   container.replaceChildren(...nodes)
-  fetchBackupDistances()
 }
 
-function fetchBackupDistances() {
+function fetchExploreDistances() {
   if (!localStorage.getItem("nyc-gmaps-key")) return
-  // Use current location if available, otherwise use current stop address
-  const useGeolocation = navigator.geolocation
-  const fallback = () => {
-    const stop = getStop(state.day, state.stop)
-    fetchBackupDistancesFrom(stop.address)
+
+  if (swapTarget != null) {
+    const stop = data.days[state.day].stops[swapTarget]
+    exploreOriginLabel = stop.name
+    fetchExploreDistancesFrom(stop.address)
+    return
   }
-  if (useGeolocation) {
-    navigator.geolocation.getCurrentPosition(p => {
-      fetchBackupDistancesFrom(p.coords.latitude + "," + p.coords.longitude)
-    }, fallback, { timeout: 3000 })
+
+  const useStop = () => {
+    const stop = getStop(state.day, state.stop)
+    exploreOriginLabel = stop.name
+    fetchExploreDistancesFrom(stop.address)
+    renderExploreFilters()
+    renderExplore()
+  }
+
+  const useGeo = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(p => {
+        exploreOriginLabel = "You"
+        fetchExploreDistancesFrom(p.coords.latitude + "," + p.coords.longitude)
+        renderExploreFilters()
+        renderExplore()
+      }, useStop, { timeout: 3000 })
+    } else {
+      useStop()
+    }
+  }
+
+  if (exploreOriginMode === "stop") {
+    useStop()
+  } else if (exploreOriginMode === "geo") {
+    useGeo()
   } else {
-    fallback()
+    // "auto" — try geo, fallback to stop
+    useGeo()
   }
 }
 
-function fetchBackupDistancesFrom(origin) {
+function fetchExploreDistancesFrom(origin) {
   loadGoogleMaps().then(() => {
     if (!window.google?.maps) return
     const service = new google.maps.DistanceMatrixService()
-    const destinations = data.backups.map(b => b.address)
-    service.getDistanceMatrix({
-      origins: [origin],
-      destinations: destinations,
-      travelMode: google.maps.TravelMode.WALKING
-    }, (res, status) => {
-      if (status !== "OK") return
-      res.rows[0].elements.forEach((elem, i) => {
-        if (elem.status === "OK") {
-          backupDistances[i] = elem.duration.text + " walk"
-        }
+    const items = getExploreItems()
+    const batchSize = 25
+    for (let i = 0; i < items.length; i += batchSize) {
+      const batch = items.slice(i, i + batchSize)
+      service.getDistanceMatrix({
+        origins: [origin],
+        destinations: batch.map(it => it.address),
+        travelMode: google.maps.TravelMode.WALKING
+      }, (res, status) => {
+        if (status !== "OK") return
+        res.rows[0].elements.forEach((elem, j) => {
+          if (elem.status === "OK") {
+            exploreDistances[i + j] = {
+              text: elem.duration.text,
+              seconds: elem.duration.value
+            }
+          }
+        })
+        clearTimeout(exploreRenderTimer)
+        exploreRenderTimer = setTimeout(renderExplore, 200)
       })
-      renderBackupsOnly()
-    })
+    }
   }).catch(() => {})
 }
 
-function renderBackupsOnly() {
-  const container = document.getElementById("backupContent")
-  const groups = {}
-
-  data.backups.forEach((b, i) => {
-    const cat = b.category || "other"
-    if (!groups[cat]) groups[cat] = []
-    groups[cat].push({ ...b, index: i })
-  })
-
-  const nodes = []
-
-  for (const [cat, items] of Object.entries(groups)) {
-    items.sort((a, b) => {
-      const da = backupDistances[a.index]
-      const db = backupDistances[b.index]
-      if (!da && !db) return 0
-      if (!da) return 1
-      if (!db) return -1
-      return parseFloat(da) - parseFloat(db)
-    })
-
-    nodes.push(el("div", { className: "backupCategory" }, cat.toUpperCase()))
-
-    items.forEach(b => {
-      const dist = backupDistances[b.index]
-      const distLabel = dist ? " · " + dist : ""
-      const card = el("div", { className: "backupItem", onclick: () => selectBackup(b.index) },
-        el("div", { className: "backupName" }, (b.icon || "") + " " + b.name),
-        el("div", { className: "backupArea" }, b.area + distLabel)
-      )
-      nodes.push(card)
-    })
-
-    const searchTerm = CATEGORY_SEARCH[cat] || CATEGORY_SEARCH.other
-    const findMore = el("a", {
-      className: "backupFindMore",
-      href: "https://www.google.com/maps/search/" + searchTerm + "+near+me",
-      target: "_blank",
-      onclick: (e) => e.stopPropagation()
-    }, "Find more " + cat + " nearby ›")
-    nodes.push(findMore)
-  }
-
-  container.replaceChildren(...nodes)
-}
-
-function selectBackup(backupIndex) {
-  if (swapTarget != null) {
-    const original = data.days[state.day].stops[swapTarget]
-    if (original.type === "reserved") return
-
-    state.swaps[state.day + "-" + swapTarget] = backupIndex
-    closeBackups()
-    render()
-  } else {
-    const backup = data.backups[backupIndex]
-    if (backup.address) {
-      window.open("https://www.google.com/maps/search/" + encodeURIComponent(backup.name + " " + backup.address))
-    }
-    closeBackups()
-  }
+function selectAlternative(altIndex) {
+  if (swapTarget == null) return
+  const original = data.days[state.day].stops[swapTarget]
+  if (original.type === "reserved") return
+  state.swaps[state.day + "-" + swapTarget] = altIndex
+  closeGuides()
+  render()
 }
 
 function restoreStop(dayIndex, stopIndex) {
   delete state.swaps[dayIndex + "-" + stopIndex]
   render()
+}
+
+// --- Alerts ---
+
+const ALERT_TYPES = {
+  reservations: { label: "Reservations", desc: "60 & 15 min before booked events" },
+  leaveNow:    { label: "Leave Now",    desc: "Travel time reminders to next stop" },
+  weather:     { label: "Weather",      desc: "Rain alerts for today's stops" },
+  sunset:      { label: "Sunset",       desc: "Golden hour reminder at sunset spots" }
+}
+
+function getAlertPref(type) {
+  const v = localStorage.getItem("nyc-alert-" + type)
+  return v === null ? true : v === "1"
+}
+
+function setAlertPref(type, on) {
+  localStorage.setItem("nyc-alert-" + type, on ? "1" : "0")
+  const btn = document.getElementById("alert-" + type)
+  if (btn) btn.classList.toggle("active", on)
+  if (on) requestAlertPermission()
+}
+
+function anyAlertsEnabled() {
+  return Object.keys(ALERT_TYPES).some(t => getAlertPref(t))
+}
+
+function requestAlertPermission() {
+  if (!("Notification" in window)) return
+  if (Notification.permission === "default") {
+    Notification.requestPermission()
+  }
+}
+
+function sendAlert(tag, body) {
+  if (!("Notification" in window) || Notification.permission !== "granted") return
+  if (localStorage.getItem(tag)) return
+  localStorage.setItem(tag, "1")
+  new Notification("NYC Trip", {
+    body: body,
+    tag: tag,
+    requireInteraction: true
+  })
+}
+
+function getTodayIndex() {
+  if (!data) return -1
+  const now = new Date()
+  const today = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0")
+  return data.days.findIndex(d => d.date === today)
+}
+
+function checkAlerts() {
+  if (!anyAlertsEnabled()) return
+  if (!("Notification" in window) || Notification.permission !== "granted") return
+  if (!data) return
+
+  const dayIndex = getTodayIndex()
+  if (dayIndex < 0) return
+
+  const day = data.days[dayIndex]
+  const now = new Date()
+  const nowMins = now.getHours() * 60 + now.getMinutes()
+
+  // --- Reservation alerts (60 min & 15 min before) ---
+  if (getAlertPref("reservations")) {
+    day.stops.forEach((_, i) => {
+      const stop = getStop(dayIndex, i)
+      if (stop.type !== "reserved" || !stop.time) return
+      const [h, m] = stop.time.split(":").map(Number)
+      const eventMins = h * 60 + m
+
+      ;[{ mins: 60, label: "in 1 hour" }, { mins: 15, label: "in 15 minutes" }].forEach(({ mins, label }) => {
+        const alertAt = eventMins - mins
+        if (nowMins >= alertAt && nowMins < alertAt + 2) {
+          const tag = "nyc-a-res-" + day.date + "-" + i + "-" + mins
+          sendAlert(tag, (stop.icon || "") + " " + stop.name + " " + label + " (" + stop.time + ")")
+        }
+      })
+    })
+  }
+
+  // --- Leave Now alerts (based on travel time to next timed stop) ---
+  if (getAlertPref("leaveNow")) {
+    day.stops.forEach((_, i) => {
+      const stop = getStop(dayIndex, i)
+      if (!stop.time) return
+      const [h, m] = stop.time.split(":").map(Number)
+      const eventMins = h * 60 + m
+
+      const tKey = i === 0 ? dayIndex + "-h0" : dayIndex + "-" + (i - 1)
+      const times = travelTimes[tKey]
+      if (!times || !times.walk) return
+
+      const walkMatch = times.walk.match(/(\d+)/)
+      if (!walkMatch) return
+      const walkMins = parseInt(walkMatch[1], 10)
+      const leaveAt = eventMins - walkMins - 5
+
+      if (nowMins >= leaveAt && nowMins < leaveAt + 2) {
+        const tag = "nyc-a-leave-" + day.date + "-" + i
+        sendAlert(tag, "Leave now for " + (stop.icon || "") + " " + stop.name + " (" + times.walk + " walk, arrives " + stop.time + ")")
+      }
+    })
+  }
+
+  // --- Weather alerts (morning rain warning) ---
+  if (getAlertPref("weather") && hourlyWeather) {
+    const rainyStops = []
+    day.stops.forEach((_, i) => {
+      const stop = getStop(dayIndex, i)
+      const hour = stop.time ? parseInt(stop.time.split(":")[0], 10) : getStopHour(i, day.stops.length)
+      const rain = hourlyWeather.precipitation_probability[hour]
+      if (rain >= 50) rainyStops.push({ rain, name: stop.name })
+    })
+
+    if (rainyStops.length > 0 && nowMins >= 420 && nowMins < 540) {
+      const tag = "nyc-a-wx-" + day.date
+      const worst = rainyStops.reduce((a, b) => a.rain > b.rain ? a : b)
+      sendAlert(tag, "Rain likely today (" + worst.rain + "% at " + worst.name + "). Bring an umbrella!")
+    }
+  }
+
+  // --- Sunset alerts (45 min before sunset at sunset spots) ---
+  if (getAlertPref("sunset")) {
+    const sunsetMins = 19 * 60 + 10  // ~7:10pm mid-March NYC
+    const goldenStart = sunsetMins - 45
+
+    day.stops.forEach((_, i) => {
+      const stop = getStop(dayIndex, i)
+      const text = (stop.note || "") + " " + (stop.name || "")
+      if (!/sunset|rooftop|skyline|golden/i.test(text)) return
+
+      if (nowMins >= goldenStart && nowMins < goldenStart + 2) {
+        const tag = "nyc-a-sun-" + day.date + "-" + i
+        sendAlert(tag, "Golden hour starting! Head to " + (stop.icon || "") + " " + stop.name + " for sunset")
+      }
+    })
+  }
+}
+
+setInterval(checkAlerts, 60000)
+
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) checkAlerts()
+})
+
+function initAlertSettings() {
+  Object.keys(ALERT_TYPES).forEach(type => {
+    const btn = document.getElementById("alert-" + type)
+    if (btn) btn.classList.toggle("active", getAlertPref(type))
+  })
 }
 
 // --- Service worker ---

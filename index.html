@@ -50,11 +50,22 @@
 <rect x="50" y="28" width="4" height="6" rx="1" fill="#f5f0e8"/>
 </svg>
 </div>
-<div class="menu-item" id="menuHotel" onclick="returnHotel()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M2 16V7l7-5 7 5v9H2zm3-2h3v-4h2v4h3V8L9 4 4 8v6z"/></svg> Back to Hotel</div>
-<div class="menu-item" onclick="nearbyCoffee()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M3 5h9v1h2a3 3 0 010 6h-2v1H3V5zm9 5h2a1 1 0 000-2h-2v2zM4 15h8v1H4z"/></svg> Coffee</div>
-<div class="menu-item" onclick="nearbyFood()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M3 2v7a3 3 0 002 2.83V16h2v-4.17A3 3 0 009 9V2H7v5H6V2H4v5H3V2zm10 0v14h2V9h2V5a3 3 0 00-3-3h-1z"/></svg> Food</div>
-<div class="menu-item" onclick="openGuides()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M3 2h9v1h1v1h1v10h-1v1h-1v1H3V2zm2 2v10h7V4H5zm1 2h5v1H6zm0 2h5v1H6zm0 2h3v1H6z"/></svg> Explore</div>
-<div class="menu-item" onclick="openBackups()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M9 1l2 4 4.5.7-3.2 3.1.8 4.5L9 11.2 4.9 13.3l.8-4.5L2.5 5.7 7 5z"/></svg> Backups</div>
+<div class="menu-section">Navigation</div>
+<div class="menu-item" id="menuHotel" onclick="returnHotel()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M2 16V7l7-5 7 5v9H2zm3-2h3v-4h2v4h3V8L9 4 4 8v6z"/></svg> Back to Hotel <svg class="menu-maps-icon" viewBox="0 0 18 18" fill="currentColor"><path d="M9 1C6.2 1 4 3.4 4 6.5 4 11 9 17 9 17s5-6 5-10.5C14 3.4 11.8 1 9 1zm0 7.5a2 2 0 110-4 2 2 0 010 4z"/></svg></div>
+<div class="menu-item" onclick="openSubwayMap()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M5 2h8a2 2 0 012 2v8a2 2 0 01-2 2l2 2h-1.5L12 14H6l-1.5 2H3l2-2a2 2 0 01-2-2V4a2 2 0 012-2zm0 2v4h3V4H5zm5 0v4h3V4h-3zM6.5 10a1 1 0 100 2 1 1 0 000-2zm5 0a1 1 0 100 2 1 1 0 000-2z"/></svg> Subway Map</div>
+
+<div class="menu-section">Nearby</div>
+<div class="menu-item" onclick="nearbyCoffee()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M3 5h9v1h2a3 3 0 010 6h-2v1H3V5zm9 5h2a1 1 0 000-2h-2v2zM4 15h8v1H4z"/></svg> Coffee <svg class="menu-maps-icon" viewBox="0 0 18 18" fill="currentColor"><path d="M9 1C6.2 1 4 3.4 4 6.5 4 11 9 17 9 17s5-6 5-10.5C14 3.4 11.8 1 9 1zm0 7.5a2 2 0 110-4 2 2 0 010 4z"/></svg></div>
+<div class="menu-item" onclick="nearbyFood()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M3 2v7a3 3 0 002 2.83V16h2v-4.17A3 3 0 009 9V2H7v5H6V2H4v5H3V2zm10 0v14h2V9h2V5a3 3 0 00-3-3h-1z"/></svg> Food <svg class="menu-maps-icon" viewBox="0 0 18 18" fill="currentColor"><path d="M9 1C6.2 1 4 3.4 4 6.5 4 11 9 17 9 17s5-6 5-10.5C14 3.4 11.8 1 9 1zm0 7.5a2 2 0 110-4 2 2 0 010 4z"/></svg></div>
+<div class="menu-item" onclick="nearbyShopping()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M6 2a3 3 0 016 0h2.5a.5.5 0 01.5.5L14 15.5a1.5 1.5 0 01-1.5 1.5h-7A1.5 1.5 0 014 15.5L3 2.5a.5.5 0 01.5-.5H6zm1 0h4a2 2 0 00-4 0zm-1 4a3 3 0 006 0v-1H6v1z"/></svg> Shopping <svg class="menu-maps-icon" viewBox="0 0 18 18" fill="currentColor"><path d="M9 1C6.2 1 4 3.4 4 6.5 4 11 9 17 9 17s5-6 5-10.5C14 3.4 11.8 1 9 1zm0 7.5a2 2 0 110-4 2 2 0 010 4z"/></svg></div>
+<div class="menu-item" onclick="nearbyRestrooms()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M5.5 2a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm7 0a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM4 6h3l.5 4H6v6H5v-6H3.5L4 6zm6 0h3l1 4h-1v6h-1v-6h-1v6h-1v-6H9.5L10 6z"/></svg> Restrooms <svg class="menu-maps-icon" viewBox="0 0 18 18" fill="currentColor"><path d="M9 1C6.2 1 4 3.4 4 6.5 4 11 9 17 9 17s5-6 5-10.5C14 3.4 11.8 1 9 1zm0 7.5a2 2 0 110-4 2 2 0 010 4z"/></svg></div>
+<div class="menu-item" onclick="nearbyPharmacy()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M4 3h10a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1zm4.5 3v2.5H6v1h2.5V12h1V9.5H12v-1H9.5V6h-1z"/></svg> Pharmacy <svg class="menu-maps-icon" viewBox="0 0 18 18" fill="currentColor"><path d="M9 1C6.2 1 4 3.4 4 6.5 4 11 9 17 9 17s5-6 5-10.5C14 3.4 11.8 1 9 1zm0 7.5a2 2 0 110-4 2 2 0 010 4z"/></svg></div>
+
+<div class="menu-section">Tools</div>
+<div class="menu-item" onclick="openGuides()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M9 1l2.5 5 5.5.8-4 3.9.9 5.3L9 13.5 4.1 16l.9-5.3-4-3.9L6.5 6z"/></svg> Curated</div>
+<div class="menu-item" onclick="openCurrency()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M9 1a8 8 0 100 16A8 8 0 009 1zm.5 3v1.2c1.1.2 2 .8 2 1.8h-1.3c0-.5-.5-.9-1.2-.9-.8 0-1.3.4-1.3 1s.4.8 1.3 1l.7.2c1.3.3 2.1.9 2.1 2 0 1.1-.9 1.7-2.3 1.9V13h-1v-1.2c-1.2-.2-2.1-.8-2.2-1.9h1.4c.1.6.6 1 1.3 1 .9 0 1.3-.4 1.3-.9 0-.5-.3-.8-1.2-1l-.8-.2c-1.1-.3-2-.8-2-2 0-1 .8-1.7 2.1-1.9V4h1z"/></svg> Currency <span class="menu-badge">GBP/USD</span></div>
+
+<div class="menu-section">Help</div>
 <div class="menu-item" onclick="openEmergency()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M9 1a8 8 0 100 16A8 8 0 009 1zm-.5 4h1v5h-1V5zm0 7h1v1h-1v-1z"/></svg> Emergency</div>
 <div class="menu-item" onclick="openSettings()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M7.5 1.5l-.4 1.9a5.5 5.5 0 00-1.6.9L3.6 3.5l-1.5 2.6 1.5 1.3a5.6 5.6 0 000 1.8l-1.5 1.3 1.5 2.6 1.9-.8c.5.4 1 .7 1.6.9l.4 1.9h3l.4-1.9a5.5 5.5 0 001.6-.9l1.9.8 1.5-2.6-1.5-1.3a5.6 5.6 0 000-1.8l1.5-1.3-1.5-2.6-1.9.8a5.5 5.5 0 00-1.6-.9L10.5 1.5h-3zM9 6a2.5 2.5 0 110 5 2.5 2.5 0 010-5z"/></svg> Settings</div>
 </nav>
@@ -75,24 +86,40 @@
 
 </header>
 
+<div id="routeMapContainer"></div>
 <div id="stops"></div>
 
 <div id="guidesOverlay" onclick="closeGuides()"></div>
 <div id="guidesSheet">
 <div class="sheetHeader">
-<span>Explore</span>
+<span id="guidesTitle">&#9733;</span>
+<button id="guidesOriginBtn" class="originBtn" onclick="cycleExploreOrigin()" aria-label="Change origin"></button>
 <button onclick="closeGuides()" aria-label="Close">✕</button>
 </div>
+<div id="guidesFilters" class="guidesFilters"></div>
 <div id="guidesContent"></div>
 </div>
 
-<div id="backupOverlay" onclick="closeBackups()"></div>
-<div id="backupSheet">
+
+<div id="currencyOverlay" onclick="closeCurrency()"></div>
+<div id="currencySheet">
 <div class="sheetHeader">
-<span>Backup Ideas</span>
-<button onclick="closeBackups()" aria-label="Close">✕</button>
+<span>Currency</span>
+<button onclick="closeCurrency()" aria-label="Close">✕</button>
 </div>
-<div id="backupContent"></div>
+<div id="currencyContent" class="currencyContent">
+<div id="currencyRate" class="currencyRate">Loading rate...</div>
+<div class="currencyRow">
+<label id="currencyFromLabel" class="currencyLabel">GBP</label>
+<input id="currencyInput" type="number" class="settingsInput currencyInput" placeholder="0.00" inputmode="decimal" oninput="convertCurrency()">
+<button class="currencyFlip" onclick="flipCurrency()" aria-label="Flip direction">⇄</button>
+</div>
+<select id="currencyDir" class="currencyDirSelect" onchange="convertCurrency()" style="display:none">
+<option value="gbp-usd">GBP → USD</option>
+<option value="usd-gbp">USD → GBP</option>
+</select>
+<div id="currencyResult" class="currencyResult"></div>
+</div>
 </div>
 
 <div id="emergencyOverlay" onclick="closeEmergency()"></div>
@@ -102,6 +129,18 @@
 <button onclick="closeEmergency()" aria-label="Close">✕</button>
 </div>
 <div id="emergencyContent"></div>
+</div>
+
+<div id="subwayMapOverlay" onclick="closeSubwayMap()"></div>
+<div id="subwayMapSheet">
+<div class="sheetHeader">
+<span>Subway Map</span>
+<button onclick="resetSubwayZoom()" aria-label="Reset zoom">⟲</button>
+<button onclick="closeSubwayMap()" aria-label="Close">✕</button>
+</div>
+<div id="subwayMapContent">
+<img id="subwayMapImg" src="subway-map.svg" alt="NYC Subway Map" draggable="false">
+</div>
 </div>
 
 <div id="settingsOverlay" onclick="closeSettings()"></div>
@@ -129,8 +168,8 @@
 </div>
 <label class="settingsLabel">Temperature</label>
 <div class="settingsToggle">
-<button id="tempF" class="toggleBtn active" onclick="setTempUnit('fahrenheit')">°F</button>
-<button id="tempC" class="toggleBtn" onclick="setTempUnit('celsius')">°C</button>
+<button id="tempC" class="toggleBtn active" onclick="setTempUnit('celsius')">°C</button>
+<button id="tempF" class="toggleBtn" onclick="setTempUnit('fahrenheit')">°F</button>
 </div>
 <label class="settingsLabel">Google Maps API Key</label>
 <div class="settingsInputRow">
@@ -138,6 +177,31 @@
 <button class="copyBtn" onclick="copyGmapsKey()" aria-label="Copy API key">Copy</button>
 </div>
 <p class="settingsNote">Enables real-time walk, subway and taxi durations between stops.</p>
+<label class="settingsLabel">Alerts</label>
+<div class="alertToggles">
+<button id="alert-reservations" class="alertToggle active" onclick="setAlertPref('reservations', !getAlertPref('reservations'))">
+<span class="alertToggleIcon">🎭</span>
+<span class="alertToggleLabel">Reservations</span>
+<span class="alertToggleDesc">60 & 15 min before</span>
+</button>
+<button id="alert-leaveNow" class="alertToggle active" onclick="setAlertPref('leaveNow', !getAlertPref('leaveNow'))">
+<span class="alertToggleIcon">🚶</span>
+<span class="alertToggleLabel">Leave Now</span>
+<span class="alertToggleDesc">Walk time reminders</span>
+</button>
+<button id="alert-weather" class="alertToggle active" onclick="setAlertPref('weather', !getAlertPref('weather'))">
+<span class="alertToggleIcon">🌧</span>
+<span class="alertToggleLabel">Weather</span>
+<span class="alertToggleDesc">Morning rain warning</span>
+</button>
+<button id="alert-sunset" class="alertToggle active" onclick="setAlertPref('sunset', !getAlertPref('sunset'))">
+<span class="alertToggleIcon">🌅</span>
+<span class="alertToggleLabel">Sunset</span>
+<span class="alertToggleDesc">Golden hour heads-up</span>
+</button>
+</div>
+<p class="settingsNote">Requires notification permission. Alerts fire while the app is open.</p>
+<button class="toggleBtn" style="width:100%;margin-top:1.2em" onclick="forceReload()">Force Reload App</button>
 <div id="settingsVersion" class="settingsVersion"></div>
 </div>
 </div>

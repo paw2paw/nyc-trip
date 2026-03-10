@@ -1,4 +1,4 @@
-const CACHE = "nyc-trip-v6"
+const CACHE = "nyc-trip-v10"
 
 const SHELL = [
   "./",
@@ -6,7 +6,8 @@ const SHELL = [
   "./layout.css",
   "./app.js",
   "./data.json",
-  "./manifest.json"
+  "./manifest.json",
+  "./subway-map.svg"
 ]
 
 self.addEventListener("install", e => {

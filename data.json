@@ -131,7 +131,12 @@
       {"name": "Westlight", "note": "22nd floor of William Vale hotel. 360° views, stunning at sunset", "address": "111 N 12th St, Brooklyn"},
       {"name": "Harriet's Rooftop", "note": "At 1 Hotel Brooklyn Bridge. Manhattan skyline cocktails", "address": "60 Furman St, Brooklyn"},
       {"name": "The Campbell", "note": "Grand Central's hidden bar. Painted ceilings, old-money glamour", "address": "15 Vanderbilt Ave, New York"},
-      {"name": "Dear Irving on Hudson", "note": "39th floor of Aliz Hotel. Themed rooms, jaw-dropping views", "address": "310 W 40th St, New York"}
+      {"name": "Dear Irving on Hudson", "note": "39th floor of Aliz Hotel. Themed rooms, jaw-dropping views", "address": "310 W 40th St, New York"},
+      {"name": "Temple Bar", "note": "Speakeasy vibes, no sign outside. Dress smart. Strong martinis", "address": "332 Lafayette St, New York"},
+      {"name": "Dante", "note": "World's Best Bar multiple years running. Negronis are the move. MacDougal St", "address": "79 MacDougal St, New York"},
+      {"name": "Dead Rabbit", "note": "Multi-floor cocktail bar in FiDi. Irish-inspired, award-winning. Taproom downstairs", "address": "30 Water St, New York"},
+      {"name": "Bemelmans Bar", "note": "Live piano, Madeline murals on the walls. Old-money Upper East Side glamour", "address": "35 E 76th St, New York"},
+      {"name": "Rudy's Bar & Grill", "note": "Legendary Hell's Kitchen dive. Free hot dogs, cheap pitchers. Pure NYC", "address": "627 9th Ave, New York"}
     ]
   },
   {
@@ -171,7 +176,21 @@
       {"name": "Scarr's Pizza", "note": "LES slice joint. House-milled flour, old-school vibes. Locals swear by it", "address": "22 Orchard St, New York"},
       {"name": "Thai Diner", "note": "Thai-American diner mashup in Nolita. Khao soi french dip is unreal", "address": "186 Mott St, New York"},
       {"name": "Kalustyan's", "note": "Legendary spice shop. Their sandwiches are a cult favourite — get the #1 Special", "address": "123 Lexington Ave, New York"},
-      {"name": "Court Street Grocers", "note": "Best deli sandwiches in Brooklyn. Carroll Gardens & DUMBO locations", "address": "485 Court St, Brooklyn"}
+      {"name": "Court Street Grocers", "note": "Best deli sandwiches in Brooklyn. Carroll Gardens & DUMBO locations", "address": "485 Court St, Brooklyn"},
+      {"name": "Joe's Pizza", "note": "Classic NYC slice since 1975. Cash only, always a queue. The benchmark", "address": "7 Carmine St, New York", "icon": "🍕"},
+      {"name": "Banh Mi Saigon", "note": "Best banh mi in Chinatown. Crispy baguette, $6. Quick and perfect", "address": "198 Grand St, New York", "icon": "🍜"},
+      {"name": "Felix Roasting Co", "note": "Beautiful interiors, great for photos. Order the oat latte. Flatiron", "address": "450 Park Ave South, New York", "icon": "☕"},
+      {"name": "L'Industrie Pizzeria", "note": "Williamsburg's best slice. Burrata slice is legendary. Always a line, always worth it", "address": "254 S 2nd St, Brooklyn", "icon": "🍕"},
+      {"name": "Katz's Delicatessen", "note": "Pastrami on rye since 1888. Cash only counter, card at table. Skip the tourist line — go at 3pm", "address": "205 E Houston St, New York", "icon": "🥪"},
+      {"name": "Los Tacos No.1", "note": "Best tacos in Manhattan. Adobada and nopal are the move. Also in Chelsea Market", "address": "75 9th Ave, New York", "icon": "🌮"},
+      {"name": "Hanon", "note": "Tiny Japanese cream puff shop in West Village. Pistachio is incredible. Instagram queue but worth it", "address": "40 Bedford St, New York", "icon": "🍰"},
+      {"name": "Vanessa's Dumpling House", "note": "4 dumplings for $3. Chinatown institution, no frills. Fried pork dumplings are the one", "address": "118A Eldridge St, New York", "icon": "🥟"},
+      {"name": "Punjabi Grocery & Deli", "note": "24-hour bodega-style Indian food on Houston. $7 combo plate, taxi drivers' favourite", "address": "114 E 1st St, New York", "icon": "🍛"},
+      {"name": "Di Fara Pizza", "note": "Dom DeMarco's legendary Midwood slice. Worth the trek to Brooklyn. Cash only", "address": "1424 Avenue J, Brooklyn", "icon": "🍕"},
+      {"name": "Taqueria Al Pastor", "note": "Tiny East Harlem spot. Legit al pastor with pineapple. $3 tacos, pure Mexico City vibes", "address": "2307 2nd Ave, New York", "icon": "🌮"},
+      {"name": "Ops", "note": "Bushwick natural wine bar with wood-fired pizza. Local date-night spot, great vibe", "address": "346 Himrod St, Brooklyn", "icon": "🍕"},
+      {"name": "Win Son", "note": "Taiwanese-American brunch & dinner in Williamsburg. Fly's head popcorn chicken is unreal", "address": "159 Graham Ave, Brooklyn", "icon": "🍜"},
+      {"name": "Gigi's", "note": "Cobble Hill neighbourhood Italian. House focaccia, natural wines. Very local crowd", "address": "323 Smith St, Brooklyn", "icon": "🍝"}
     ]
   },
   {
@@ -186,34 +205,6 @@
       {"name": "Eastville Comedy Club", "note": "Intimate basement in the East Village. $5–10 shows, surprisingly great acts", "address": "85 E 4th St, New York"}
     ]
   }
-],
-
-"backups": [
-  {"name": "Joe's Pizza", "area": "Greenwich Village", "category": "food", "address": "7 Carmine St, New York", "icon": "🍕"},
-  {"name": "Banh Mi Saigon", "area": "Chinatown", "category": "food", "address": "198 Grand St, New York", "icon": "🍜"},
-  {"name": "Apotheke", "area": "Chinatown", "category": "bar", "address": "9 Doyers St, New York", "icon": "🍸"},
-  {"name": "Attaboy", "area": "Lower East Side", "category": "bar", "address": "134 Eldridge St, New York", "icon": "🍸"},
-  {"name": "Comedy Cellar", "area": "Greenwich Village", "category": "comedy", "address": "117 MacDougal St, New York", "icon": "🎭"},
-  {"name": "Gotham Comedy Club", "area": "Chelsea", "category": "comedy", "address": "208 W 23rd St, New York", "icon": "🎭"},
-  {"name": "Temple Bar", "area": "NoHo", "category": "bar", "address": "332 Lafayette St, New York", "icon": "🍸"},
-  {"name": "Felix Roasting Co", "area": "Flatiron", "category": "coffee", "address": "450 Park Ave South, New York", "icon": "☕"},
-  {"name": "Mezzrow", "area": "West Village", "category": "jazz", "address": "7 W 10th St, New York", "icon": "🎷"},
-  {"name": "Village Vanguard", "area": "West Village", "category": "jazz", "address": "178 7th Ave S, New York", "icon": "🎷"},
-  {"name": "Dante", "area": "Greenwich Village", "category": "bar", "address": "79 MacDougal St, New York", "icon": "🍸"},
-  {"name": "Dead Rabbit", "area": "Financial District", "category": "bar", "address": "30 Water St, New York", "icon": "🍸"},
-  {"name": "Bemelmans Bar", "area": "Upper East Side", "category": "bar", "address": "35 E 76th St, New York", "icon": "🎹"},
-  {"name": "Dizzy's Club", "area": "Columbus Circle", "category": "jazz", "address": "33 W 60th St, New York", "icon": "🎷"},
-  {"name": "Russ & Daughters", "area": "Lower East Side", "category": "food", "address": "179 E Houston St, New York", "icon": "🥯"},
-  {"name": "Prince Street Pizza", "area": "SoHo", "category": "food", "address": "27 Prince St, New York", "icon": "🍕"},
-  {"name": "Scarr's Pizza", "area": "Lower East Side", "category": "food", "address": "22 Orchard St, New York", "icon": "🍕"},
-  {"name": "Superiority Burger", "area": "East Village", "category": "food", "address": "119 Avenue A, New York", "icon": "🍔"},
-  {"name": "Thai Diner", "area": "Nolita", "category": "food", "address": "186 Mott St, New York", "icon": "🍜"},
-  {"name": "Barbès", "area": "Park Slope", "category": "jazz", "address": "376 9th St, Brooklyn", "icon": "🎷"},
-  {"name": "Lucali", "area": "Carroll Gardens", "category": "food", "address": "575 Henry St, Brooklyn", "icon": "🍕"},
-  {"name": "Court Street Grocers", "area": "Carroll Gardens", "category": "food", "address": "485 Court St, Brooklyn", "icon": "🥪"},
-  {"name": "Nublu", "area": "East Village", "category": "music", "address": "151 Avenue C, New York", "icon": "🎵"},
-  {"name": "Rudy's Bar & Grill", "area": "Hell's Kitchen", "category": "bar", "address": "627 9th Ave, New York", "icon": "🍺"},
-  {"name": "Please Don't Tell (PDT)", "area": "East Village", "category": "bar", "address": "113 St Marks Pl, New York", "icon": "🍸"}
 ]
 
 }

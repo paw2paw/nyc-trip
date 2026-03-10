@@ -38,7 +38,6 @@ body {
   max-width: 100vw;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
   background: var(--ink-mid);
   font-family: "Josefin Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   color: var(--ink-mid);
@@ -65,10 +64,20 @@ body {
   padding: 16px;
   padding-bottom: calc(16px + env(safe-area-inset-bottom));
   background:
-    /* subtle fan/sunburst repeating pattern */
+    /* deco fan pattern */
     radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.06) 0%, transparent 60%) 0 0 / 80px 40px repeat,
     radial-gradient(ellipse at 50% 100%, rgba(201,168,76,0.04) 0%, transparent 60%) 40px 20px / 80px 40px repeat,
-    var(--cream);
+    /* morning → night gradient */
+    linear-gradient(
+      180deg,
+      #fdf6e8 0%,       /* warm sunrise cream */
+      #f5f0e8 20%,      /* morning */
+      #f0ece4 45%,      /* midday */
+      #e8e2dc 65%,      /* afternoon */
+      #d8d0c8 80%,      /* golden hour */
+      #2a2830 95%,      /* dusk */
+      #1a1820 100%      /* night */
+    );
   min-height: 100vh;
   transition: transform 0.25s ease;
 }
@@ -270,6 +279,12 @@ header {
   padding: 10px 16px;
   border-bottom: 1px solid var(--border);
   margin-bottom: 12px;
+  text-decoration: none;
+  display: block;
+}
+
+.stop.hotel:active {
+  color: var(--gold);
 }
 
 /* === Stop internals === */
@@ -391,6 +406,16 @@ a.stopAddr:active {
   color: var(--gold);
 }
 
+.stopName {
+  color: inherit;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.stopName:active {
+  color: var(--gold);
+}
+
 .weatherBadge {
   display: flex;
   flex-direction: column;
@@ -505,6 +530,76 @@ a.stopAddr:active {
   flex-shrink: 0;
 }
 
+.travelDist {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--gold-dark);
+  white-space: nowrap;
+  margin-right: auto;
+}
+
+.travelDist svg.pin-icon {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+  color: var(--gold);
+}
+
+/* === Alert Rows === */
+
+.alertRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  margin-bottom: 6px;
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  clip-path: var(--deco-clip-sm);
+  line-height: 1.4;
+}
+
+.alertRowIcon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.alertRowText {
+  flex: 1;
+  min-width: 0;
+}
+
+.alertRow.alertWeather {
+  background: #eef0ff;
+  color: #445;
+  border-left: 3px solid #7788cc;
+}
+
+.alertRow.alertReservation {
+  background: #fff8e8;
+  color: #665520;
+  border-left: 3px solid var(--gold);
+}
+
+.alertRow.alertLeave {
+  background: #f0f8f0;
+  color: #336633;
+  border-left: 3px solid #66aa66;
+}
+
+.alertRow.alertSunset {
+  background: #fff5ee;
+  color: #885533;
+  border-left: 3px solid #dd8844;
+}
+
 /* === Art Deco Divider (between hotel and stops) === */
 
 .stop.hotel + .stop:not(.hotel) {
@@ -544,6 +639,8 @@ a.stopAddr:active {
   left: 0;
   width: 240px;
   height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background:
     /* Art Deco zigzag wallpaper pattern */
     repeating-linear-gradient(
@@ -618,19 +715,62 @@ a.stopAddr:active {
   transition: background 0.15s ease, color 0.15s ease, opacity 0.01s ease, transform 0.01s ease;
 }
 
-/* Staggered cascade entrance */
-#menu.open .menu-item {
+/* Menu section dividers */
+#menu .menu-section {
+  padding: 10px 12px 4px;
+  font-size: 10px;
+  font-family: "Josefin Sans", sans-serif;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 0.01s ease, transform 0.01s ease;
+  border-bottom: 1px solid rgba(201,168,76,0.12);
+}
+
+#menu .menu-section:first-of-type {
+  margin-top: 0;
+}
+
+#menu.open .menu-section {
+  opacity: 0.7;
+  transform: translateX(0);
+}
+
+/* Menu badge (e.g. GBP/USD) */
+.menu-badge {
+  margin-left: auto;
+  font-size: 9px;
+  letter-spacing: 1px;
+  opacity: 0.45;
+  font-weight: 400;
+}
+
+/* Staggered cascade entrance — items and sections */
+#menu.open .menu-item,
+#menu.open .menu-section {
   opacity: 1;
   transform: translateX(0);
 }
 
-#menu.open .menu-item:nth-child(2) { transition: opacity 0.25s 0.08s ease, transform 0.35s 0.08s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease; }
-#menu.open .menu-item:nth-child(3) { transition: opacity 0.25s 0.12s ease, transform 0.35s 0.12s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease; }
-#menu.open .menu-item:nth-child(4) { transition: opacity 0.25s 0.16s ease, transform 0.35s 0.16s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease; }
-#menu.open .menu-item:nth-child(5) { transition: opacity 0.25s 0.20s ease, transform 0.35s 0.20s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease; }
-#menu.open .menu-item:nth-child(6) { transition: opacity 0.25s 0.24s ease, transform 0.35s 0.24s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease; }
-#menu.open .menu-item:nth-child(7) { transition: opacity 0.25s 0.28s ease, transform 0.35s 0.28s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease; }
-#menu.open .menu-item:nth-child(8) { transition: opacity 0.25s 0.32s ease, transform 0.35s 0.32s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease; }
+#menu.open > :nth-child(2)  { transition: opacity 0.25s 0.06s ease, transform 0.35s 0.06s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease; }
+#menu.open > :nth-child(3)  { transition: opacity 0.25s 0.09s ease, transform 0.35s 0.09s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease; }
+#menu.open > :nth-child(4)  { transition: opacity 0.25s 0.12s ease, transform 0.35s 0.12s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease; }
+#menu.open > :nth-child(5)  { transition: opacity 0.25s 0.14s ease, transform 0.35s 0.14s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease; }
+#menu.open > :nth-child(6)  { transition: opacity 0.25s 0.16s ease, transform 0.35s 0.16s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease; }
+#menu.open > :nth-child(7)  { transition: opacity 0.25s 0.18s ease, transform 0.35s 0.18s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease; }
+#menu.open > :nth-child(8)  { transition: opacity 0.25s 0.20s ease, transform 0.35s 0.20s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease; }
+#menu.open > :nth-child(9)  { transition: opacity 0.25s 0.22s ease, transform 0.35s 0.22s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease; }
+#menu.open > :nth-child(10) { transition: opacity 0.25s 0.24s ease, transform 0.35s 0.24s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease; }
+#menu.open > :nth-child(11) { transition: opacity 0.25s 0.26s ease, transform 0.35s 0.26s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease; }
+#menu.open > :nth-child(12) { transition: opacity 0.25s 0.28s ease, transform 0.35s 0.28s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease; }
+#menu.open > :nth-child(13) { transition: opacity 0.25s 0.30s ease, transform 0.35s 0.30s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease; }
+#menu.open > :nth-child(14) { transition: opacity 0.25s 0.32s ease, transform 0.35s 0.32s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease; }
+#menu.open > :nth-child(15) { transition: opacity 0.25s 0.34s ease, transform 0.35s 0.34s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease; }
+#menu.open > :nth-child(16) { transition: opacity 0.25s 0.36s ease, transform 0.35s 0.36s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease; }
+#menu.open > :nth-child(17) { transition: opacity 0.25s 0.38s ease, transform 0.35s 0.38s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease; }
 
 #menu .menu-item:last-child {
   border-bottom: none;
@@ -645,6 +785,13 @@ a.stopAddr:active {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
+}
+
+#menu .menu-item .menu-maps-icon {
+  width: 14px;
+  height: 14px;
+  opacity: 0.45;
+  margin-left: auto;
 }
 
 #menuOverlay {
@@ -721,6 +868,34 @@ a.stopAddr:active {
   flex-shrink: 0;
   letter-spacing: 1px;
   text-transform: uppercase;
+}
+
+.originBtn {
+  width: auto !important;
+  padding: 0 12px !important;
+  height: 36px !important;
+  gap: 4px;
+  font-family: "Josefin Sans", sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--gold-dark) !important;
+  background: var(--cream) !important;
+  border: 1px solid var(--border) !important;
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+.originBtn svg.pin-icon {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+  color: var(--gold);
+}
+
+.originBtn:active {
+  background: #e8e0d4 !important;
 }
 
 .sheetHeader button {
@@ -852,9 +1027,84 @@ a.stopAddr:active {
   transform: translateY(0);
 }
 
+/* Explore filter chips */
+.guidesFilters {
+  display: flex;
+  gap: 6px;
+  padding: 8px 20px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  flex-shrink: 0;
+}
+
+.guidesFilters::-webkit-scrollbar {
+  display: none;
+}
+
+.filterChip {
+  padding: 8px 14px;
+  min-height: 36px;
+  border: 1px solid var(--border);
+  clip-path: var(--deco-clip-sm);
+  background: white;
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--stone);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.filterChip-icon {
+  padding: 8px 12px;
+  font-size: 18px;
+  line-height: 1;
+  position: relative;
+}
+
+.chipTooltip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink-mid);
+  color: var(--cream);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  clip-path: var(--deco-clip-sm);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 5;
+  animation: tooltipFade 0.15s ease;
+}
+
+@keyframes tooltipFade {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.filterChip:active {
+  transform: scale(0.93);
+}
+
+.filterChip.active {
+  background: var(--gold);
+  color: white;
+  border-color: var(--gold);
+}
+
 #guidesContent {
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  padding: 12px 20px 20px;
+  padding: 8px 20px 20px;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -872,9 +1122,72 @@ a.stopAddr:active {
   background: var(--cream-warm);
 }
 
+.exploreCardTop {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.exploreSectionHead {
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  padding: 12px 0 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 6px;
+}
+
+.exploreSectionHead:first-child {
+  padding-top: 4px;
+}
+
+.exploreCardInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.exploreDist {
+  flex-shrink: 0;
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold-dark);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-top: 2px;
+}
+
+.exploreDist svg.travel-icon,
+.exploreDist svg.pin-icon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.exploreDist svg.pin-icon {
+  color: var(--gold);
+}
+
 .guideName {
   font-size: 15px;
   font-weight: 600;
+}
+
+.guideAddr {
+  font-size: 12px;
+  color: var(--stone);
+  text-decoration: none;
+  display: block;
+  margin-top: 1px;
+}
+
+.guideAddr:active {
+  color: var(--gold);
 }
 
 .guideNote {
@@ -886,6 +1199,175 @@ a.stopAddr:active {
 }
 
 /* === Emergency Sheet === */
+
+/* === Currency sheet === */
+
+#currencyOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(26, 26, 26, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 35;
+}
+
+#currencyOverlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#currencySheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--cream);
+  clip-path: polygon(0 16px, 16px 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+  box-shadow: 0 -4px 20px rgba(26, 26, 26, 0.15);
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+#currencySheet.open {
+  transform: translateY(0);
+}
+
+.currencyContent {
+  padding: 16px 20px 28px;
+}
+
+.currencyRate {
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--stone);
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.currencyRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.currencyLabel {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--gold-dark);
+  min-width: 36px;
+}
+
+.currencyInput {
+  flex: 1;
+  font-size: 24px !important;
+  text-align: center;
+  padding: 12px !important;
+}
+
+.currencyFlip {
+  background: none;
+  border: 1px solid var(--border);
+  clip-path: var(--deco-clip-sm);
+  padding: 10px 14px;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--gold-dark);
+  transition: background 0.15s ease;
+}
+
+.currencyFlip:active {
+  background: rgba(201,168,76,0.15);
+}
+
+.currencyResult {
+  margin-top: 16px;
+  font-size: 28px;
+  font-weight: 700;
+  font-family: "Playfair Display", serif;
+  text-align: center;
+  color: var(--ink);
+  min-height: 40px;
+}
+
+#subwayMapOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(26, 26, 26, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 45;
+}
+
+#subwayMapOverlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#subwayMapSheet {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--cream);
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+#subwayMapSheet.open {
+  transform: translateY(0);
+}
+
+#subwayMapContent {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  touch-action: none;
+  background: #fff;
+}
+
+#subwayMapImg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  max-width: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+[data-theme="dark"] #subwayMapSheet {
+  background: #1a1a1a;
+}
+
+[data-theme="dark"] #subwayMapContent {
+  background: #1a1a1a;
+}
+
+[data-theme="dark"] #subwayMapImg {
+  filter: invert(0.88) hue-rotate(180deg);
+}
 
 #emergencyOverlay {
   position: fixed;
@@ -1109,6 +1591,66 @@ a.stopAddr:active {
   line-height: 1.4;
 }
 
+/* === Alert Toggles === */
+
+.alertToggles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.alertToggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 8px;
+  min-height: 48px;
+  border: 1px solid var(--border);
+  clip-path: var(--deco-clip-sm);
+  background: white;
+  cursor: pointer;
+  transition: all 0.15s ease, transform 0.1s ease;
+}
+
+.alertToggle:active {
+  transform: scale(0.95);
+}
+
+.alertToggle.active {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
+.alertToggleIcon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.alertToggleLabel {
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--stone);
+}
+
+.alertToggle.active .alertToggleLabel {
+  color: white;
+}
+
+.alertToggleDesc {
+  font-size: 10px;
+  color: var(--stone);
+  opacity: 0.7;
+}
+
+.alertToggle.active .alertToggleDesc {
+  color: white;
+  opacity: 0.8;
+}
+
 .settingsVersion {
   text-align: center;
   font-family: "Josefin Sans", sans-serif;
@@ -1237,7 +1779,7 @@ a.stopAddr:active {
   --ink: #f5f0e8;
   --ink-mid: #f0ead8;
   --ink-light: #d4cbb8;
-  --stone: #9a9488;
+  --stone: #b0a89e;
   --border: #3a3530;
 }
 
@@ -1261,7 +1803,16 @@ a.stopAddr:active {
   background:
     radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.04) 0%, transparent 60%) 0 0 / 80px 40px repeat,
     radial-gradient(ellipse at 50% 100%, rgba(201,168,76,0.03) 0%, transparent 60%) 40px 20px / 80px 40px repeat,
-    #1a1a1a;
+    linear-gradient(
+      180deg,
+      #1e1c28 0%,       /* early morning dark blue */
+      #1a1a1a 20%,      /* morning */
+      #1c1c1c 45%,      /* midday */
+      #1a1a1a 65%,      /* afternoon */
+      #1c1820 80%,      /* golden hour */
+      #12101a 95%,      /* dusk */
+      #0a0a10 100%      /* night */
+    );
 }
 
 [data-theme="dark"] .stop {
@@ -1298,6 +1849,18 @@ a.stopAddr:active {
   color: var(--stone);
 }
 
+[data-theme="dark"] .swapBtn:active {
+  background: #3a3a3a;
+}
+
+[data-theme="dark"] .stop.active .stopNote {
+  color: var(--stone);
+}
+
+[data-theme="dark"] .travelDist {
+  color: var(--gold);
+}
+
 [data-theme="dark"] .travel a {
   background: #2a2a2a;
   border-color: var(--border);
@@ -1313,6 +1876,10 @@ a.stopAddr:active {
 [data-theme="dark"] .routeCard {
   background: #222;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+}
+
+[data-theme="dark"] .routeMapWrap {
+  background: #2a2a2a;
 }
 
 [data-theme="dark"] .routeMapPlaceholder {
@@ -1334,11 +1901,24 @@ a.stopAddr:active {
     #111;
 }
 
+[data-theme="dark"] #menu .menu-item {
+  color: #f0ead8;
+}
+
+[data-theme="dark"] #menu .menu-close svg {
+  color: #f0ead8;
+}
+
 [data-theme="dark"] #guidesSheet,
 [data-theme="dark"] #backupSheet,
 [data-theme="dark"] #emergencySheet,
-[data-theme="dark"] #settingsSheet {
+[data-theme="dark"] #settingsSheet,
+[data-theme="dark"] #currencySheet {
   background: #1a1a1a;
+}
+
+[data-theme="dark"] .currencyResult {
+  color: var(--cream);
 }
 
 [data-theme="dark"] .sheetHeader {
@@ -1350,6 +1930,16 @@ a.stopAddr:active {
   background: #2a2a2a;
   border-color: var(--border);
   color: var(--stone);
+}
+
+[data-theme="dark"] .originBtn {
+  background: #2a2a2a !important;
+  border-color: var(--border) !important;
+  color: var(--gold) !important;
+}
+
+[data-theme="dark"] .originBtn:active {
+  background: #3a3a3a !important;
 }
 
 [data-theme="dark"] .guideItem,
@@ -1392,4 +1982,68 @@ a.stopAddr:active {
 
 [data-theme="dark"] .backupFindMore {
   border-color: var(--border);
+}
+
+[data-theme="dark"] .filterChip {
+  background: #222;
+  border-color: var(--border);
+  color: var(--stone);
+}
+
+[data-theme="dark"] .filterChip.active {
+  background: var(--gold);
+  color: #1a1a1a;
+  border-color: var(--gold);
+}
+
+[data-theme="dark"] .exploreDist {
+  color: var(--gold);
+}
+
+[data-theme="dark"] .chipTooltip {
+  background: #f0ead8;
+  color: #1a1a1a;
+}
+
+[data-theme="dark"] .alertToggle {
+  background: #222;
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .alertToggle.active {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
+[data-theme="dark"] .alertToggle.active .alertToggleLabel {
+  color: #1a1a1a;
+}
+
+[data-theme="dark"] .alertToggle.active .alertToggleDesc {
+  color: #1a1a1a;
+  opacity: 0.7;
+}
+
+[data-theme="dark"] .alertRow.alertWeather {
+  background: #1a1e2a;
+  color: #8899cc;
+  border-left-color: #556699;
+}
+
+[data-theme="dark"] .alertRow.alertReservation {
+  background: #2a2518;
+  color: var(--gold-light);
+  border-left-color: var(--gold);
+}
+
+[data-theme="dark"] .alertRow.alertLeave {
+  background: #1a2a1a;
+  color: #88bb88;
+  border-left-color: #558855;
+}
+
+[data-theme="dark"] .alertRow.alertSunset {
+  background: #2a2018;
+  color: #cc9966;
+  border-left-color: #aa7744;
 }
