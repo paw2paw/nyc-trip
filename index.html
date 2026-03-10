@@ -1,341 +1,37 @@
-<!DOCTYPE html>
-<header>
-
-<div class="headerRow">
-<button class="iconBtn" onclick="toggleMenu()">☰</button>
-
-<div class="headerCenter">
-<div id="dayMeta"></div>
-</div>
-
-<button class="iconBtn" onclick="sendMyLocation()">💬</button>
-</div>
-
-<div class="headerRow">
-<button class="iconBtn" onclick="prevDay()">←</button>
-
-<div class="headerCenter">
-<div id="dayTitle"></div>
-</div>
-
-<button class="iconBtn" onclick="nextDay()">→</button>
-</div>
-
-</header>
-<header>
-
-<div class="headerRow">
-
-<button class="iconBtn" onclick="toggleMenu()">☰</button>
-
-<div class="headerCenter">
-<div id="dayMeta"></div>
-</div>
-
-<button class="iconBtn" onclick="sendMyLocation()">💬</button>
-
-</div>
-
-<div class="headerRow">
-
-<button class="iconBtn" onclick="prevDay()">←</button>
-
-<div id="dayTitle"></div>
-
-<button class="iconBtn" onclick="nextDay()">→</button>
-
-</div>
-
-</header>
-
-<style>
-
-header{
-background:white;
-border-bottom:2px solid #C9A227;
-padding:8px 12px;
-}
-
-.headerRow{
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-
-.headerCenter{
-text-align:center;
-flex:1;
-}
-
-.iconBtn{
-background:none;
-border:none;
-font-size:20px;
-cursor:pointer;
-}
-
-#dayTitle{
-font-size:18px;
-font-weight:600;
-text-align:center;
-}
-
-#dayMeta{
-font-size:11px;
-letter-spacing:1px;
-color:#666;
-text-align:center;
-}
-
-</style>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NYC Trip</title>
-
-<style>
-body{
-font-family:-apple-system,system-ui;
-background:#F3EFE6;
-margin:0;
-color:#1E1E1E;
-}
-
-header{
-padding:14px;
-background:white;
-border-bottom:2px solid #C9A227;
-text-align:center;
-}
-
-#dayMeta{
-font-size:12px;
-letter-spacing:1px;
-color:#666;
-}
-
-#dayTitle{
-font-size:20px;
-font-weight:600;
-}
-
-#stops{
-padding:12px;
-}
-
-.stop{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:12px;
-background:white;
-border-radius:8px;
-margin-bottom:10px;
-}
-
-.stop.current{
-border-left:6px solid #C9A227;
-background:#F8F3E7;
-}
-
-.left{
-display:flex;
-gap:12px;
-align-items:center;
-}
-
-.badge{
-width:32px;
-height:32px;
-display:flex;
-align-items:center;
-justify-content:center;
-border:2px solid #C9A227;
-font-family:serif;
-font-weight:700;
-}
-
-.right{
-text-align:right;
-font-size:12px;
-color:#666;
-}
-
-button{
-padding:10px;
-border:none;
-background:#007AFF;
-color:white;
-border-radius:6px;
-width:100%;
-margin-top:10px;
-}
-
-</style>
-<link rel="stylesheet" href="layout.css?v=41">
-</head>
-
-<body>
-
-
-<div id="stops"></div>
-
-<button id="nextBtn">Next</button>
-
-<script src="app.js?v=31"></script>
-
-</body>
-</html>
-
 <div id="menuOverlay" onclick="toggleMenu()"></div>
 
 <div id="menu">
-<div class="menuHeader">
-<span>Menu</span>
-<button onclick="toggleMenu()">✕</button>
+  <div class="menuHeader">
+    Menu
+    <button onclick="toggleMenu()">✕</button>
+  </div>
+
+  <div class="menuItem" onclick="returnHotel()">🏨 Return Hotel</div>
+  <div class="menuItem" onclick="showMap()">🗺 Map</div>
+  <div class="menuItem" onclick="nearbyCoffee()">☕ Coffee Nearby</div>
+  <div class="menuItem" onclick="nearbyFood()">🍜 Food Nearby</div>
 </div>
 
-<div class="menuItem" onclick="returnHotel()">🏨 Return Hotel</div>
-<div class="menuItem" onclick="navigateDay()">🗺 Navigate Day Route</div>
-<div class="menuItem" onclick="showMap()">🗺 Map</div>
-<div class="menuItem" onclick="nearbyCoffee()">☕ Coffee Nearby</div>
-<div class="menuItem" onclick="nearbyFood()">🍜 Food Nearby</div>
-<div class="menuItem" onclick="sendMyLocation()">📍 Share My Location</div>
+<header>
 
+<div class="headerRow">
+<button class="iconBtn" onclick="toggleMenu()">☰</button>
+
+<div class="headerCenter">
+<div id="dayMeta"></div>
 </div>
 
-<style>
+<button class="iconBtn" onclick="sendMyLocation()">💬</button>
+</div>
 
-#menuOverlay{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.4);
-opacity:0;
-pointer-events:none;
-transition:opacity .25s;
-z-index:90;
-}
+<div class="headerRow">
+<button class="iconBtn" onclick="prevDay()">←</button>
 
-#menu{
-position:fixed;
-top:0;
-left:-260px;
-width:260px;
-height:100%;
-background:white;
-box-shadow:2px 0 12px rgba(0,0,0,.2);
-transition:left .25s;
-z-index:100;
-padding:16px;
-}
+<div class="headerCenter">
+<div id="dayTitle"></div>
+</div>
 
-#menu.open{
-left:0;
-}
+<button class="iconBtn" onclick="nextDay()">→</button>
+</div>
 
-#menuOverlay.open{
-opacity:1;
-pointer-events:auto;
-}
-
-.menuHeader{
-display:flex;
-justify-content:space-between;
-font-weight:600;
-margin-bottom:20px;
-}
-
-.menuItem{
-padding:12px 0;
-border-bottom:1px solid #eee;
-cursor:pointer;
-}
-
-</style>
-
-
-<style>
-
-/* --- fix burger menu position --- */
-
-#menu{
-position:fixed;
-top:0;
-left:-280px;
-width:280px;
-height:100%;
-background:white;
-box-shadow:2px 0 12px rgba(0,0,0,.25);
-transition:left .28s ease;
-z-index:1000;
-}
-
-#menu.open{
-left:0;
-}
-
-#menuOverlay{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,.35);
-opacity:0;
-pointer-events:none;
-transition:opacity .25s;
-z-index:900;
-}
-
-#menuOverlay.open{
-opacity:1;
-pointer-events:auto;
-}
-
-
-/* --- stop layout polish --- */
-
-.stop{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:14px;
-border-radius:10px;
-margin-bottom:10px;
-background:white;
-}
-
-.stop.current{
-border-left:6px solid #C9A227;
-background:#F8F3E7;
-}
-
-
-/* --- weather alignment --- */
-
-.weather{
-text-align:right;
-font-size:12px;
-color:#666;
-}
-
-
-/* --- safe area bottom spacing --- */
-
-#nextBtn{
-margin:14px;
-margin-bottom:calc(14px + env(safe-area-inset-bottom));
-}
-
-
-/* --- remove floating map control if map hidden --- */
-
-#map{
-display:none;
-}
-
-</style>
-
+</header>
