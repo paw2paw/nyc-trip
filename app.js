@@ -32,6 +32,36 @@ render()
 
 }
 
+function renderCarousel(){
+
+let html=""
+
+data.days.forEach((d,i)=>{
+
+let cls="dayItem"
+
+if(i===state.day) cls+=" active"
+else if(Math.abs(i-state.day)===1) cls+=" peek"
+
+let date=new Date(d.date)
+let label=date.toLocaleDateString("en-GB",{weekday:"short",day:"numeric"})
+
+html+=`<div class="${cls}" onclick="goDay(${i})">${label}</div>`
+
+})
+
+document.getElementById("dayCarousel").innerHTML=html
+
+}
+
+function goDay(i){
+
+state.day=i
+state.stop=0
+render()
+
+}
+
 function getHotel(date){
 
 let hotel=data.hotels[0]
@@ -104,9 +134,9 @@ let date=new Date(day.date)
 
 let dayStr=date.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"})
 
-document.getElementById("dayMeta").innerText=`DAY ${(state.day+1).toString().padStart(2,"0")} · ${dayStr}`
-
 document.getElementById("title").innerText=day.title
+
+renderCarousel()
 
 let html=""
 
@@ -139,7 +169,7 @@ function prevDay(){
 if(state.day>0){
 state.day--
 state.stop=0
-animateSwipe(1)
+render()
 }
 }
 
@@ -147,24 +177,8 @@ function nextDay(){
 if(state.day<data.days.length-1){
 state.day++
 state.stop=0
-animateSwipe(-1)
-}
-}
-
-function animateSwipe(dir){
-
-let el=document.getElementById("stops")
-
-el.style.transform=`translateX(${dir*120}px)`
-
-setTimeout(()=>{
 render()
-el.style.transform=`translateX(${dir*-120}px)`
-setTimeout(()=>{
-el.style.transform="translateX(0)"
-},10)
-},120)
-
+}
 }
 
 let startX=0
