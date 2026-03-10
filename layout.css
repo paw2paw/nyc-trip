@@ -1,12 +1,11 @@
-body{
-font-family:-apple-system,BlinkMacSystemFont,system-ui;
+html,body{
+width:100%;
 margin:0;
-background:#e9e5de;
-color:#111;
 overflow-x:hidden;
+background:#e9e5de;
+font-family:-apple-system,BlinkMacSystemFont,system-ui;
+color:#111;
 }
-
-/* HEADER */
 
 header{
 background:#111;
@@ -24,8 +23,6 @@ justify-content:space-between;
 gap:12px;
 }
 
-/* native size tap targets */
-
 .headerBtn{
 width:52px;
 height:52px;
@@ -42,8 +39,6 @@ justify-content:center;
 .headerBtn:active{
 transform:scale(.9);
 }
-
-/* DAY CAROUSEL */
 
 #dayCarousel{
 flex:1;
@@ -77,10 +72,10 @@ font-size:24px;
 margin:10px 0 4px;
 }
 
-/* STOPS */
-
 #stops{
+width:100%;
 padding:18px;
+box-sizing:border-box;
 transition:transform .25s ease;
 }
 
@@ -110,15 +105,11 @@ font-weight:700;
 margin-right:10px;
 }
 
-/* WEATHER */
-
 .weather{
 font-size:13px;
 color:#777;
 margin-top:6px;
 }
-
-/* TRAVEL ROWS */
 
 .travel{
 margin:8px 0 20px 52px;
@@ -151,8 +142,6 @@ text-decoration:none;
 .travel a:active{
 opacity:.6;
 }
-
-/* BURGER MENU */
 
 #menu{
 position:fixed;
