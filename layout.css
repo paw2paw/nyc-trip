@@ -1,10 +1,12 @@
 body{
-font-family:-apple-system,BlinkMacSystemFont;
+font-family:-apple-system,BlinkMacSystemFont,system-ui;
 margin:0;
 background:#e9e5de;
 color:#111;
 overflow-x:hidden;
 }
+
+/* HEADER */
 
 header{
 background:#111;
@@ -19,36 +21,63 @@ z-index:20;
 display:flex;
 align-items:center;
 justify-content:space-between;
+gap:12px;
 }
 
-.headerRow button{
-width:44px;
-height:44px;
-border-radius:12px;
+/* native size tap targets */
+
+.headerBtn{
+width:52px;
+height:52px;
+border-radius:14px;
 border:none;
 background:#222;
 color:white;
-font-size:20px;
+font-size:22px;
 display:flex;
 align-items:center;
 justify-content:center;
 }
 
-.headerRow button:active{
-transform:scale(.92);
+.headerBtn:active{
+transform:scale(.9);
 }
 
-#dayMeta{
-text-align:center;
+/* DAY CAROUSEL */
+
+#dayCarousel{
+flex:1;
+display:flex;
+justify-content:center;
+gap:10px;
+overflow:hidden;
+}
+
+.dayItem{
 font-size:14px;
-opacity:.8;
+padding:6px 10px;
+border-radius:10px;
+opacity:.4;
+white-space:nowrap;
+}
+
+.dayItem.active{
+background:#333;
+color:white;
+opacity:1;
+}
+
+.dayItem.peek{
+opacity:.7;
 }
 
 #title{
 text-align:center;
-font-size:28px;
-margin:16px 0;
+font-size:24px;
+margin:10px 0 4px;
 }
+
+/* STOPS */
 
 #stops{
 padding:18px;
@@ -81,11 +110,15 @@ font-weight:700;
 margin-right:10px;
 }
 
+/* WEATHER */
+
 .weather{
 font-size:13px;
 color:#777;
 margin-top:6px;
 }
+
+/* TRAVEL ROWS */
 
 .travel{
 margin:8px 0 20px 52px;
@@ -119,6 +152,8 @@ text-decoration:none;
 opacity:.6;
 }
 
+/* BURGER MENU */
+
 #menu{
 position:fixed;
 top:0;
@@ -149,30 +184,4 @@ z-index:25;
 
 #menuOverlay.show{
 display:block;
-}
-
-#dayCarousel{
-display:flex;
-gap:14px;
-overflow:hidden;
-align-items:center;
-justify-content:center;
-flex:1;
-}
-
-.dayItem{
-font-size:13px;
-opacity:.4;
-padding:6px 10px;
-border-radius:8px;
-}
-
-.dayItem.active{
-opacity:1;
-background:#333;
-color:white;
-}
-
-.dayItem.peek{
-opacity:.7;
 }
