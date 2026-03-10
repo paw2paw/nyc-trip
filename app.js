@@ -10,6 +10,7 @@ render()
 })
 
 function render(){
+
 let day=data.days[dayIndex]
 
 document.getElementById("dayMeta").innerText="DAY "+(dayIndex+1)
@@ -23,17 +24,26 @@ let active=i===stopIndex?"active":""
 
 html+=`
 <div class="stop ${active}" onclick="setStop(${i})">
-<div class="seq">${(i+1).toString().padStart(2,"0")}</div>
-<div class="info">
-<b>${s.icon||""} ${s.name}</b><br>
-${s.address}
+<div>
+<span class="seq">${(i+1).toString().padStart(2,"0")}</span>
+<b>${s.icon||""} ${s.name}</b>
 </div>
+
+${s.address}
+
+<div class="routes">
+<button onclick="route('${s.address}','walking')">Walk</button>
+<button onclick="route('${s.address}','transit')">Subway</button>
+<button onclick="route('${s.address}','driving')">Taxi</button>
+</div>
+
 </div>
 `
 })
 
 document.getElementById("stops").innerHTML=html
-updateNextButton()
+
+updateNext()
 }
 
 function setStop(i){
@@ -49,33 +59,36 @@ render()
 }
 }
 
-function updateNextButton(){
+function updateNext(){
 let day=data.days[dayIndex]
-let next=stopIndex+2
-if(next<=day.stops.length){
-document.getElementById("nextBtn").innerText="NEXT → "+next.toString().padStart(2,"0")
+let n=stopIndex+2
+if(n<=day.stops.length){
+document.getElementById("nextBtn").innerText="NEXT → "+n
 }else{
 document.getElementById("nextBtn").innerText="DAY COMPLETE"
 }
 }
 
+function route(address,mode){
+event.stopPropagation()
+let url="https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(address)+"&travelmode="+mode
+window.open(url)
+}
+
 function toggleMenu(){
 document.getElementById("menu").classList.toggle("open")
+document.getElementById("menuOverlay").classList.toggle("show")
 }
 
 function closeMenu(){
 document.getElementById("menu").classList.remove("open")
+document.getElementById("menuOverlay").classList.remove("show")
 }
 
 function returnHotel(){
 closeMenu()
 let h=data.hotels[0].address
-window.open("https://maps.google.com/?q="+encodeURIComponent(h))
-}
-
-function showMap(){
-closeMenu()
-alert("Map view coming next")
+window.open("https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(h))
 }
 
 function nearbyCoffee(){
@@ -89,18 +102,21 @@ window.open("https://maps.google.com/search/food+near+me")
 }
 
 function sendMyLocation(){
+
 if(!navigator.geolocation){
 alert("Location not supported")
 return
 }
 
 navigator.geolocation.getCurrentPosition(p=>{
+
 let lat=p.coords.latitude
 let lon=p.coords.longitude
 
-let msg="Meet here: https://maps.google.com/?q="+lat+","+lon
-let phone=data.lawPhone
+let msg="Meet here https://maps.google.com/?q="+lat+","+lon
 
-window.open("https://wa.me/"+phone+"?text="+encodeURIComponent(msg))
+window.open("https://wa.me/"+data.lawPhone+"?text="+encodeURIComponent(msg))
+
 })
+
 }

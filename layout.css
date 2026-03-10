@@ -1,27 +1,70 @@
-body{font-family:-apple-system,BlinkMacSystemFont;margin:0;background:#f5f3ee}
-header{display:flex;justify-content:space-between;align-items:center;padding:12px;background:#111;color:white}
-#title{font-size:22px;text-align:center;padding:10px}
-#stops{padding:12px}
-.stop{background:white;margin-bottom:10px;padding:12px;border-radius:10px}
-#menu{display:none;padding:12px;background:white}
-#menu.open{display:block}
+body{
+font-family:-apple-system,BlinkMacSystemFont;
+margin:0;
+background:#ece9e2;
+color:#111;
+}
 
-.seq{
-font-weight:bold;
-font-size:18px;
-width:32px;
-display:inline-block;
-color:#c9a24a;
+header{
+background:#1b1b1b;
+color:white;
+padding:14px;
+text-align:center;
+position:sticky;
+top:0;
+z-index:5;
+}
+
+.headerRow{
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+#dayMeta{
+font-size:14px;
+opacity:.8;
+}
+
+#title{
+font-size:26px;
+margin:10px 0 20px 0;
+text-align:center;
+}
+
+#stops{
+padding:16px;
 }
 
 .stop{
-display:flex;
-gap:12px;
-align-items:flex-start;
+background:white;
+padding:16px;
+border-radius:14px;
+margin-bottom:14px;
+box-shadow:0 2px 6px rgba(0,0,0,.08);
 }
 
 .stop.active{
 border:2px solid #c9a24a;
+}
+
+.seq{
+font-weight:bold;
+color:#c9a24a;
+margin-right:10px;
+}
+
+.routes{
+margin-top:10px;
+}
+
+.routes button{
+margin-right:8px;
+padding:6px 10px;
+border:none;
+border-radius:8px;
+background:#1b1b1b;
+color:white;
 }
 
 #nextBtn{
@@ -34,4 +77,36 @@ border-radius:12px;
 background:#1b1b1b;
 color:white;
 font-size:18px;
+}
+
+#menu{
+position:fixed;
+top:0;
+left:-260px;
+width:240px;
+height:100%;
+background:white;
+padding:20px;
+box-shadow:2px 0 10px rgba(0,0,0,.2);
+transition:left .3s;
+z-index:10;
+}
+
+#menu.open{
+left:0;
+}
+
+#menuOverlay{
+position:fixed;
+top:0;
+left:0;
+right:0;
+bottom:0;
+background:rgba(0,0,0,.3);
+display:none;
+z-index:9;
+}
+
+#menuOverlay.show{
+display:block;
 }
