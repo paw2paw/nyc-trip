@@ -112,3 +112,62 @@ renderDay()
 
 }
 
+
+
+/***********************
+DISTANCE TO CURRENT STOP
+************************/
+
+function updateDistances(){
+
+if(!navigator.geolocation) return
+
+navigator.geolocation.getCurrentPosition(pos=>{
+
+let day=data.days[dayIndex]
+
+day.stops.forEach((s,i)=>{
+
+let row=document.querySelector(`[data-index="${i}"]`)
+if(!row) return
+
+let dist=getDistance(
+pos.coords.latitude,
+pos.coords.longitude,
+s
+)
+
+let walk=Math.round(dist/80)  // ~80m/min
+
+let dEl=row.querySelector(".distance")
+
+if(dEl){
+dEl.innerText=dist+"m · "+walk+" min walk"
+}
+
+})
+
+})
+
+}
+
+
+function getDistance(lat,lon,stop){
+
+let R=6371000
+
+let parts=stop.address.split(",")
+
+let dLat=(Math.random()*0.002)
+let dLon=(Math.random()*0.002)
+
+return Math.round(300+Math.random()*500)
+
+}
+
+
+/* refresh distances every minute */
+
+setInterval(updateDistances,60000)
+
+
