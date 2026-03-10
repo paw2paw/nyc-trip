@@ -1,13 +1,26 @@
 let data
 let dayIndex=0
 let stopIndex=0
+let weatherTemp="?"
+let weatherRain="?"
 
 fetch("data.json")
 .then(r=>r.json())
 .then(d=>{
 data=d
+loadWeather()
 render()
 })
+
+function loadWeather(){
+fetch("https://api.open-meteo.com/v1/forecast?latitude=40.72&longitude=-74.00&current_weather=true&hourly=precipitation_probability")
+.then(r=>r.json())
+.then(w=>{
+weatherTemp=Math.round(w.current_weather.temperature)
+weatherRain=w.hourly.precipitation_probability[0]
+render()
+})
+}
 
 function render(){
 
@@ -24,21 +37,29 @@ let active=i===stopIndex?"active":""
 
 html+=`
 <div class="stop ${active}" onclick="setStop(${i})">
-<div>
-<span class="seq">${(i+1).toString().padStart(2,"0")}</span>
-<b>${s.icon||""} ${s.name}</b>
-</div>
-
+<div><span class="seq">${(i+1).toString().padStart(2,"0")}</span><b>${s.icon||""} ${s.name}</b></div>
 ${s.address}
-
-<div class="routes">
-<button onclick="route('${s.address}','walking')">Walk</button>
-<button onclick="route('${s.address}','transit')">Subway</button>
-<button onclick="route('${s.address}','driving')">Taxi</button>
-</div>
-
+<div class="weather">🌡 ${weatherTemp}° &nbsp; 🌧 ${weatherRain}%</div>
 </div>
 `
+
+if(i<day.stops.length-1){
+
+let next=day.stops[i+1]
+
+let walk=`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(s.address)}&destination=${encodeURIComponent(next.address)}&travelmode=walking`
+let transit=`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(s.address)}&destination=${encodeURIComponent(next.address)}&travelmode=transit`
+let drive=`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(s.address)}&destination=${encodeURIComponent(next.address)}&travelmode=driving`
+
+html+=`
+<div class="travel">
+<a href="${walk}" target="_blank">🚶 Walk</a>
+<a href="${transit}" target="_blank">🚇 Subway</a>
+<a href="${drive}" target="_blank">🚕 Taxi</a>
+</div>
+`
+}
+
 })
 
 document.getElementById("stops").innerHTML=html
@@ -69,11 +90,32 @@ document.getElementById("nextBtn").innerText="DAY COMPLETE"
 }
 }
 
-function route(address,mode){
-event.stopPropagation()
-let url="https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(address)+"&travelmode="+mode
-window.open(url)
+function prevDay(){
+if(dayIndex>0){
+dayIndex--
+stopIndex=0
+render()
 }
+}
+
+function nextDay(){
+if(dayIndex<data.days.length-1){
+dayIndex++
+stopIndex=0
+render()
+}
+}
+
+let touchStartX=0
+document.addEventListener("touchstart",e=>{
+touchStartX=e.touches[0].clientX
+})
+document.addEventListener("touchend",e=>{
+let endX=e.changedTouches[0].clientX
+let diff=endX-touchStartX
+if(Math.abs(diff)<60)return
+if(diff<0){nextDay()}else{prevDay()}
+})
 
 function toggleMenu(){
 document.getElementById("menu").classList.toggle("open")
@@ -109,51 +151,9 @@ return
 }
 
 navigator.geolocation.getCurrentPosition(p=>{
-
 let lat=p.coords.latitude
 let lon=p.coords.longitude
-
 let msg="Meet here https://maps.google.com/?q="+lat+","+lon
-
 window.open("https://wa.me/"+data.lawPhone+"?text="+encodeURIComponent(msg))
-
 })
-
 }
-
-function prevDay(){
-if(dayIndex>0){
-dayIndex--
-stopIndex=0
-render()
-}
-}
-
-function nextDay(){
-if(dayIndex<data.days.length-1){
-dayIndex++
-stopIndex=0
-render()
-}
-}
-
-
-let touchStartX=0
-
-document.addEventListener("touchstart",e=>{
-touchStartX=e.touches[0].clientX
-})
-
-document.addEventListener("touchend",e=>{
-let touchEndX=e.changedTouches[0].clientX
-let diff=touchEndX-touchStartX
-
-if(Math.abs(diff)<60)return
-
-if(diff<0){
-nextDay()
-}else{
-prevDay()
-}
-})
-
