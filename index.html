@@ -2,27 +2,32 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NYC Trip</title>
 <link rel="stylesheet" href="layout.css">
 </head>
 <body>
 
-<header>
-<button onclick="toggleMenu()">☰</button>
-<div id="dayMeta"></div>
-<button onclick="sendMyLocation()">💬</button>
-</header>
+<div id="menuOverlay" onclick="toggleMenu()"></div>
 
 <div id="menu">
 <div onclick="returnHotel()">🏨 Return Hotel</div>
-<div onclick="showMap()">🗺 Map</div>
 <div onclick="nearbyCoffee()">☕ Coffee Nearby</div>
 <div onclick="nearbyFood()">🍜 Food Nearby</div>
 </div>
 
-<h2 id="title"></h2>
+<header>
+
+<div class="headerRow">
+<button onclick="toggleMenu()">☰</button>
+<div id="dayMeta"></div>
+<button onclick="sendMyLocation()">💬</button>
+</div>
+
+<div id="title"></div>
+
+</header>
 
 <div id="stops"></div>
+
 <button id="nextBtn" onclick="nextStop()">NEXT</button>
 
 <script src="app.js"></script>

@@ -3,6 +3,7 @@ font-family:-apple-system,BlinkMacSystemFont;
 margin:0;
 background:#e9e5de;
 color:#111;
+overflow-x:hidden;
 }
 
 header{
@@ -34,6 +35,7 @@ margin:16px 0;
 
 #stops{
 padding:18px;
+transition:transform .25s ease;
 }
 
 .stop{
