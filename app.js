@@ -34,6 +34,8 @@ render()
 
 function renderCarousel(){
 
+const container = document.getElementById("dayCarousel")
+
 let html=""
 
 data.days.forEach((d,i)=>{
@@ -41,7 +43,6 @@ data.days.forEach((d,i)=>{
 let cls="dayItem"
 
 if(i===state.day) cls+=" active"
-else if(Math.abs(i-state.day)===1) cls+=" peek"
 
 let date=new Date(d.date)
 let label=date.toLocaleDateString("en-GB",{weekday:"short",day:"numeric"})
@@ -50,7 +51,20 @@ html+=`<div class="${cls}" onclick="goDay(${i})">${label}</div>`
 
 })
 
-document.getElementById("dayCarousel").innerHTML=html
+container.innerHTML=html
+
+const items=container.children
+
+if(items[state.day]){
+
+const offset=items[state.day].offsetLeft - container.offsetWidth/2 + items[state.day].offsetWidth/2
+
+container.scrollTo({
+left:offset,
+behavior:"smooth"
+})
+
+}
 
 }
 

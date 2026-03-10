@@ -174,3 +174,16 @@ z-index:25;
 #menuOverlay.show{
 display:block;
 }
+
+#dayCarousel{
+flex:1;
+display:flex;
+gap:10px;
+overflow-x:auto;
+scroll-behavior:smooth;
+padding:0 40px;
+}
+
+#dayCarousel::-webkit-scrollbar{
+display:none;
+}
