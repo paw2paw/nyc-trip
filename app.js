@@ -1,127 +1,114 @@
+
 let data
 let dayIndex=0
 let currentStopIndex=0
-let watchId=null
 
-fetch("./data.json?v=30")
+const PAW="+4477684851513"
+const LAW="+447956801171"
+
+fetch("./data.json?v=31")
 .then(r=>r.json())
 .then(d=>{
 data=d
 setInitialDay()
 renderDay()
-startGPS()
 })
 
 function setInitialDay(){
 let today=new Date().toISOString().slice(0,10)
-let index=data.days.findIndex(d=>d.date===today)
-dayIndex=index>=0?index:0
-}
-
-function getHotel(){
-let dayDate=data.days[dayIndex].date
-let hotel=data.hotels[0]
-data.hotels.forEach(h=>{
-if(dayDate>=h.from) hotel=h
-})
-return hotel
+let idx=data.days.findIndex(d=>d.date===today)
+dayIndex=idx>=0?idx:0
 }
 
 function renderDay(){
 
 let day=data.days[dayIndex]
-let hotel=getHotel()
+
+let d=new Date(day.date)
+
+let dayNum=String(dayIndex+1).padStart(2,"0")
+
+document.getElementById("dayMeta").innerText=
+"DAY "+dayNum+" · "+
+d.toLocaleDateString("en-GB",{weekday:"short",day:"2-digit",month:"short"})
 
 document.getElementById("dayTitle").innerText=day.title
 
 const container=document.getElementById("stops")
+
 container.innerHTML=""
 
-addStop(container,"🏨 "+hotel.name,hotel.address,-1)
-
 day.stops.forEach((s,i)=>{
-addStop(container,s.icon+" "+s.name,s.address,i)
-})
-
-addStop(container,"🏨 Return "+hotel.name,hotel.address,-2)
-
-highlightCurrent()
-
-}
-
-function addStop(container,name,address,index){
 
 let el=document.createElement("div")
-el.className="stop"
-el.dataset.index=index
 
-let badge=index>=0?String(index+1).padStart(2,"0"):""
+el.className="stop"+(i===currentStopIndex?" current":"")
 
 el.innerHTML=`
-<div class="row">
-<span class="badge">${badge}</span>
-<span class="title">${name}</span>
+
+<div class="left">
+
+<div class="badge">${String(i+1).padStart(2,"0")}</div>
+
+<div>
+<div>${s.icon} ${s.name}</div>
+<div style="font-size:12px;color:#666">${s.address}</div>
 </div>
-<div>${address}</div>
-<button onclick="navigate('${address}')">Navigate</button>
-<button onclick="meet('${name}','${address}')">💬 Meet</button>
+
+</div>
+
+<div class="right">
+🌡 ${Math.round(5+Math.random()*5)}°
+<br>
+🌧 ${Math.round(Math.random()*40)}%
+</div>
+
 `
 
-if(index>=0){
 el.onclick=()=>{
-currentStopIndex=index
-highlightCurrent()
-}
+currentStopIndex=i
+renderDay()
 }
 
 container.appendChild(el)
-}
 
-function highlightCurrent(){
-
-document.querySelectorAll(".stop").forEach(e=>{
-e.classList.remove("current")
 })
 
-let el=document.querySelector(`[data-index="${currentStopIndex}"]`)
-if(el) el.classList.add("current")
+updateNext()
 
 }
 
-function navigate(addr){
-window.open("https://www.google.com/maps/search/"+encodeURIComponent(addr))
-}
-
-function meet(name,address){
-let msg="Meet at "+name+" https://maps.google.com/?q="+encodeURIComponent(address)
-window.location.href="https://api.whatsapp.com/send?phone="+data.lawPhone+"&text="+encodeURIComponent(msg)
-}
-
-function startGPS(){
-
-if(!navigator.geolocation) return
-
-watchId=navigator.geolocation.watchPosition(pos=>{
+function updateNext(){
 
 let day=data.days[dayIndex]
+
+let next=currentStopIndex+1
+
+if(next>=day.stops.length){
+document.getElementById("nextBtn").innerText="Return Hotel"
+return
+}
+
+document.getElementById("nextBtn").innerText=
+"NEXT → "+String(next+1).padStart(2,"0")
+
+}
+
+document.getElementById("nextBtn").onclick=()=>{
+
+let day=data.days[dayIndex]
+
 let stop=day.stops[currentStopIndex]
-if(!stop) return
 
-let dist=distance(pos.coords.latitude,pos.coords.longitude,stop)
+window.open("https://maps.google.com/?q="+encodeURIComponent(stop.address))
 
-if(dist<60){
 currentStopIndex++
-highlightCurrent()
+
+if(currentStopIndex>=day.stops.length){
+currentStopIndex=0
 }
 
-})
+renderDay()
 
 }
 
-function distance(lat,lon,stop){
-
-let url="https://maps.googleapis.com/maps/api/distancematrix/json"
-
-return 999
-
-}
