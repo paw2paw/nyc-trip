@@ -1,29 +1,89 @@
 {
-"users":["PAW","LAW"],
-"lawPhone":"447000000000",
-"hotels":[
-{"from":"2026-03-12","name":"The Dominick","address":"246 Spring St NYC"},
-{"from":"2026-03-16","name":"1 Hotel Brooklyn Bridge","address":"60 Furman St Brooklyn"}
-],
-"days":[
-{"date":"2026-03-12","title":"Arrival SoHo","stops":[
-{"name":"La Cabra","address":"284 Lafayette St NYC","icon":"☕"},
-{"name":"McNally Jackson","address":"134 Prince St NYC","icon":"📚"},
-{"name":"Rubirosa","address":"235 Mulberry St NYC","icon":"🍕"},
-{"name":"Temple Bar","address":"332 Lafayette St NYC","icon":"🍸"}
-]},
-{"date":"2026-03-13","title":"High Line","stops":[
-{"name":"Birch Coffee","address":"56 Crosby St NYC","icon":"☕"},
-{"name":"Little Island","address":"Pier 55 NYC","icon":"🌿"},
-{"name":"High Line","address":"High Line NYC","icon":"🚶"},
-{"name":"Chelsea Market","address":"75 9th Ave NYC","icon":"🍜"},
-{"name":"Bar Centrale","address":"324 W 46th St NYC","icon":"🍸"},
-{"name":"Gerald Schoenfeld Theatre","address":"236 W 45th St NYC","icon":"🎭","time":"19:00"}
-]}
-],
-"backups":[
-{"name":"Joe's Pizza","area":"SoHo","type":"food","address":"7 Carmine St NYC"},
-{"name":"Banh Mi Saigon","area":"Chinatown","type":"food","address":"198 Grand St NYC"},
-{"name":"Apotheke","area":"Chinatown","type":"bar","address":"9 Doyers St NYC"}
-]
+  "users": ["PAW","LAW"],
+  "lawPhone": "447956801171",
+  "hotels": [
+    { "from": "2026-03-12", "name": "The Dominick", "address": "246 Spring St, New York, NY 10013" },
+    { "from": "2026-03-16", "name": "1 Hotel Brooklyn Bridge", "address": "60 Furman St, Brooklyn, NY 11201" }
+  ],
+  "days": [
+    {
+      "date": "2026-03-12",
+      "title": "Arrival • SoHo wander",
+      "stops": [
+        { "name": "La Cabra", "address": "284 Lafayette St, New York, NY 10012", "icon": "☕" },
+        { "name": "McNally Jackson Books", "address": "134 Prince St, New York, NY 10012", "icon": "📚" },
+        { "name": "Rubirosa", "address": "235 Mulberry St, New York, NY 10012", "icon": "🍕" },
+        { "name": "Temple Bar", "address": "332 Lafayette St, New York, NY 10012", "icon": "🍸" }
+      ]
+    },
+    {
+      "date": "2026-03-13",
+      "title": "High Line • Chelsea • Theatre",
+      "stops": [
+        { "name": "Birch Coffee", "address": "56 Crosby St, New York, NY 10012", "icon": "☕" },
+        { "name": "Little Island", "address": "Pier 55, Hudson River Park, New York, NY 10014", "icon": "🌿" },
+        { "name": "High Line Walk", "address": "820 Washington St, New York, NY 10014", "icon": "🚶" },
+        { "name": "Chelsea Market", "address": "75 9th Ave, New York, NY 10011", "icon": "🍜" },
+        { "name": "Bar Centrale", "address": "324 W 46th St, New York, NY 10036", "icon": "🍸" },
+        { "name": "Gerald Schoenfeld Theatre – Buena Vista Social Club", "address": "236 W 45th St, New York, NY 10036", "icon": "🎭", "time": "19:00" }
+      ]
+    },
+    {
+      "date": "2026-03-14",
+      "title": "Chinatown • Williamsburg • Laser Wolf",
+      "stops": [
+        { "name": "Russ & Daughters Cafe", "address": "127 Orchard St, New York, NY 10002", "icon": "🥯" },
+        { "name": "Columbus Park Chinatown", "address": "67 Mulberry St, New York, NY 10013", "icon": "🌳" },
+        { "name": "Doyers Street", "address": "Doyers St, New York, NY 10013", "icon": "📷" },
+        { "name": "Williamsburg Bridge Walk", "address": "Delancey St & Clinton St, New York, NY 10002", "icon": "🌉" },
+        { "name": "Domino Park", "address": "15 River St, Brooklyn, NY 11249", "icon": "🌳" },
+        { "name": "Laser Wolf Brooklyn", "address": "97 Wythe Ave, Brooklyn, NY 11249", "icon": "🍽", "time": "20:00" }
+      ]
+    },
+    {
+      "date": "2026-03-15",
+      "title": "Jazz Brunch • Theatre",
+      "stops": [
+        { "name": "The Ivy Room Jazz Brunch", "address": "66 E 55th St, New York, NY 10022", "icon": "🎷", "time": "11:15" },
+        { "name": "Bryant Park Walk", "address": "Bryant Park, New York, NY 10018", "icon": "🌳" },
+        { "name": "Lunt-Fontanne Theatre – Death Becomes Her", "address": "205 W 46th St, New York, NY 10036", "icon": "🎭", "time": "15:00" },
+        { "name": "Joe's Pizza", "address": "7 Carmine St, New York, NY 10014", "icon": "🍕" }
+      ]
+    },
+    {
+      "date": "2026-03-16",
+      "title": "Move to Brooklyn • DUMBO",
+      "stops": [
+        { "name": "Devoción Coffee", "address": "69 Grand St, Brooklyn, NY 11249", "icon": "☕" },
+        { "name": "Brooklyn Bridge Park", "address": "334 Furman St, Brooklyn, NY 11201", "icon": "🌳" },
+        { "name": "DUMBO Waterfront", "address": "1 Water St, Brooklyn, NY 11201", "icon": "📷" },
+        { "name": "Time Out Market Rooftop", "address": "55 Water St, Brooklyn, NY 11201", "icon": "🍸" }
+      ]
+    },
+    {
+      "date": "2026-03-17",
+      "title": "Brooklyn • Vintage • Views",
+      "stops": [
+        { "name": "Butler Bake Shop", "address": "40 Water St, Brooklyn, NY 11201", "icon": "☕" },
+        { "name": "Brooklyn Flea (DUMBO area)", "address": "80 Pearl St, Brooklyn, NY 11201", "icon": "🛍" },
+        { "name": "Brooklyn Heights Promenade", "address": "Montague St & Pierrepont Pl, Brooklyn, NY 11201", "icon": "🌉" },
+        { "name": "Westlight Rooftop Bar", "address": "111 N 12th St, Brooklyn, NY 11249", "icon": "🍸" }
+      ]
+    },
+    {
+      "date": "2026-03-18",
+      "title": "Last Day • Manhattan walk",
+      "stops": [
+        { "name": "Birch Coffee Flatiron", "address": "21 E 27th St, New York, NY 10016", "icon": "☕" },
+        { "name": "Flatiron Building", "address": "175 5th Ave, New York, NY 10010", "icon": "🏙" },
+        { "name": "Madison Square Park", "address": "11 Madison Ave, New York, NY 10010", "icon": "🌳" },
+        { "name": "Eataly NYC Flatiron", "address": "200 5th Ave, New York, NY 10010", "icon": "🍝" }
+      ]
+    }
+  ],
+  "backups": [
+    { "name": "Joe's Pizza", "area": "Greenwich Village", "type": "food", "address": "7 Carmine St, New York, NY 10014" },
+    { "name": "Banh Mi Saigon", "area": "Chinatown", "type": "food", "address": "198 Grand St, New York, NY 10013" },
+    { "name": "Apotheke", "area": "Chinatown", "type": "bar", "address": "9 Doyers St, New York, NY 10013" }
+  ]
 }
