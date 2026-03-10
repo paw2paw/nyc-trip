@@ -21,6 +21,23 @@ align-items:center;
 justify-content:space-between;
 }
 
+.headerRow button{
+width:44px;
+height:44px;
+border-radius:12px;
+border:none;
+background:#222;
+color:white;
+font-size:20px;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+.headerRow button:active{
+transform:scale(.92);
+}
+
 #dayMeta{
 text-align:center;
 font-size:14px;
@@ -44,47 +61,62 @@ padding:18px;
 border-radius:16px;
 margin-bottom:8px;
 box-shadow:0 4px 12px rgba(0,0,0,.08);
+line-height:1.35;
+}
+
+.stop b{
+font-size:18px;
 }
 
 .stop.active{
 border:2px solid #b5963b;
+background:#fffdf6;
 }
 
 .seq{
+display:inline-block;
+min-width:28px;
 color:#b5963b;
 font-weight:700;
 margin-right:10px;
 }
 
 .weather{
-margin-top:6px;
 font-size:13px;
-color:#666;
+color:#777;
+margin-top:6px;
 }
 
 .travel{
-margin:6px 0 18px 48px;
-text-align:right;
+margin:8px 0 20px 52px;
+padding:8px 12px;
+background:#f6f4ee;
+border-radius:10px;
+display:flex;
+justify-content:flex-end;
+gap:14px;
 font-size:14px;
+position:relative;
+}
+
+.travel::before{
+content:"↓";
+position:absolute;
+left:-24px;
+top:50%;
+transform:translateY(-50%);
+font-size:16px;
+color:#b5963b;
 }
 
 .travel a{
-text-decoration:none;
-margin-left:12px;
+color:#1a1a1a;
 font-weight:600;
-color:#111;
+text-decoration:none;
 }
 
-#nextBtn{
-width:90%;
-margin:20px auto;
-display:block;
-padding:14px;
-border-radius:12px;
-border:none;
-background:#111;
-color:white;
-font-size:18px;
+.travel a:active{
+opacity:.6;
 }
 
 #menu{
@@ -96,7 +128,7 @@ height:100%;
 background:white;
 padding:20px;
 box-shadow:2px 0 10px rgba(0,0,0,.2);
-transition:left .3s;
+transition:left .25s ease;
 z-index:30;
 }
 
@@ -117,58 +149,4 @@ z-index:25;
 
 #menuOverlay.show{
 display:block;
-}
-
-.stop{
-line-height:1.35;
-}
-
-.stop b{
-font-size:18px;
-}
-
-.weather{
-font-size:13px;
-color:#777;
-margin-top:6px;
-}
-
-.travel{
-margin:8px 0 20px 52px;
-padding:8px 12px;
-background:#f6f4ee;
-border-radius:10px;
-display:flex;
-justify-content:flex-end;
-gap:14px;
-font-size:14px;
-}
-
-.travel a{
-color:#1a1a1a;
-font-weight:600;
-text-decoration:none;
-}
-
-.travel a:active{
-opacity:.6;
-}
-
-.seq{
-display:inline-block;
-min-width:28px;
-}
-
-.travel{
-position:relative;
-}
-
-.travel::before{
-content:"↓";
-position:absolute;
-left:-24px;
-top:50%;
-transform:translateY(-50%);
-font-size:16px;
-color:#b5963b;
 }

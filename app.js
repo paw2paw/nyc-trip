@@ -71,35 +71,9 @@ return `
 
 }
 
-function distanceMeters(a,b){
-
-let lat1=40.72
-let lon1=-74.0
-let lat2=lat1
-let lon2=lon1
-
-let R=6371e3
-
-let φ1=lat1*Math.PI/180
-let φ2=lat2*Math.PI/180
-let Δφ=(lat2-lat1)*Math.PI/180
-let Δλ=(lon2-lon1)*Math.PI/180
-
-let x=Math.sin(Δφ/2)*Math.sin(Δφ/2)+
-Math.cos(φ1)*Math.cos(φ2)*
-Math.sin(Δλ/2)*Math.sin(Δλ/2)
-
-let c=2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))
-
-return R*c
-
-}
-
 function walkMinutes(){
 
-let mins=Math.round(Math.random()*3+4)
-
-return mins
+return Math.round(Math.random()*3+4)
 
 }
 
@@ -154,8 +128,6 @@ html+=hotelRow("Return to "+hotel.name)
 
 document.getElementById("stops").innerHTML=html
 
-updateNext()
-
 }
 
 function setStop(i){
@@ -163,81 +135,70 @@ state.stop=i
 render()
 }
 
-function nextStop(){
-
-let day=data.days[state.day]
-
-if(state.stop<day.stops.length-1){
-state.stop++
-render()
-}
-
-}
-
-function updateNext(){
-
-let day=data.days[state.day]
-
-let n=state.stop+2
-
-if(n<=day.stops.length){
-document.getElementById("nextBtn").innerText=`NEXT → ${n}`
-}else{
-document.getElementById("nextBtn").innerText="DAY COMPLETE"
-}
-
-}
-
 function prevDay(){
-
 if(state.day>0){
 state.day--
 state.stop=0
-render()
+animateSwipe(1)
 }
-
 }
 
 function nextDay(){
-
 if(state.day<data.days.length-1){
 state.day++
 state.stop=0
-render()
+animateSwipe(-1)
 }
+}
+
+function animateSwipe(dir){
+
+let el=document.getElementById("stops")
+
+el.style.transform=`translateX(${dir*120}px)`
+
+setTimeout(()=>{
+render()
+el.style.transform=`translateX(${dir*-120}px)`
+setTimeout(()=>{
+el.style.transform="translateX(0)"
+},10)
+},120)
 
 }
 
 let startX=0
 let startY=0
-let swipe=true
+let swiping=false
 
 document.addEventListener("touchstart",e=>{
 startX=e.touches[0].clientX
 startY=e.touches[0].clientY
-swipe=true
+swiping=true
 })
 
 document.addEventListener("touchmove",e=>{
 
-if(!swipe)return
+if(!swiping)return
 
 let dx=e.touches[0].clientX-startX
 let dy=e.touches[0].clientY-startY
 
-if(Math.abs(dy)>Math.abs(dx)) swipe=false
+if(Math.abs(dy)>Math.abs(dx)){
+swiping=false
+}
 
 })
 
 document.addEventListener("touchend",e=>{
 
-if(!swipe)return
+if(!swiping)return
 
-let diff=e.changedTouches[0].clientX-startX
+let dx=e.changedTouches[0].clientX-startX
 
-if(Math.abs(diff)<90)return
+if(Math.abs(dx)<80)return
 
-if(diff<0){
+if(dx<0){
 nextDay()
 }else{
 prevDay()
