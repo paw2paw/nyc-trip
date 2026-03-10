@@ -1,37 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NYC Trip</title>
+<link rel="stylesheet" href="layout.css?v=50">
+</head>
+<body>
+
 <div id="menuOverlay" onclick="toggleMenu()"></div>
 
 <div id="menu">
-  <div class="menuHeader">
-    Menu
-    <button onclick="toggleMenu()">✕</button>
-  </div>
-
-  <div class="menuItem" onclick="returnHotel()">🏨 Return Hotel</div>
-  <div class="menuItem" onclick="showMap()">🗺 Map</div>
-  <div class="menuItem" onclick="nearbyCoffee()">☕ Coffee Nearby</div>
-  <div class="menuItem" onclick="nearbyFood()">🍜 Food Nearby</div>
+<div class="menuHeader">
+Menu
+<button onclick="toggleMenu()">✕</button>
+</div>
+<div class="menuItem" onclick="returnHotel()">🏨 Return Hotel</div>
+<div class="menuItem" onclick="showMap()">🗺 Map</div>
+<div class="menuItem" onclick="nearbyCoffee()">☕ Coffee Nearby</div>
+<div class="menuItem" onclick="nearbyFood()">🍜 Food Nearby</div>
 </div>
 
 <header>
 
 <div class="headerRow">
 <button class="iconBtn" onclick="toggleMenu()">☰</button>
-
 <div class="headerCenter">
 <div id="dayMeta"></div>
 </div>
-
 <button class="iconBtn" onclick="sendMyLocation()">💬</button>
 </div>
 
 <div class="headerRow">
 <button class="iconBtn" onclick="prevDay()">←</button>
-
 <div class="headerCenter">
 <div id="dayTitle"></div>
 </div>
-
 <button class="iconBtn" onclick="nextDay()">→</button>
 </div>
 
 </header>
+
+<div id="stops"></div>
+
+<button id="nextBtn">NEXT</button>
+
+<div id="map"></div>
+
+<script src="app.js?v=50"></script>
+
+</body>
+</html>
