@@ -1,4 +1,70 @@
 <!DOCTYPE html>
+<header>
+
+<div class="headerRow">
+
+<button class="iconBtn" onclick="toggleMenu()">☰</button>
+
+<div class="headerCenter">
+<div id="dayMeta"></div>
+</div>
+
+<button class="iconBtn" onclick="sendMyLocation()">💬</button>
+
+</div>
+
+<div class="headerRow">
+
+<button class="iconBtn" onclick="prevDay()">←</button>
+
+<div id="dayTitle"></div>
+
+<button class="iconBtn" onclick="nextDay()">→</button>
+
+</div>
+
+</header>
+
+<style>
+
+header{
+background:white;
+border-bottom:2px solid #C9A227;
+padding:8px 12px;
+}
+
+.headerRow{
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.headerCenter{
+text-align:center;
+flex:1;
+}
+
+.iconBtn{
+background:none;
+border:none;
+font-size:20px;
+cursor:pointer;
+}
+
+#dayTitle{
+font-size:18px;
+font-weight:600;
+text-align:center;
+}
+
+#dayMeta{
+font-size:11px;
+letter-spacing:1px;
+color:#666;
+text-align:center;
+}
+
+</style>
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -87,10 +153,6 @@ margin-top:10px;
 
 <body>
 
-<header>
-<div id="dayMeta"></div>
-<div id="dayTitle"></div>
-</header>
 
 <div id="stops"></div>
 
