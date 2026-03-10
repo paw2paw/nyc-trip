@@ -1,6 +1,7 @@
 "use strict"
 
 let data
+
 let state={
 day:0,
 stop:0
@@ -31,18 +32,74 @@ render()
 
 }
 
+function getHotel(date){
+
+let hotel=data.hotels[0]
+
+data.hotels.forEach(h=>{
+if(date>=h.from) hotel=h
+})
+
+return hotel
+
+}
+
 function stopCard(stop,i){
 
 let active=i===state.stop?"active":""
 
 return `
 <div class="stop ${active}" onclick="setStop(${i})">
-<div><span class="seq">${(i+1).toString().padStart(2,"0")}</span>
-<b>${stop.icon||""} ${stop.name}</b></div>
+<div>
+<span class="seq">${(i+1).toString().padStart(2,"0")}</span>
+<b>${stop.icon||""} ${stop.name}</b>
+</div>
 ${stop.address}
-<div class="weather">🌡 ${weather.temp}°  🌧 ${weather.rain}%</div>
+<div class="weather">🌡 ${weather.temp}° 🌧 ${weather.rain}%</div>
 </div>
 `
+
+}
+
+function hotelRow(name){
+
+return `
+<div class="stop">
+🏨 ${name}
+</div>
+`
+
+}
+
+function distanceMeters(a,b){
+
+let lat1=40.72
+let lon1=-74.0
+let lat2=lat1
+let lon2=lon1
+
+let R=6371e3
+
+let φ1=lat1*Math.PI/180
+let φ2=lat2*Math.PI/180
+let Δφ=(lat2-lat1)*Math.PI/180
+let Δλ=(lon2-lon1)*Math.PI/180
+
+let x=Math.sin(Δφ/2)*Math.sin(Δφ/2)+
+Math.cos(φ1)*Math.cos(φ2)*
+Math.sin(Δλ/2)*Math.sin(Δλ/2)
+
+let c=2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))
+
+return R*c
+
+}
+
+function walkMinutes(){
+
+let mins=Math.round(Math.random()*3+4)
+
+return mins
 
 }
 
@@ -52,11 +109,14 @@ let walk=`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(a.a
 let transit=`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(a.address)}&destination=${encodeURIComponent(b.address)}&travelmode=transit`
 let drive=`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(a.address)}&destination=${encodeURIComponent(b.address)}&travelmode=driving`
 
+let mins=walkMinutes()
+
 return `
 <div class="travel">
-🚶 <a onclick="event.stopPropagation()" href="${walk}" target="_blank">Walk</a>
-🚇 <a onclick="event.stopPropagation()" href="${transit}" target="_blank">Subway</a>
-🚕 <a onclick="event.stopPropagation()" href="${drive}" target="_blank">Taxi</a>
+↓ ${mins} min
+<a onclick="event.stopPropagation()" href="${walk}" target="_blank">Walk</a>
+<a onclick="event.stopPropagation()" href="${transit}" target="_blank">Subway</a>
+<a onclick="event.stopPropagation()" href="${drive}" target="_blank">Taxi</a>
 </div>
 `
 
@@ -76,6 +136,10 @@ document.getElementById("title").innerText=day.title
 
 let html=""
 
+let hotel=getHotel(day.date)
+
+html+=hotelRow(hotel.name)
+
 day.stops.forEach((s,i)=>{
 
 html+=stopCard(s,i)
@@ -85,6 +149,8 @@ html+=travelRow(s,day.stops[i+1])
 }
 
 })
+
+html+=hotelRow("Return to "+hotel.name)
 
 document.getElementById("stops").innerHTML=html
 
@@ -102,11 +168,8 @@ function nextStop(){
 let day=data.days[state.day]
 
 if(state.stop<day.stops.length-1){
-
 state.stop++
-
 render()
-
 }
 
 }
@@ -118,13 +181,9 @@ let day=data.days[state.day]
 let n=state.stop+2
 
 if(n<=day.stops.length){
-
 document.getElementById("nextBtn").innerText=`NEXT → ${n}`
-
 }else{
-
 document.getElementById("nextBtn").innerText="DAY COMPLETE"
-
 }
 
 }
@@ -132,12 +191,9 @@ document.getElementById("nextBtn").innerText="DAY COMPLETE"
 function prevDay(){
 
 if(state.day>0){
-
 state.day--
 state.stop=0
-
-animateSwipe(1)
-
+render()
 }
 
 }
@@ -145,35 +201,10 @@ animateSwipe(1)
 function nextDay(){
 
 if(state.day<data.days.length-1){
-
 state.day++
 state.stop=0
-
-animateSwipe(-1)
-
-}
-
-}
-
-function animateSwipe(dir){
-
-let el=document.getElementById("stops")
-
-el.style.transform=`translateX(${dir*80}px)`
-
-setTimeout(()=>{
-
 render()
-
-el.style.transform=`translateX(${dir*-80}px)`
-
-setTimeout(()=>{
-
-el.style.transform="translateX(0)"
-
-},10)
-
-},150)
+}
 
 }
 
@@ -194,9 +225,7 @@ if(!swipe)return
 let dx=e.touches[0].clientX-startX
 let dy=e.touches[0].clientY-startY
 
-if(Math.abs(dy)>Math.abs(dx)){
-swipe=false
-}
+if(Math.abs(dy)>Math.abs(dx)) swipe=false
 
 })
 
@@ -227,6 +256,21 @@ function closeMenu(){
 
 document.getElementById("menu").classList.remove("open")
 document.getElementById("menuOverlay").classList.remove("show")
+
+}
+
+function openDayMap(){
+
+let day=data.days[state.day]
+
+let origin=day.stops[0].address
+let dest=day.stops[day.stops.length-1].address
+
+let waypoints=day.stops.slice(1,-1).map(s=>encodeURIComponent(s.address)).join("|")
+
+let url=`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(dest)}&waypoints=${waypoints}`
+
+window.open(url)
 
 }
 
