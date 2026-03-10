@@ -118,3 +118,44 @@ z-index:25;
 #menuOverlay.show{
 display:block;
 }
+
+.stop{
+line-height:1.35;
+}
+
+.stop b{
+font-size:18px;
+}
+
+.weather{
+font-size:13px;
+color:#777;
+margin-top:6px;
+}
+
+.travel{
+margin:8px 0 20px 52px;
+padding:8px 12px;
+background:#f6f4ee;
+border-radius:10px;
+display:flex;
+justify-content:flex-end;
+gap:14px;
+font-size:14px;
+}
+
+.travel a{
+color:#1a1a1a;
+font-weight:600;
+text-decoration:none;
+}
+
+.travel a:active{
+opacity:.6;
+}
+
+.seq{
+display:inline-block;
+min-width:28px;
+}
+
