@@ -3,39 +3,41 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NYC Trip</title>
-<link rel="stylesheet" href="app.css">
-<link rel="manifest" href="manifest.json">
+<style>
+body{font-family:-apple-system,system-ui;background:#f5f5f7;color:#111;margin:0}
+header{display:flex;justify-content:space-between;align-items:center;padding:14px;background:white;border-bottom:1px solid #ddd}
+#weatherBar{padding:10px;background:#f0f0f0;border-bottom:1px solid #ddd}
+#stops{padding:16px}
+.stop{background:white;padding:16px;border-radius:12px;margin-bottom:12px;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+button{padding:10px 12px;border-radius:8px;border:none;background:#007aff;color:white;margin-top:8px}
+.actions{position:sticky;bottom:0;background:white;padding:10px;display:flex;gap:10px;border-top:1px solid #ddd}
+.actions button{flex:1}
+</style>
 </head>
 <body>
+
 <header>
-<button id="menuBtn">☰</button>
+<button onclick="location.reload()">☰</button>
 <h1 id="dayTitle">NYC Trip</h1>
-<button id="meetBtn">Meet LAW</button>
+<button id="meetBtn">Meet</button>
 </header>
-<div id="weatherBar"><span id="temp"></span> <span id="rain"></span></div>
+
+<div id="weatherBar">
+<span id="temp"></span>
+<span id="rain"></span>
+</div>
+
 <div id="stops"></div>
+
 <div class="actions">
 <button id="routeBtn">Open Route</button>
 <button id="backupBtn">Add Backup</button>
 <button id="hotelBtn">Return Hotel</button>
 </div>
-<div id="backupPanel" class="hidden">
-<h3>Backups</h3>
-<select id="backupType">
-<option value="food">Food</option>
-<option value="bar">Bar</option>
-<option value="coffee">Coffee</option>
-<option value="late">Late</option>
-</select>
-<select id="backupArea">
-<option>SoHo</option>
-<option>Chinatown</option>
-<option>LES</option>
-<option>Williamsburg</option>
-<option>DUMBO</option>
-</select>
-<div id="backupList"></div>
-</div>
-<script src="app.js"></script>
+
+<div id="backupPanel" style="display:none"></div>
+
+<script src="app.js?v=10"></script>
+
 </body>
 </html>
