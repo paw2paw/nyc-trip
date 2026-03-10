@@ -120,3 +120,20 @@ window.open("https://wa.me/"+data.lawPhone+"?text="+encodeURIComponent(msg))
 })
 
 }
+
+function prevDay(){
+if(dayIndex>0){
+dayIndex--
+stopIndex=0
+render()
+}
+}
+
+function nextDay(){
+if(dayIndex<data.days.length-1){
+dayIndex++
+stopIndex=0
+render()
+}
+}
+
