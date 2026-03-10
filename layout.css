@@ -159,3 +159,16 @@ display:inline-block;
 min-width:28px;
 }
 
+.travel{
+position:relative;
+}
+
+.travel::before{
+content:"↓";
+position:absolute;
+left:-24px;
+top:50%;
+transform:translateY(-50%);
+font-size:16px;
+color:#b5963b;
+}
