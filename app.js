@@ -2180,7 +2180,7 @@ function renderExplore() {
     const nearbyNodes = []
     nearbyNodes.push(el("div", { className: "exploreSectionHead" }, "\uD83E\uDDED Around Me"))
     nearbyItems.forEach(function(ni) {
-      var card = el("a", {
+      const card = el("a", {
         className: "guideItem nearbyLink",
         href: "https://www.google.com/maps/search/" + ni.search,
         target: "_blank",
