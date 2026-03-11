@@ -1517,7 +1517,8 @@ function openEmergency() {
     { label: "🇬🇧 UK Embassy NYC", value: "+1 212-745-0200", href: "tel:+12127450200" },
     { label: "📱 PAW Phone", value: getPhone("paw") || "Not set", href: getPhone("paw") ? "tel:" + getPhone("paw") : null },
     { label: "📱 LAW Phone", value: getPhone("law") || "Not set", href: getPhone("law") ? "tel:" + getPhone("law") : null },
-    { label: "🏥 Nearest ER", value: "Search", href: "https://www.google.com/maps/search/emergency+room+near+me" }
+    { label: "🏥 Nearest ER", value: "Search", href: "https://www.google.com/maps/search/emergency+room+near+me" },
+    { label: "🛡️ Travel Insurance", value: "Policy Portal", href: "https://travel-portal.switchedoninsurance.com/policies" }
   ]
 
   const nodes = []
