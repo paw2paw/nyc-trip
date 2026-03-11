@@ -1479,8 +1479,34 @@ a.stopAddr:active {
   margin-bottom: 6px;
 }
 
+.exploreSectionHead {
+  cursor: pointer;
+  user-select: none;
+}
+
 .exploreSectionHead:first-child {
   padding-top: 4px;
+}
+
+.exploreSectionChevron {
+  display: inline-block;
+  width: 12px;
+  font-size: 11px;
+}
+
+.exploreSectionBody {
+  display: grid;
+  grid-template-rows: 1fr;
+  overflow: hidden;
+  transition: grid-template-rows 0.25s ease;
+}
+
+.exploreSectionBody > * {
+  min-height: 0;
+}
+
+.exploreSectionBody.collapsed {
+  grid-template-rows: 0fr;
 }
 
 .exploreTagHead {

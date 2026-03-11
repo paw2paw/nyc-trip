@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "1.3.9"
+const APP_VERSION = "1.4.0"
 
 // --- SVG icons ---
 
@@ -2225,17 +2225,34 @@ function renderExplore() {
   const nodes = []
   let lastCat = null
   let lastTag = null
+  let sectionBody = null
 
   items.forEach(item => {
     if (showSections && item.category !== lastCat) {
       lastCat = item.category
       lastTag = null
-      nodes.push(el("div", { className: "exploreSectionHead" }, catIcons[item.category] + " " + item.category))
+      const key = "nyc-explore-col-" + item.category
+      const isCollapsed = localStorage.getItem(key) === "1"
+      const chevron = el("span", { className: "exploreSectionChevron" }, isCollapsed ? "▸" : "▾")
+      sectionBody = el("div", { className: "exploreSectionBody" + (isCollapsed ? " collapsed" : "") })
+      const head = el("div", { className: "exploreSectionHead", role: "button", tabindex: "0" },
+        chevron, " ", catIcons[item.category] + " " + item.category
+      )
+      head.onclick = () => {
+        const col = sectionBody.classList.toggle("collapsed")
+        chevron.textContent = col ? "▸" : "▾"
+        localStorage.setItem(key, col ? "1" : "0")
+      }
+      head.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); head.onclick() } }
+      nodes.push(head)
+      nodes.push(sectionBody)
     }
 
     if (item.tag && item.tag !== lastTag && !hasDistances) {
       lastTag = item.tag
-      nodes.push(el("div", { className: "exploreTagHead" }, item.tag))
+      const tagEl = el("div", { className: "exploreTagHead" }, item.tag)
+      if (sectionBody) sectionBody.append(tagEl)
+      else nodes.push(tagEl)
     }
 
     const dist = exploreDistances[item.flatIndex]
@@ -2272,7 +2289,8 @@ function renderExplore() {
         rightSide
       )
     )
-    nodes.push(card)
+    if (sectionBody && showSections) sectionBody.append(card)
+    else nodes.push(card)
   })
 
   if (items.length === 0) {
