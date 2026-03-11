@@ -28,10 +28,10 @@
     "title": "High Line & Theatre",
     "stops": [
       {"name": "Birch Coffee", "address": "56 Crosby St, New York", "icon": "☕", "type": "flexible", "note": "Local NYC chain, solid flat white"},
-      {"name": "Little Island", "address": "Pier 55 Hudson River Park, New York", "icon": "🌿", "type": "flexible", "note": "Free timed tickets may be needed, check website"},
+      {"name": "Little Island", "address": "Pier 55 Hudson River Park, New York", "icon": "🌿", "type": "flexible", "note": "Free timed tickets may be needed, check website", "alertNote": "Check if free timed tickets are required"},
       {"name": "High Line Walk", "address": "820 Washington St, New York", "icon": "🚶", "type": "flexible", "note": "Enter at Gansevoort St, walk north. Fully exposed — if windy/wet, cab to Chelsea Market instead"},
       {"name": "Chelsea Market", "address": "75 9th Ave, New York", "icon": "🍜", "type": "flexible", "note": "Los Tacos No.1 is the must-try. Gets busy at lunch"},
-      {"name": "MoMA", "address": "11 W 53rd St, New York", "icon": "🖼", "type": "flexible", "note": "$25 entry, or free after 4pm (Fridays). Starry Night floor 5"},
+      {"name": "MoMA", "address": "11 W 53rd St, New York", "icon": "🖼", "type": "flexible", "note": "$25 entry, or free after 4pm (Fridays). Starry Night floor 5", "alertNote": "Free entry after 4pm on Fridays!"},
       {"name": "Bar Centrale", "address": "324 W 46th St, New York", "icon": "🍸", "type": "flexible", "note": "Hidden above Joe Allen's, Broadway actors hang here"},
       {"name": "Buena Vista Social Club", "address": "236 W 45th St, New York", "icon": "🎭", "type": "reserved", "time": "19:00", "note": "Musical. Arrive 15 min early"}
     ]
@@ -59,7 +59,7 @@
       {"name": "Death Becomes Her", "address": "205 W 46th St, New York", "icon": "🎭", "type": "reserved", "time": "15:00", "note": "Musical. Lunt-Fontanne Theatre"},
       {"name": "Joe's Pizza", "address": "7 Carmine St, New York", "icon": "🍕", "type": "flexible", "note": "Classic NYC slice. Cash only, always a queue"},
       {"name": "West Village Walk", "address": "Bleecker St, New York", "icon": "🚶", "type": "flexible", "note": "Perry St, Grove St for pretty brownstones. Friends building on Bedford"},
-      {"name": "Smalls Jazz Club", "address": "183 W 10th St, New York", "icon": "🎷", "type": "flexible", "note": "Legendary basement jazz. $20 cover, BYOB. Sets from 7:30pm, late night jams after midnight"}
+      {"name": "Smalls Jazz Club", "address": "183 W 10th St, New York", "icon": "🎷", "type": "flexible", "note": "Legendary basement jazz. $20 cover, BYOB. Sets from 7:30pm, late night jams after midnight", "alertNote": "Sets start 7:30pm — BYOB!"}
     ]
   },
 
@@ -84,9 +84,9 @@
       {"name": "Butler Coffee", "address": "40 Water St, Brooklyn", "icon": "☕", "type": "flexible", "note": "Excellent cold brew, small but cosy"},
       {"name": "Brooklyn Heights Promenade", "address": "Montague St, Brooklyn", "icon": "🌉", "type": "flexible", "note": "Best unobstructed Manhattan skyline view"},
       {"name": "Juliana's Pizza", "address": "19 Old Fulton St, Brooklyn", "icon": "🍕", "type": "flexible", "note": "Coal-fired, better than Grimaldi's next door. Lunch before heading north"},
-      {"name": "Beacon's Closet", "address": "74 Guernsey St, Brooklyn", "icon": "🛍", "type": "flexible", "note": "Vintage clothing, big Greenpoint location. Cab from Juliana's ~10 min, then walk south to Williamsburg"},
       {"name": "Pete's Candy Store", "address": "709 Lorimer St, Brooklyn", "icon": "🎵", "type": "flexible", "note": "Free live music nightly in the back room. Very local Williamsburg dive. Check set times"},
-      {"name": "Westlight Rooftop", "address": "111 N 12th St, Brooklyn", "icon": "🍸", "type": "flexible", "note": "22nd floor of William Vale hotel. Stunning 360 views", "covered": true}
+      {"name": "Beacon's Closet", "address": "74 Guernsey St, Brooklyn", "icon": "🛍", "type": "flexible", "note": "Vintage clothing, big Greenpoint location. Walk north from Williamsburg"},
+      {"name": "Westlight Rooftop", "address": "111 N 12th St, Brooklyn", "icon": "🍸", "type": "flexible", "note": "22nd floor of William Vale hotel. Stunning 360 views. On the way back south", "covered": true}
     ]
   },
 
@@ -122,8 +122,6 @@
       {"name": "Attaboy", "note": "No menu — tell them what you like. LES speakeasy legend", "address": "134 Eldridge St, New York", "covered": true},
       {"name": "Apotheke", "note": "Apothecary-themed cocktails in old Chinatown opium den", "address": "9 Doyers St, New York", "covered": true},
       {"name": "Please Don't Tell (PDT)", "note": "Enter through phone booth in Crif Dogs. Reservations essential", "address": "113 St Marks Pl, New York", "covered": true},
-      {"name": "Westlight", "note": "22nd floor of William Vale hotel. 360° views, stunning at sunset", "address": "111 N 12th St, Brooklyn", "covered": true},
-      {"name": "Harriet's Rooftop", "note": "At 1 Hotel Brooklyn Bridge. Manhattan skyline cocktails", "address": "60 Furman St, Brooklyn", "covered": "partial"},
       {"name": "The Campbell", "note": "Grand Central's hidden bar. Painted ceilings, old-money glamour", "address": "15 Vanderbilt Ave, New York", "covered": true},
       {"name": "Dear Irving on Hudson", "note": "39th floor of Aliz Hotel. Themed rooms, jaw-dropping views", "address": "310 W 40th St, New York", "covered": true},
       {"name": "Temple Bar", "note": "Speakeasy vibes, no sign outside. Dress smart. Strong martinis", "address": "332 Lafayette St, New York", "covered": true},
@@ -146,12 +144,11 @@
     "title": "Only in NYC",
     "icon": "✨",
     "items": [
-      {"name": "Comedy Cellar", "note": "Drop-in comedy. Famous comedians test material here", "address": "117 MacDougal St, New York"},
       {"name": "Strand Bookstore", "note": "18 miles of books. Rare books room upstairs, tote bags as souvenirs", "address": "828 Broadway, New York"},
       {"name": "Grand Central Whispering Gallery", "note": "Stand in opposite corners of the archway and whisper. It works", "address": "89 E 42nd St, New York"},
       {"name": "The Vessel (Hudson Yards)", "note": "Honeycomb staircase sculpture. Free timed tickets", "address": "20 Hudson Yards, New York"},
-      {"name": "Smorgasburg Williamsburg", "note": "Outdoor food market, Saturdays only. 100+ vendors", "address": "90 Kent Ave, Brooklyn"},
-      {"name": "Brooklyn Flea", "note": "Vintage, antiques, handmade. Weekends, check location before going", "address": "80 Pearl St, Brooklyn"}
+      {"name": "Smorgasburg Williamsburg", "note": "Outdoor food market, Saturdays only (Mar 14 on this trip). 100+ vendors", "address": "90 Kent Ave, Brooklyn"},
+      {"name": "Brooklyn Flea", "note": "Vintage, antiques, handmade. Weekends, check location before going", "address": "80 Pearl St, Brooklyn", "url": "https://brooklynflea.com"}
     ]
   },
   {
@@ -159,12 +156,9 @@
     "icon": "🎷",
     "items": [
       {"name": "Village Vanguard", "note": "The most legendary jazz club in the world. Operating since 1935. Book ahead", "address": "178 7th Ave S, New York"},
-      {"name": "Smalls Jazz Club", "note": "Basement jazz, $20 cover, BYOB. Late-night jams after midnight are the real move", "address": "183 W 10th St, New York"},
       {"name": "Mezzrow", "note": "Intimate piano jazz bar below street level. Same owners as Smalls, more chill", "address": "7 W 10th St, New York"},
-      {"name": "The Django", "note": "Live jazz in Roxy Hotel basement. No cover, great cocktails, Tribeca", "address": "2 6th Ave, New York"},
       {"name": "Dizzy's Club", "note": "Jazz at Lincoln Center. Floor-to-ceiling Central Park views. Worth the splurge", "address": "33 W 60th St, New York"},
       {"name": "Nublu", "note": "Eclectic live music — jazz, funk, Afrobeat. East Village, very local crowd", "address": "151 Avenue C, New York"},
-      {"name": "Pete's Candy Store", "note": "Free live music in the back room nightly. Williamsburg local dive", "address": "709 Lorimer St, Brooklyn"},
       {"name": "Barbès", "note": "Tiny Park Slope bar, world music and jazz. $10 suggested donation. Beloved by locals", "address": "376 9th St, Brooklyn"}
     ]
   },
@@ -178,13 +172,9 @@
       {"name": "Lucali", "note": "BYOB pizza in Carroll Gardens. Jay-Z's favourite. Cash only, expect a wait", "address": "575 Henry St, Brooklyn"},
       {"name": "Scarr's Pizza", "note": "LES slice joint. House-milled flour, old-school vibes. Locals swear by it", "address": "22 Orchard St, New York"},
       {"name": "Thai Diner", "note": "Thai-American diner mashup in Nolita. Khao soi french dip is unreal", "address": "186 Mott St, New York"},
-      {"name": "Kalustyan's", "note": "Legendary spice shop. Their sandwiches are a cult favourite — get the #1 Special", "address": "123 Lexington Ave, New York"},
       {"name": "Court Street Grocers", "note": "Best deli sandwiches in Brooklyn. Carroll Gardens & DUMBO locations", "address": "485 Court St, Brooklyn"},
-      {"name": "Joe's Pizza", "note": "Classic NYC slice since 1975. Cash only, always a queue. The benchmark", "address": "7 Carmine St, New York", "icon": "🍕"},
       {"name": "Banh Mi Saigon", "note": "Best banh mi in Chinatown. Crispy baguette, $6. Quick and perfect", "address": "198 Grand St, New York", "icon": "🍜"},
-      {"name": "Felix Roasting Co", "note": "Beautiful interiors, great for photos. Order the oat latte. Flatiron", "address": "450 Park Ave South, New York", "icon": "☕"},
       {"name": "L'Industrie Pizzeria", "note": "Williamsburg's best slice. Burrata slice is legendary. Always a line, always worth it", "address": "254 S 2nd St, Brooklyn", "icon": "🍕"},
-      {"name": "Katz's Delicatessen", "note": "Pastrami on rye since 1888. Cash only counter, card at table. Skip the tourist line — go at 3pm", "address": "205 E Houston St, New York", "icon": "🥪"},
       {"name": "Los Tacos No.1", "note": "Best tacos in Manhattan. Adobada and nopal are the move. Also in Chelsea Market", "address": "75 9th Ave, New York", "icon": "🌮"},
       {"name": "Hanon", "note": "Tiny Japanese cream puff shop in West Village. Pistachio is incredible. Instagram queue but worth it", "address": "40 Bedford St, New York", "icon": "🍰"},
       {"name": "Vanessa's Dumpling House", "note": "4 dumplings for $3. Chinatown institution, no frills. Fried pork dumplings are the one", "address": "118A Eldridge St, New York", "icon": "🥟"},
@@ -197,6 +187,22 @@
     ]
   },
   {
+    "title": "Coffee & Cafes",
+    "icon": "☕",
+    "items": [
+      {"name": "La Cabra", "note": "Scandinavian specialty coffee, great pastries. Lafayette St, SoHo", "address": "284 Lafayette St, New York"},
+      {"name": "Felix Roasting Co", "note": "Beautiful interiors, great for photos. Order the oat latte. Flatiron", "address": "450 Park Ave South, New York"},
+      {"name": "Birch Coffee", "note": "Local NYC chain, solid flat white. Multiple locations", "address": "56 Crosby St, New York"},
+      {"name": "Round K", "note": "Hong Kong–style coffee and egg waffles. Right by Chinatown", "address": "99 Allen St, New York"},
+      {"name": "Maman", "note": "French-inspired café, locals love it. Great pastries. Multiple locations", "address": "239 Centre St, New York"},
+      {"name": "Butler Coffee", "note": "Excellent cold brew, small but cosy. DUMBO waterfront", "address": "40 Water St, Brooklyn"},
+      {"name": "Almondine Bakery", "note": "French bakery in DUMBO. Croissants and coffee, steps from Brooklyn Bridge", "address": "85 Water St, Brooklyn"},
+      {"name": "Devoción", "note": "Colombian coffee roasted in-house. Stunning Williamsburg greenhouse space", "address": "69 Grand St, Brooklyn"},
+      {"name": "Abraço", "note": "Tiny East Village espresso bar. Olive oil cake is legendary. Cash only", "address": "81 E 7th St, New York"},
+      {"name": "Sey Coffee", "note": "Bushwick roaster, minimalist Scandi vibes. One of NYC's best pourover spots", "address": "18 Grattan St, Brooklyn"}
+    ]
+  },
+  {
     "title": "Comedy Clubs",
     "icon": "😂",
     "items": [
@@ -206,6 +212,42 @@
       {"name": "Gotham Comedy Club", "note": "Chelsea. Polished room, bigger names. Good date-night comedy spot", "address": "208 W 23rd St, New York"},
       {"name": "New York Comedy Club", "note": "East Village. Cheaper tickets, raw energy. Late shows get wild", "address": "241 E 24th St, New York"},
       {"name": "Eastville Comedy Club", "note": "Intimate basement in the East Village. $5–10 shows, surprisingly great acts", "address": "85 E 4th St, New York"}
+    ]
+  },
+  {
+    "title": "Shopping",
+    "icon": "🛍",
+    "items": [
+      {"name": "ZARA SoHo", "note": "Massive flagship, three floors. Great basics and seasonal pieces", "address": "503 Broadway, New York", "tag": "Clothing", "price": "$"},
+      {"name": "& Other Stories", "note": "Scandi-chic, affordable elevated basics. SoHo location is beautifully laid out", "address": "575 Broadway, New York", "tag": "Clothing", "price": "$"},
+      {"name": "COS", "note": "Minimalist Scandi design, great tailoring at mid-range prices", "address": "129 Spring St, New York", "tag": "Clothing", "price": "$$"},
+      {"name": "Aritzia", "note": "Canadian brand, great coats and everyday pieces. Super Puff jacket is iconic", "address": "600 Broadway, New York", "tag": "Clothing", "price": "$$"},
+      {"name": "APC", "note": "French minimalism. Perfect jeans, clean lines. Worth a look even just to browse", "address": "131 Mercer St, New York", "tag": "Clothing", "price": "$$$"},
+      {"name": "Rag & Bone", "note": "NYC-born brand. Great leather jackets, denim, and knitwear", "address": "119 Mercer St, New York", "tag": "Clothing", "price": "$$$"},
+      {"name": "The Row", "note": "Olsen twins' ultra-luxe label. Appointment-level quiet luxury. Worth window shopping", "address": "17 E 71st St, New York", "tag": "Clothing", "price": "$$$"},
+
+      {"name": "Beacon's Closet", "note": "Huge Greenpoint vintage warehouse. Best selection in the city, well-organised", "address": "74 Guernsey St, Brooklyn", "tag": "Vintage"},
+      {"name": "L Train Vintage", "note": "Multiple locations. Williamsburg & Bushwick spots are best. Priced by colour tag", "address": "1377 DeKalb Ave, Brooklyn", "tag": "Vintage"},
+      {"name": "Procell", "note": "Curated high-end vintage on LES. Designer archive pieces, 80s/90s gems", "address": "96 Stanton St, New York", "tag": "Vintage"},
+      {"name": "What Goes Around Comes Around", "note": "SoHo institution. Vintage Chanel, Levi's, band tees. Pricey but pristine", "address": "351 W Broadway, New York", "tag": "Vintage"},
+      {"name": "Metropolis Vintage", "note": "East Village. Rotating racks of 70s–90s pieces. Great leather jackets and denim", "address": "43 3rd Ave, New York", "tag": "Vintage"},
+      {"name": "10 Ft Single by Stella Dallas", "note": "Williamsburg staple. Affordable vintage, fun prints, great outerwear", "address": "285 N 6th St, Brooklyn", "tag": "Vintage"},
+
+      {"name": "McNally Jackson Books", "note": "Independent bookshop with gorgeous stationery section. SoHo", "address": "134 Prince St, New York", "tag": "Interesting"},
+      {"name": "Strand Bookstore", "note": "18 miles of books. Rare books room upstairs, tote bags as souvenirs", "address": "828 Broadway, New York", "tag": "Interesting"},
+      {"name": "MoMA Design Store", "note": "Beautifully curated design objects, gifts, art prints. Across from the museum", "address": "44 W 53rd St, New York", "tag": "Interesting"},
+      {"name": "Evolution Store", "note": "Natural history curiosities — fossils, insects in resin, anatomical models. SoHo weirdness", "address": "687 Broadway, New York", "tag": "Interesting"},
+      {"name": "Kalustyan's", "note": "Legendary spice emporium. 5,000+ spices, condiments, and pantry goods. Gift heaven", "address": "123 Lexington Ave, New York", "tag": "Interesting"},
+      {"name": "Forbidden Planet", "note": "Iconic comic book and sci-fi megastore. Union Square. Great for nerdy souvenirs", "address": "832 Broadway, New York", "tag": "Interesting"},
+      {"name": "ABC Carpet & Home", "note": "Six floors of eclectic home goods, jewellery, and curiosities. Union Square landmark", "address": "888 Broadway, New York", "tag": "Interesting"},
+      {"name": "Artists & Fleas", "note": "Indie market in Williamsburg and Chelsea. Handmade jewellery, art, vintage. Weekends best", "address": "70 N 7th St, Brooklyn", "tag": "Interesting"},
+
+      {"name": "Bloomingdale's", "note": "Iconic UES flagship. Massive beauty floor, great shoe department. Get the Little Brown Bag", "address": "1000 3rd Ave, New York", "tag": "Department Store"},
+      {"name": "Saks Fifth Avenue", "note": "Classic luxury department store. Worth a walk through even just for the building", "address": "611 5th Ave, New York", "tag": "Department Store"},
+      {"name": "Nordstrom NYC", "note": "Newest flagship, 7 floors near Columbus Circle. Great menswear and shoe floors", "address": "225 W 57th St, New York", "tag": "Department Store"},
+      {"name": "Bergdorf Goodman", "note": "The most glamorous store in NYC. Window displays are legendary. 5th Ave at 58th", "address": "754 5th Ave, New York", "tag": "Department Store"},
+      {"name": "Century 21", "note": "Designer discount department store. FiDi flagship reopened. Treasure hunt energy", "address": "22 Cortlandt St, New York", "tag": "Department Store"},
+      {"name": "Macy's Herald Square", "note": "World's largest store. Wooden escalators, holiday windows. Touristy but iconic", "address": "151 W 34th St, New York", "tag": "Department Store"}
     ]
   }
 ]

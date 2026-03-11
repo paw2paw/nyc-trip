@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Josefin+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="layout.css">
+<link rel="stylesheet" href="layout.css?v=1.2.1">
 </head>
 
 <body>
@@ -21,10 +21,11 @@
 <div class="verifyBox">
 <div class="verifyDeco">✦</div>
 <h2 class="verifyTitle">NYC Trip</h2>
-<p class="verifyText">Enter your phone number to continue</p>
-<input id="verifyPhone" type="tel" class="settingsInput" placeholder="+44 7700 900000" autocomplete="tel" inputmode="tel" oninput="if(typeof formatPhoneInput==='function')formatPhoneInput(this)">
-<button id="verifyBtn" class="addPlaceSubmit" onclick="verifyAccess()">Enter</button>
-<p id="verifyError" class="verifyError"></p>
+<p class="verifyText">Who are you?</p>
+<div class="verifyBtns">
+<button class="verifyNameBtn" onclick="verifyAs('PAW')">PAW</button>
+<button class="verifyNameBtn" onclick="verifyAs('LAW')">LAW</button>
+</div>
 </div>
 </div>
 
@@ -66,15 +67,8 @@
 <div class="menu-item" id="menuHotel" onclick="returnHotel()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M2 16V7l7-5 7 5v9H2zm3-2h3v-4h2v4h3V8L9 4 4 8v6z"/></svg> Back to Hotel <svg class="menu-maps-icon" viewBox="0 0 18 18" fill="currentColor"><path d="M9 1C6.2 1 4 3.4 4 6.5 4 11 9 17 9 17s5-6 5-10.5C14 3.4 11.8 1 9 1zm0 7.5a2 2 0 110-4 2 2 0 010 4z"/></svg></div>
 <div class="menu-item" onclick="openSubwayMap()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M5 2h8a2 2 0 012 2v8a2 2 0 01-2 2l2 2h-1.5L12 14H6l-1.5 2H3l2-2a2 2 0 01-2-2V4a2 2 0 012-2zm0 2v4h3V4H5zm5 0v4h3V4h-3zM6.5 10a1 1 0 100 2 1 1 0 000-2zm5 0a1 1 0 100 2 1 1 0 000-2z"/></svg> Subway Map</div>
 
-<div class="menu-section">Nearby</div>
-<div class="menu-item" onclick="nearbyCoffee()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M3 5h9v1h2a3 3 0 010 6h-2v1H3V5zm9 5h2a1 1 0 000-2h-2v2zM4 15h8v1H4z"/></svg> Coffee <svg class="menu-maps-icon" viewBox="0 0 18 18" fill="currentColor"><path d="M9 1C6.2 1 4 3.4 4 6.5 4 11 9 17 9 17s5-6 5-10.5C14 3.4 11.8 1 9 1zm0 7.5a2 2 0 110-4 2 2 0 010 4z"/></svg></div>
-<div class="menu-item" onclick="nearbyFood()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M3 2v7a3 3 0 002 2.83V16h2v-4.17A3 3 0 009 9V2H7v5H6V2H4v5H3V2zm10 0v14h2V9h2V5a3 3 0 00-3-3h-1z"/></svg> Food <svg class="menu-maps-icon" viewBox="0 0 18 18" fill="currentColor"><path d="M9 1C6.2 1 4 3.4 4 6.5 4 11 9 17 9 17s5-6 5-10.5C14 3.4 11.8 1 9 1zm0 7.5a2 2 0 110-4 2 2 0 010 4z"/></svg></div>
-<div class="menu-item" onclick="nearbyShopping()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M6 2a3 3 0 016 0h2.5a.5.5 0 01.5.5L14 15.5a1.5 1.5 0 01-1.5 1.5h-7A1.5 1.5 0 014 15.5L3 2.5a.5.5 0 01.5-.5H6zm1 0h4a2 2 0 00-4 0zm-1 4a3 3 0 006 0v-1H6v1z"/></svg> Shopping <svg class="menu-maps-icon" viewBox="0 0 18 18" fill="currentColor"><path d="M9 1C6.2 1 4 3.4 4 6.5 4 11 9 17 9 17s5-6 5-10.5C14 3.4 11.8 1 9 1zm0 7.5a2 2 0 110-4 2 2 0 010 4z"/></svg></div>
-<div class="menu-item" onclick="nearbyRestrooms()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M5.5 2a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm7 0a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM4 6h3l.5 4H6v6H5v-6H3.5L4 6zm6 0h3l1 4h-1v6h-1v-6h-1v6h-1v-6H9.5L10 6z"/></svg> Restrooms <svg class="menu-maps-icon" viewBox="0 0 18 18" fill="currentColor"><path d="M9 1C6.2 1 4 3.4 4 6.5 4 11 9 17 9 17s5-6 5-10.5C14 3.4 11.8 1 9 1zm0 7.5a2 2 0 110-4 2 2 0 010 4z"/></svg></div>
-<div class="menu-item" onclick="nearbyPharmacy()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M4 3h10a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1zm4.5 3v2.5H6v1h2.5V12h1V9.5H12v-1H9.5V6h-1z"/></svg> Pharmacy <svg class="menu-maps-icon" viewBox="0 0 18 18" fill="currentColor"><path d="M9 1C6.2 1 4 3.4 4 6.5 4 11 9 17 9 17s5-6 5-10.5C14 3.4 11.8 1 9 1zm0 7.5a2 2 0 110-4 2 2 0 010 4z"/></svg></div>
-
 <div class="menu-section">Tools</div>
-<div class="menu-item" onclick="openGuides()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M9 1l2.5 5 5.5.8-4 3.9.9 5.3L9 13.5 4.1 16l.9-5.3-4-3.9L6.5 6z"/></svg> Curated</div>
+<div class="menu-item" onclick="openTripEditor()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M3 3h12v2H3V3zm0 4h12v2H3V7zm0 4h8v2H3v-2zm10.3.3l1.4 1.4-3 3H10v-1.7l3.3-3zM14.7 7l1.3 1.3-1 1L13.7 8l1-1z"/></svg> Trip Editor</div>
 <div class="menu-item" onclick="openRemoved()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M5 3h8l1 2H4l1-2zm-1 3h10v9a1 1 0 01-1 1H5a1 1 0 01-1-1V6zm3 2v6h1V8H7zm3 0v6h1V8h-1z"/></svg> Removed</div>
 <div class="menu-item" onclick="openCurrency()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M9 1a8 8 0 100 16A8 8 0 009 1zm.5 3v1.2c1.1.2 2 .8 2 1.8h-1.3c0-.5-.5-.9-1.2-.9-.8 0-1.3.4-1.3 1s.4.8 1.3 1l.7.2c1.3.3 2.1.9 2.1 2 0 1.1-.9 1.7-2.3 1.9V13h-1v-1.2c-1.2-.2-2.1-.8-2.2-1.9h1.4c.1.6.6 1 1.3 1 .9 0 1.3-.4 1.3-.9 0-.5-.3-.8-1.2-1l-.8-.2c-1.1-.3-2-.8-2-2 0-1 .8-1.7 2.1-1.9V4h1z"/></svg> Currency <span class="menu-badge">GBP/USD</span></div>
 
@@ -93,9 +87,10 @@
 
 <button class="headerBtn" onclick="openSearch()" aria-label="Search"><svg viewBox="0 0 24 32" fill="currentColor"><circle cx="10.5" cy="12.5" r="5.5" fill="none" stroke="currentColor" stroke-width="2.5"/><line x1="14.5" y1="17" x2="20" y2="23" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button>
 
+<button class="headerBtn" onclick="openGuides()" aria-label="Explore nearby"><svg viewBox="0 0 24 32" fill="currentColor"><circle cx="12" cy="16" r="9" fill="none" stroke="currentColor" stroke-width="2"/><polygon points="12,8 14,14 12,12.5 10,14" /><polygon points="12,24 10,18 12,19.5 14,18" /><polygon points="6,16 10,14 10.5,16 10,18" opacity="0.5"/><polygon points="18,16 14,18 13.5,16 14,14" opacity="0.5"/><circle cx="12" cy="16" r="1.5"/></svg></button>
+
 <button class="headerBtn" onclick="sendMyLocation()" aria-label="Send my location"><svg viewBox="0 0 24 32" fill="currentColor"><path d="M12 2C8 2 5 5.6 5 10c0 6 7 16 7 16s7-10 7-16c0-4.4-3-8-7-8zm0 11a3 3 0 110-6 3 3 0 010 6z"/></svg></button>
 
-<button id="compactBtn" class="headerBtn" onclick="toggleCompact()" aria-label="Toggle compact view"><svg viewBox="0 0 24 32" fill="currentColor"><rect class="compact-line cl1" x="4" y="8" width="16" height="2" rx="1"/><rect class="compact-line cl2" x="4" y="15" width="16" height="2" rx="1"/><rect class="compact-line cl3" x="4" y="22" width="16" height="2" rx="1"/></svg></button>
 
 </div>
 
@@ -108,7 +103,7 @@
 <div id="stops"></div>
 </main>
 
-<button id="addPlaceFab" onclick="openAddPlace()" aria-label="Add place">+</button>
+<button id="addPlaceFab" onclick="openAddPlace()" aria-label="Add place" title="Add a place to today's itinerary">+</button>
 
 <div id="guidesOverlay" onclick="closeGuides()"></div>
 <div id="guidesSheet">
@@ -135,10 +130,6 @@
 <input id="currencyInput" type="number" class="settingsInput currencyInput" placeholder="0.00" inputmode="decimal" oninput="convertCurrency()">
 <button class="currencyFlip" onclick="flipCurrency()" aria-label="Flip direction">⇄</button>
 </div>
-<select id="currencyDir" class="currencyDirSelect" onchange="convertCurrency()" style="display:none">
-<option value="gbp-usd">GBP → USD</option>
-<option value="usd-gbp">USD → GBP</option>
-</select>
 <div id="currencyResult" class="currencyResult"></div>
 </div>
 </div>
@@ -187,10 +178,10 @@
 <button id="tempC" class="toggleBtn active" onclick="setTempUnit('celsius')">°C</button>
 <button id="tempF" class="toggleBtn" onclick="setTempUnit('fahrenheit')">°F</button>
 </div>
-<label class="settingsLabel">View</label>
+<label class="settingsLabel">Compact View</label>
 <div class="settingsToggle">
-<button id="viewFull" class="toggleBtn active" onclick="setCompact(false)">Full</button>
-<button id="viewCompact" class="toggleBtn" onclick="setCompact(true)">Compact</button>
+<button id="compactOff" class="toggleBtn active" onclick="setCompact(false)">Full</button>
+<button id="compactOn" class="toggleBtn" onclick="setCompact(true)">Compact</button>
 </div>
 <label for="gmapsKeyInput" class="settingsLabel">Google Maps API Key</label>
 <div class="settingsInputRow">
@@ -225,7 +216,7 @@
 <label class="settingsLabel">Sync Trip</label>
 <p class="settingsNote">Share your swaps, added places, and removed stops with your travel partner.</p>
 <div class="syncBtns">
-<button id="syncCopyBtn" class="toggleBtn" style="width:100%" onclick="syncCopyChanges()">Copy My Changes</button>
+<button id="syncCopyBtn" class="toggleBtn" style="width:100%" onclick="syncCopyChanges()">Share My Changes</button>
 <button id="syncPasteBtn" class="toggleBtn" style="width:100%;margin-top:8px" onclick="syncPasteChanges()">Paste Partner's Changes</button>
 </div>
 <div id="syncStatus" class="syncStatus"></div>
@@ -255,7 +246,7 @@
 <label class="settingsLabel">Address *</label>
 <input id="addPlaceAddr" type="text" class="settingsInput" placeholder="123 Street, New York">
 <label class="settingsLabel">Icon</label>
-<input id="addPlaceIcon" type="text" class="settingsInput" placeholder="📍" maxlength="4" style="width:60px">
+<input id="addPlaceIcon" type="text" class="settingsInput" placeholder="📍" maxlength="10" style="width:60px">
 <label class="settingsLabel">Type</label>
 <div class="addPlaceTypeRow">
 <button id="addPlaceTypeFlex" class="toggleBtn active" onclick="setAddPlaceType('flexible')">Flexible</button>
@@ -292,7 +283,16 @@
 <div id="searchResults"></div>
 </div>
 
-<script src="app.js" defer></script>
+<div id="tripEditorOverlay" onclick="closeTripEditor()"></div>
+<div id="tripEditorSheet">
+<div class="sheetHeader">
+<span>Trip Editor</span>
+<button onclick="closeTripEditor()" aria-label="Close">✕</button>
+</div>
+<div id="tripEditorContent"></div>
+</div>
+
+<script src="app.js?v=1.2.1" defer></script>
 
 </body>
 </html>

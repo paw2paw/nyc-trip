@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "1.0.4"
+const APP_VERSION = "1.2.1"
 
 // --- SVG icons ---
 
@@ -34,14 +34,22 @@ function el(tag, attrs, ...children) {
 const STORAGE_KEY = "nyc-trip-state"
 
 let data
-let state = { day: 0, stop: 0, swaps: {}, done: {}, removed: {}, added: {} }
+let state = { day: 0, stop: 0, swaps: {}, done: {}, removed: {}, added: {}, reorder: {}, userNotes: {} }
 let hourlyWeather = null
 let weatherController = null // AbortController for weather fetch
 let travelTimes = {}
 let travelRenderTimer = null
 let swapTarget = null // index of stop being swapped
 let mapCache = {} // dayIndex -> { key, node }
-let expandedStops = {} // "dayIndex-ei" -> true
+let expandedStops = loadExpandedStops() // "dayIndex-ei" -> true
+
+function loadExpandedStops() {
+  try { return JSON.parse(localStorage.getItem("nyc-expanded")) || {} } catch { return {} }
+}
+
+function saveExpandedStops() {
+  localStorage.setItem("nyc-expanded", JSON.stringify(expandedStops))
+}
 
 function loadState() {
   try {
@@ -52,6 +60,8 @@ function loadState() {
       state.done = saved.done ?? {}
       state.removed = saved.removed ?? {}
       state.added = saved.added ?? {}
+      state.reorder = saved.reorder ?? {}
+      state.userNotes = saved.userNotes ?? {}
       // Clear swaps if version changed (indices may have shifted)
       if (saved.version !== APP_VERSION) state.swaps = {}
       else state.swaps = saved.swaps ?? {}
@@ -123,6 +133,18 @@ function getEffectiveStops(dayIndex) {
     result.splice(pos, 0, { stop: addedStop, key: addKey, isAdded: true, origIndex: null })
   })
 
+  // Apply custom reorder if stored for this day
+  const order = state.reorder[dayIndex]
+  if (order && order.length) {
+    const byKey = {}
+    result.forEach(e => { byKey[e.key] = e })
+    const ordered = []
+    order.forEach(k => { if (byKey[k]) { ordered.push(byKey[k]); delete byKey[k] } })
+    // Append any entries not in stored order (newly added stops)
+    result.forEach(e => { if (byKey[e.key]) ordered.push(e) })
+    return ordered
+  }
+
   return result
 }
 
@@ -147,6 +169,8 @@ function applyTheme() {
   else if (pref === "light") dark = false
   else dark = window.matchMedia("(prefers-color-scheme: dark)").matches
   document.documentElement.setAttribute("data-theme", dark ? "dark" : "light")
+  const meta = document.querySelector('meta[name="theme-color"]')
+  if (meta) meta.setAttribute("content", dark ? "#111" : "#2a2a2a")
 }
 
 // --- Compact mode ---
@@ -161,14 +185,16 @@ function toggleCompact() {
 
 function setCompact(on) {
   localStorage.setItem("nyc-compact", on ? "1" : "0")
-  document.getElementById("compactBtn").classList.toggle("active", on)
-  document.getElementById("viewFull").classList.toggle("active", !on)
-  document.getElementById("viewCompact").classList.toggle("active", on)
+  applyCompact()
   render()
 }
 
 function applyCompact() {
-  document.getElementById("compactBtn").classList.toggle("active", isCompact())
+  const on = isCompact()
+  const offBtn = document.getElementById("compactOff")
+  const onBtn = document.getElementById("compactOn")
+  if (offBtn) offBtn.classList.toggle("active", !on)
+  if (onBtn) onBtn.classList.toggle("active", on)
 }
 
 // Listen for system theme changes
@@ -178,47 +204,19 @@ window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () 
 
 // --- Verification gate ---
 
-async function hashPhone(phone) {
-  const digits = phone.replace(/\D/g, "")
-  const encoded = new TextEncoder().encode(digits)
-  const buf = await crypto.subtle.digest("SHA-256", encoded)
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("")
-}
-
 function isVerified() {
   return localStorage.getItem("nyc-verified") === "true"
 }
 
-async function verifyAccess() {
-  const input = document.getElementById("verifyPhone").value.trim()
-  const errEl = document.getElementById("verifyError")
-  if (!input) { errEl.textContent = "Please enter your phone number"; return }
-  const resp = await fetch("data.json")
-  const d = resp.ok ? await resp.json() : null
-  if (!d) { errEl.textContent = "Could not load trip data"; return }
-  const raw = input.replace(/\D/g, "")
-  // Try common UK formats: raw, +44 prefix, drop leading 0 + add 44
-  const candidates = [raw]
-  if (raw.startsWith("0")) candidates.push("44" + raw.slice(1))
-  if (!raw.startsWith("44") && !raw.startsWith("0")) candidates.push("44" + raw)
-  if (raw.startsWith("44")) candidates.push(raw.slice(2))
-  for (const digits of candidates) {
-    const hash = await hashPhone(digits)
-    if (hash === d.pawPhoneHash) {
-      localStorage.setItem("nyc-verified", "true")
-      localStorage.setItem("nyc-phone-paw", digits)
-      localStorage.setItem("nyc-user", "PAW")
-      dismissGate()
-      return bootApp(d)
-    } else if (hash === d.lawPhoneHash) {
-      localStorage.setItem("nyc-verified", "true")
-      localStorage.setItem("nyc-phone-law", digits)
-      localStorage.setItem("nyc-user", "LAW")
-      dismissGate()
-      return bootApp(d)
-    }
-  }
-  errEl.textContent = "Phone number not recognised"
+function verifyAs(user) {
+  localStorage.setItem("nyc-verified", "true")
+  localStorage.setItem("nyc-user", user)
+  dismissGate()
+  fetch("data.json").then(r => r.json()).then(d => bootApp(d)).catch(() => {
+    document.getElementById("stops").append(
+      el("div", { className: "stop" }, "Failed to load trip data. Please refresh.")
+    )
+  })
 }
 
 function dismissGate() {
@@ -227,16 +225,11 @@ function dismissGate() {
   setTimeout(() => gate.remove(), 400)
 }
 
-// allow Enter key on the verify input
-document.addEventListener("DOMContentLoaded", () => {
-  const inp = document.getElementById("verifyPhone")
-  if (inp) inp.addEventListener("keydown", e => { if (e.key === "Enter") verifyAccess() })
-})
-
 // --- Data loading ---
 
 function bootApp(d) {
   data = d
+  applyTripEdits()
   loadState()
   autoSelectToday()
   clampState()
@@ -249,6 +242,7 @@ function bootApp(d) {
   render()
   if (anyAlertsEnabled()) requestAlertPermission()
   setTimeout(checkAlerts, 3000)
+  setTimeout(checkSyncHash, 500)
 }
 
 if (isVerified()) {
@@ -300,6 +294,27 @@ function loadWeather() {
 
 function getStopHour(stopIndex, totalStops) {
   return Math.round(9 + (stopIndex * 12 / Math.max(totalStops - 1, 1)))
+}
+
+function getNextUpIndex(dayIndex, effective) {
+  const day = data.days[dayIndex]
+  if (!day) return -1
+  const now = new Date()
+  const today = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0")
+  if (day.date !== today) return -1
+  const nowHour = now.getHours() + now.getMinutes() / 60
+  for (let i = 0; i < effective.length; i++) {
+    const key = effective[i].key
+    if (state.done[key]) continue
+    const stop = effective[i].stop
+    const stopHour = stop.time ? parseInt(stop.time.split(":")[0], 10) + (parseInt(stop.time.split(":")[1], 10) || 0) / 60 : getStopHour(i, effective.length)
+    if (stopHour >= nowHour - 1) return i
+  }
+  // All done or past — return last un-done
+  for (let i = 0; i < effective.length; i++) {
+    if (!state.done[effective[i].key]) return i
+  }
+  return -1
 }
 
 function weatherIcon(code) {
@@ -370,26 +385,79 @@ function toggleDoneKey(key) {
   render()
 }
 
-function removeStop(key) {
+function saveUserNote(key, text) {
+  const trimmed = (text || "").trim().slice(0, 200)
+  if (trimmed) state.userNotes[key] = trimmed
+  else delete state.userNotes[key]
+  saveState()
+}
+
+function buildUserNoteInput(key, value) {
+  const ta = el("textarea", {
+    className: "userNoteInput",
+    rows: 2,
+    maxLength: 200,
+    placeholder: "Your note...",
+    onclick: (e) => e.stopPropagation(),
+    onkeydown: (e) => {
+      e.stopPropagation()
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ta.blur() }
+    },
+    onblur: () => { saveUserNote(key, ta.value); render() }
+  })
+  ta.value = value
+  setTimeout(() => ta.focus(), 0)
+  return ta
+}
+
+function removeStop(key, name) {
+  if (!confirm("Remove " + (name || "this stop") + "?")) return
   state.removed[key] = true
   delete state.done[key]
+  delete state.userNotes[key]
   render()
+}
+
+function moveStop(dayIndex, fromEi, direction) {
+  const toEi = fromEi + direction
+  const effective = getEffectiveStops(dayIndex)
+  if (toEi < 0 || toEi >= effective.length) return
+  const keys = effective.map(e => e.key)
+  ;[keys[fromEi], keys[toEi]] = [keys[toEi], keys[fromEi]]
+  state.reorder[dayIndex] = keys
+  state.stop = toEi
+  delete mapCache[dayIndex]
+  render()
+  showToast("Route map updated")
+  const cards = document.querySelectorAll("#stops .stop")
+  if (cards[toEi]) cards[toEi].scrollIntoView({ behavior: "smooth", block: "nearest" })
+}
+
+function showToast(msg) {
+  let existing = document.getElementById("moveToast")
+  if (existing) existing.remove()
+  const toast = el("div", { id: "moveToast", className: "moveToast" }, msg)
+  document.body.appendChild(toast)
+  setTimeout(() => toast.classList.add("show"), 10)
+  setTimeout(() => { toast.classList.remove("show"); setTimeout(() => toast.remove(), 300) }, 2000)
 }
 
 function toggleExpand(expandKey) {
   if (expandedStops[expandKey]) delete expandedStops[expandKey]
   else expandedStops[expandKey] = true
+  saveExpandedStops()
   render()
 }
 
-function stopCard(entry, i, dayIndex) {
+function stopCard(entry, i, dayIndex, nextUpIdx, effectiveLen) {
   const stop = entry.stop
   const key = entry.key
   const active = i === state.stop ? " active" : ""
   const reserved = stop.type === "reserved"
   const swapped = !entry.isAdded && isSwapped(dayIndex, entry.origIndex)
   const done = state.done[key] === true
-  const cls = "stop" + active + (reserved ? " reserved" : " flexible") + (done ? " done" : "")
+  const isNext = nextUpIdx === i && !done
+  const cls = "stop" + active + (reserved ? " reserved" : " flexible") + (done ? " done" : "") + (isNext ? " nextup" : "")
 
   const checkBtn = el("button", {
     className: "doneBtn" + (done ? " checked" : ""),
@@ -397,49 +465,71 @@ function stopCard(entry, i, dayIndex) {
     onclick: (e) => { e.stopPropagation(); toggleDoneKey(key) }
   }, done ? "✓" : (i + 1).toString())
 
+  const nextLabel = isNext ? el("span", { className: "nextLabel" }, "NEXT") : null
+
   const mapsUrl = "https://www.google.com/maps/search/" + encodeURIComponent(stop.name + ", " + stop.address)
   const header = el("div", { className: "stopHeader" },
     checkBtn,
+    nextLabel,
     el("a", { className: "stopName", href: mapsUrl, target: "_blank", onclick: (e) => e.stopPropagation() },
       (stop.icon || "") + " " + stop.name)
   )
+
+  const compact = isCompact()
 
   const badge = reserved && stop.time
     ? el("span", { className: "timeBadge" }, stop.time)
     : null
 
-  const swapBtn = !reserved && !entry.isAdded
+  const removeBtn = el("button", {
+    className: "removeBtn",
+    "aria-label": "Remove this stop",
+    onclick: (e) => { e.stopPropagation(); removeStop(key, stop.name) }
+  }, "✕")
+
+  const headerSwapBtn = !reserved && !entry.isAdded && !compact
     ? el("button", {
-        className: "swapBtn",
+        className: "headerSwapBtn",
         "aria-label": "Swap this stop",
         onclick: (e) => { e.stopPropagation(); openSwap(entry.origIndex) }
       }, "↻")
     : null
 
-  const removeBtn = el("button", {
-    className: "removeBtn",
-    "aria-label": "Remove this stop",
-    onclick: (e) => { e.stopPropagation(); removeStop(key) }
-  }, "✕")
-
   const expandKey = dayIndex + "-" + i
   const expanded = expandedStops[expandKey] === true
 
-  const expandBtn = el("button", {
+  const expandBtn = compact ? null : el("button", {
     className: "expandBtn" + (expanded ? " open" : ""),
     "aria-label": expanded ? "Collapse" : "Expand",
+    innerHTML: '<svg viewBox="0 0 24 24" fill="currentColor"><rect class="compact-line cl1" x="4" y="6" width="16" height="2" rx="1"/><rect class="compact-line cl2" x="4" y="11" width="16" height="2" rx="1"/><rect class="compact-line cl3" x="4" y="16" width="16" height="2" rx="1"/></svg>',
     onclick: (e) => { e.stopPropagation(); toggleExpand(expandKey) }
-  }, "▾")
+  })
+
+  const moveUpBtn = i > 0 ? el("button", {
+    className: "moveBtn",
+    "aria-label": "Move up",
+    onclick: (e) => { e.stopPropagation(); moveStop(dayIndex, i, -1) }
+  }, "▲") : null
+  const moveDownBtn = i < effectiveLen - 1 ? el("button", {
+    className: "moveBtn",
+    "aria-label": "Move down",
+    onclick: (e) => { e.stopPropagation(); moveStop(dayIndex, i, 1) }
+  }, "▼") : null
+  const moveGroup = (moveUpBtn || moveDownBtn) ? el("div", { className: "moveGroup" }, moveUpBtn, moveDownBtn) : null
+
+  const noteIndicator = compact && state.userNotes[key]
+    ? el("span", { className: "noteIndicator", title: "Has note" }, "✎")
+    : null
 
   const topRow = el("div", { className: "stopTop" },
     header,
     badge,
-    swapBtn,
+    noteIndicator,
+    headerSwapBtn,
+    moveGroup,
     removeBtn,
     expandBtn
   )
-
-  const compact = isCompact()
 
   // Expanded detail area
   let detail = null
@@ -462,8 +552,43 @@ function stopCard(entry, i, dayIndex) {
       ? el("div", { className: "stopNote" }, stop.note)
       : null
 
+    const existingUserNote = state.userNotes[key] || ""
+    const userNoteEl = el("div", { className: "userNoteWrap", onclick: (e) => e.stopPropagation() })
+    if (existingUserNote) {
+      const noteText = el("div", { className: "userNote", onclick: (e) => {
+        e.stopPropagation()
+        const wrap = e.target.closest(".userNoteWrap")
+        wrap.replaceChildren(buildUserNoteInput(key, existingUserNote))
+      }}, existingUserNote)
+      userNoteEl.appendChild(noteText)
+    } else {
+      const addBtn = el("button", { className: "addNoteBtn", onclick: (e) => {
+        e.stopPropagation()
+        const wrap = e.target.closest(".userNoteWrap")
+        wrap.replaceChildren(buildUserNoteInput(key, ""))
+      }}, "+ Add note")
+      userNoteEl.appendChild(addBtn)
+    }
+
     const urlLink = stop.url
       ? el("a", { className: "stopUrl", href: stop.url, target: "_blank", onclick: (e) => e.stopPropagation() }, "Book / Website →")
+      : null
+
+    const bookingLink = stop.bookingUrl
+      ? el("a", { className: "stopUrl bookingUrl", href: stop.bookingUrl, target: "_blank", onclick: (e) => e.stopPropagation() }, "View Booking →")
+      : null
+
+    const bookingRef = stop.bookingRef
+      ? el("div", { className: "bookingRef", onclick: (e) => { e.stopPropagation(); navigator.clipboard.writeText(stop.bookingRef) } }, "Ref: " + stop.bookingRef + " (tap to copy)")
+      : null
+
+    const uberBtn = reserved && stop.time
+      ? el("a", {
+          className: "uberBtn",
+          href: "https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[formatted_address]=" + encodeURIComponent(stop.address),
+          target: "_blank",
+          onclick: (e) => e.stopPropagation()
+        }, "🚕 Uber there")
       : null
 
     // Street View image
@@ -479,7 +604,7 @@ function stopCard(entry, i, dayIndex) {
       : null
 
     detail = el("div", { className: "stopDetail" },
-      el("div", { className: "stopDetailText" }, addr, note, urlLink, restore),
+      el("div", { className: "stopDetailText" }, addr, note, userNoteEl, urlLink, bookingLink, bookingRef, uberBtn, restore),
       streetView
     )
   } else if (!compact) {
@@ -502,12 +627,15 @@ function stopCard(entry, i, dayIndex) {
       ? el("div", { className: "stopNote" }, stop.note)
       : null
 
-    detail = el("div", { className: "stopDetailCollapsed" }, addr, note, restore)
+    const userNotePreview = state.userNotes[key]
+      ? el("div", { className: "userNote userNotePreview" }, state.userNotes[key])
+      : null
+
+    detail = el("div", { className: "stopDetailCollapsed" }, addr, note, userNotePreview, restore)
   }
 
   const content = el("div", { className: "stopContent" }, topRow, detail)
 
-  const effectiveLen = getEffectiveStops(dayIndex).length
   let wthr = null
   if (hourlyWeather) {
     const hour = stop.time ? parseInt(stop.time.split(":")[0], 10) : getStopHour(i, effectiveLen)
@@ -578,7 +706,7 @@ function routeCard(dayIndex) {
     mapContent = el("div", { className: "routeMapWrap" }, placeholder)
   }
 
-  const collapsed = localStorage.getItem("nyc-map-collapsed") !== "0"
+  const collapsed = localStorage.getItem("nyc-map-collapsed-" + dayIndex) !== "0"
   const body = el("div", { className: "routeCardBody" + (collapsed ? " collapsed" : "") },
     mapContent,
     el("a", { className: "routeCardLabel", href: mapsUrl, target: "_blank", onclick: (e) => e.stopPropagation() }, "Open day route ›")
@@ -590,7 +718,7 @@ function routeCard(dayIndex) {
     onclick: () => {
       const isCollapsed = body.classList.toggle("collapsed")
       chevron.textContent = isCollapsed ? "▸" : "▾"
-      localStorage.setItem("nyc-map-collapsed", isCollapsed ? "1" : "0")
+      localStorage.setItem("nyc-map-collapsed-" + dayIndex, isCollapsed ? "1" : "0")
     }
   }, chevron, "🗺 Day route · " + stops.length + " stops")
 
@@ -616,6 +744,7 @@ function travelRow(a, b, travelKey) {
   const dest = encodeURIComponent(b.address)
   const mapsBase = "https://www.google.com/maps/dir/?api=1&origin=" + origin + "&destination=" + dest
   const uberUrl = "https://m.uber.com/ul/?action=setPickup&pickup[formatted_address]=" + origin + "&dropoff[formatted_address]=" + dest
+  const lyftUrl = "https://ride.lyft.com/ridetype?id=lyft&pickup[formatted_address]=" + origin + "&destination[formatted_address]=" + dest
   const times = travelTimes[travelKey] || {}
 
   const hasKey = !!localStorage.getItem("nyc-gmaps-key")
@@ -629,12 +758,44 @@ function travelRow(a, b, travelKey) {
 
   const walkLink = el("a", { href: mapsBase + "&travelmode=walking", target: "_blank", innerHTML: SVG_WALK, onclick: (e) => e.stopPropagation() })
   walkLink.append(times.walk ? " " + times.walk : loadingDot)
-  const transitLink = el("a", { href: mapsBase + "&travelmode=transit", target: "_blank", innerHTML: SVG_SUBWAY, onclick: (e) => e.stopPropagation() })
+  const transitLink = el("a", { href: mapsBase + "&travelmode=transit", target: "_blank", className: "transitLink", innerHTML: SVG_SUBWAY, onclick: (e) => e.stopPropagation() })
   transitLink.append(times.transit ? " " + times.transit : loadingDot)
-  const uberLink = el("a", { href: uberUrl, target: "_blank", className: "uberLink", innerHTML: SVG_CAR, onclick: (e) => e.stopPropagation() })
-  uberLink.append(times.drive ? " " + times.drive : loadingDot)
 
-  return el("div", { className: "travel" }, distBadge, walkLink, transitLink, uberLink)
+  // Rideshare button — opens picker for Uber / Lyft
+  const rideBtn = el("a", { href: "#", className: "rideBtn", innerHTML: SVG_CAR, onclick: (e) => {
+    e.preventDefault(); e.stopPropagation()
+    showRidePicker(rideBtn, uberUrl, lyftUrl)
+  }})
+  rideBtn.append(times.drive ? " " + times.drive : loadingDot)
+
+  return el("div", { className: "travel" }, distBadge, walkLink, transitLink, rideBtn)
+}
+
+// --- Ride picker popup ---
+
+function showRidePicker(anchor, uberUrl, lyftUrl) {
+  // Close any existing picker
+  document.querySelectorAll(".ridePicker").forEach(p => p.remove())
+
+  const picker = el("div", { className: "ridePicker" },
+    el("a", { href: uberUrl, target: "_blank", onclick: (e) => { e.stopPropagation(); picker.remove() } }, "Uber"),
+    el("a", { href: lyftUrl, target: "_blank", onclick: (e) => { e.stopPropagation(); picker.remove() } }, "Lyft")
+  )
+  anchor.style.position = "relative"
+  anchor.appendChild(picker)
+
+  // Flip below if not enough room above
+  requestAnimationFrame(() => {
+    const rect = picker.getBoundingClientRect()
+    if (rect.top < 0) {
+      picker.style.bottom = "auto"
+      picker.style.top = "calc(100% + 6px)"
+    }
+  })
+
+  // Close on outside tap
+  const close = (e) => { if (!picker.contains(e.target)) { picker.remove(); document.removeEventListener("click", close, true) } }
+  setTimeout(() => document.addEventListener("click", close, true), 0)
 }
 
 // --- Alert rows ---
@@ -682,6 +843,11 @@ function reservationAlertRow(stop, travelKey) {
   return alertRow("🔔", "Get ready " + getReadyTime + ", leave " + leaveTime + " — " + stop.name + " at " + stop.time + travelNote, "alertReservation")
 }
 
+function tipAlertRow(stop) {
+  if (!stop.alertNote) return null
+  return alertRow("💡", (stop.icon || "") + " " + stop.name + " — " + stop.alertNote, "alertTip")
+}
+
 function leaveNowAlertRow(stop, travelKey) {
   if (!getAlertPref("leaveNow")) return null
   if (!stop.time) return null
@@ -711,6 +877,43 @@ function subtractTime(timeStr, mins) {
 
 // --- Main render ---
 
+function daySummaryRow(dayIndex, effective) {
+  const stopCount = effective.length
+  const reserved = effective.filter(e => e.stop.type === "reserved" && e.stop.time)
+  const doneCount = effective.filter(e => state.done[e.key]).length
+
+  const parts = []
+  parts.push(stopCount + " stop" + (stopCount !== 1 ? "s" : ""))
+  if (doneCount > 0) parts.push(doneCount + " done")
+
+  // Total walking distance if travel times loaded
+  let totalMeters = 0
+  let hasAnyDist = false
+  const keys = []
+  keys.push(dayIndex + "-h0")
+  for (let i = 0; i < effective.length - 1; i++) keys.push(dayIndex + "-e" + i)
+  keys.push(dayIndex + "-h1")
+  keys.forEach(k => {
+    const t = travelTimes[k]
+    if (t && t.walkDist) {
+      hasAnyDist = true
+      const match = t.walkDist.match(/([\d.]+)\s*km/i)
+      if (match) totalMeters += parseFloat(match[1]) * 1000
+      const miMatch = t.walkDist.match(/([\d.]+)\s*mi/i)
+      if (miMatch) totalMeters += parseFloat(miMatch[1]) * 1609
+    }
+  })
+  if (hasAnyDist && totalMeters > 0) {
+    parts.push((totalMeters / 1000).toFixed(1) + " km walking")
+  }
+
+  reserved.forEach(e => {
+    parts.push((e.stop.icon || "") + " " + e.stop.time + " " + e.stop.name)
+  })
+
+  return el("div", { className: "daySummary" }, parts.join("  ·  "))
+}
+
 function render() {
   const day = data.days[state.day]
   const hotel = getHotel(day.date)
@@ -727,6 +930,11 @@ function render() {
 
   const nodes = []
   const compact = isCompact()
+  const effective = getEffectiveStops(state.day)
+  const nextUpIdx = getNextUpIndex(state.day, effective)
+
+  // Day summary
+  nodes.push(daySummaryRow(state.day, effective))
 
   // Weather alert banner
   if (!compact) {
@@ -735,8 +943,6 @@ function render() {
   }
 
   nodes.push(hotelRow(hotel.name, hotel.address))
-
-  const effective = getEffectiveStops(state.day)
 
   if (!compact && effective.length) {
     nodes.push(travelRow(hotel, effective[0].stop, state.day + "-h0"))
@@ -752,9 +958,11 @@ function render() {
       if (leaveRow) nodes.push(leaveRow)
       const sunRow = sunsetAlertRow(entry.stop)
       if (sunRow) nodes.push(sunRow)
+      const tipRow = tipAlertRow(entry.stop)
+      if (tipRow) nodes.push(tipRow)
     }
 
-    nodes.push(stopCard(entry, ei, state.day))
+    nodes.push(stopCard(entry, ei, state.day, nextUpIdx, effective.length))
     if (!compact && ei < effective.length - 1) {
       nodes.push(travelRow(entry.stop, effective[ei + 1].stop, state.day + "-e" + ei))
     }
@@ -764,7 +972,6 @@ function render() {
     const lastStop = effective[effective.length - 1].stop
     if (!compact) nodes.push(travelRow(lastStop, hotel, state.day + "-h1"))
   }
-  nodes.push(hotelRow("Return to " + hotel.name, hotel.address))
 
   document.getElementById("stops").replaceChildren(...nodes)
   saveState()
@@ -772,6 +979,8 @@ function render() {
 }
 
 function setStop(i) {
+  if (i === state.stop) return
+  if (navigator.vibrate) navigator.vibrate(6)
   state.stop = i
   render()
   document.querySelector(".stop.active")?.scrollIntoView({ behavior: "smooth", block: "nearest" })
@@ -799,11 +1008,15 @@ function nextDay() {
 
 // --- Swipe ---
 
-let startX = 0, startY = 0, swiping = false
+let startX = 0, startY = 0, startTime = 0, swiping = false
 
 document.addEventListener("touchstart", e => {
+  // Don't start a swipe from interactive elements
+  const tag = e.target.closest("button, a, input, select, textarea, .removeBtn, .expandBtn, .doneBtn")
+  if (tag) { swiping = false; return }
   startX = e.touches[0].clientX
   startY = e.touches[0].clientY
+  startTime = Date.now()
   swiping = true
 })
 
@@ -817,7 +1030,10 @@ document.addEventListener("touchmove", e => {
 document.addEventListener("touchend", e => {
   if (!swiping) return
   const dx = e.changedTouches[0].clientX - startX
-  if (Math.abs(dx) < 80) return
+  const elapsed = Date.now() - startTime
+  // Require 100px minimum distance and at least 80ms to avoid accidental flicks
+  if (Math.abs(dx) < 100 || elapsed < 80) return
+  if (navigator.vibrate) navigator.vibrate(12)
   if (dx < 0) nextDay()
   else prevDay()
 })
@@ -845,30 +1061,6 @@ function returnHotel() {
   window.open("https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(hotel.address))
 }
 
-function nearbyCoffee() {
-  closeMenu()
-  window.open("https://www.google.com/maps/search/coffee+near+me")
-}
-
-function nearbyFood() {
-  closeMenu()
-  window.open("https://www.google.com/maps/search/food+near+me")
-}
-
-function nearbyShopping() {
-  closeMenu()
-  window.open("https://www.google.com/maps/search/shopping+near+me")
-}
-
-function nearbyRestrooms() {
-  closeMenu()
-  window.open("https://www.google.com/maps/search/public+restroom+near+me")
-}
-
-function nearbyPharmacy() {
-  closeMenu()
-  window.open("https://www.google.com/maps/search/pharmacy+near+me")
-}
 
 // --- Subway map viewer (pan + pinch zoom) ---
 
@@ -1036,6 +1228,7 @@ function closeCurrency() {
 }
 
 let exchangeRate = null
+let currencyDir = "gbp-usd"
 
 function fetchExchangeRate() {
   if (exchangeRate) return
@@ -1056,13 +1249,12 @@ function fetchExchangeRate() {
 function convertCurrency() {
   const input = document.getElementById("currencyInput")
   const result = document.getElementById("currencyResult")
-  const dir = document.getElementById("currencyDir").value
   const val = parseFloat(input.value)
   if (isNaN(val) || !exchangeRate) {
     result.textContent = ""
     return
   }
-  if (dir === "gbp-usd") {
+  if (currencyDir === "gbp-usd") {
     result.textContent = "$" + (val * exchangeRate).toFixed(2) + " USD"
   } else {
     result.textContent = "\u00a3" + (val / exchangeRate).toFixed(2) + " GBP"
@@ -1070,9 +1262,8 @@ function convertCurrency() {
 }
 
 function flipCurrency() {
-  const dir = document.getElementById("currencyDir")
-  dir.value = dir.value === "gbp-usd" ? "usd-gbp" : "gbp-usd"
-  document.getElementById("currencyFromLabel").textContent = dir.value === "gbp-usd" ? "GBP" : "USD"
+  currencyDir = currencyDir === "gbp-usd" ? "usd-gbp" : "gbp-usd"
+  document.getElementById("currencyFromLabel").textContent = currencyDir === "gbp-usd" ? "GBP" : "USD"
   convertCurrency()
 }
 
@@ -1104,12 +1295,18 @@ function formatPhoneNumber(raw) {
 function formatPhoneInput(input) {
   const pos = input.selectionStart
   const before = input.value
+  // Count digits before cursor to restore position after formatting
+  const digitsBefore = before.slice(0, pos).replace(/\D/g, "").length
   const formatted = formatPhoneNumber(before)
   if (formatted !== before) {
     input.value = formatted
-    // Try to keep cursor in a sensible place
-    const diff = formatted.length - before.length
-    input.setSelectionRange(pos + diff, pos + diff)
+    // Find position in formatted string after same number of digits
+    let newPos = 0, count = 0
+    for (let i = 0; i < formatted.length && count < digitsBefore; i++) {
+      newPos = i + 1
+      if (/\d/.test(formatted[i])) count++
+    }
+    input.setSelectionRange(newPos, newPos)
   }
 }
 
@@ -1228,9 +1425,6 @@ function openSettings() {
   document.getElementById("themeLight").classList.toggle("active", theme === "light")
   document.getElementById("themeDark").classList.toggle("active", theme === "dark")
   document.getElementById("themeSystem").classList.toggle("active", theme === "system")
-  const compact = isCompact()
-  document.getElementById("viewFull").classList.toggle("active", !compact)
-  document.getElementById("viewCompact").classList.toggle("active", compact)
   document.getElementById("gmapsKeyInput").value = localStorage.getItem("nyc-gmaps-key") || ""
   initAlertSettings()
   document.getElementById("settingsVersion").textContent = "v" + APP_VERSION
@@ -1260,6 +1454,317 @@ function copyGmapsKey() {
 function closeSettings() {
   document.getElementById("settingsSheet").classList.remove("open")
   document.getElementById("settingsOverlay").classList.remove("show")
+}
+
+// --- Trip Editor ---
+
+const TE_STORAGE_KEY = "nyc-trip-edits"
+let teStopFilter = "reserved"
+
+function loadTripEdits() {
+  try { return JSON.parse(localStorage.getItem(TE_STORAGE_KEY)) || {} } catch { return {} }
+}
+
+function saveTripEdits(edits) {
+  localStorage.setItem(TE_STORAGE_KEY, JSON.stringify(edits))
+}
+
+function applyTripEdits() {
+  const edits = loadTripEdits()
+  if (edits.hotels) {
+    edits.hotels.forEach((h, i) => {
+      if (!h || !data.hotels[i]) return
+      if (h.name != null) data.hotels[i].name = h.name
+      if (h.address != null) data.hotels[i].address = h.address
+      if (h.from != null) data.hotels[i].from = h.from
+    })
+  }
+  if (edits.days) {
+    Object.keys(edits.days).forEach(di => {
+      const d = data.days[parseInt(di)]
+      if (!d) return
+      if (edits.days[di].title != null) d.title = edits.days[di].title
+    })
+  }
+  // Apply stop edits (new unified key) and legacy reservation edits
+  const stopEdits = { ...(edits.reservations || {}), ...(edits.stops || {}) }
+  Object.keys(stopEdits).forEach(key => {
+    const [di, si] = key.split("-").map(Number)
+    const stop = data.days[di]?.stops[si]
+    if (!stop) return
+    const e = stopEdits[key]
+    if (e.time != null) stop.time = e.time
+    if (e.note != null) stop.note = e.note
+    if (e.name != null) stop.name = e.name
+    if (e.icon != null) stop.icon = e.icon
+  })
+}
+
+function openTripEditor() {
+  closeMenu()
+  teStopFilter = "reserved"
+  renderTripEditor()
+  document.getElementById("tripEditorSheet").classList.add("open")
+  document.getElementById("tripEditorOverlay").classList.add("show")
+}
+
+function closeTripEditor() {
+  document.getElementById("tripEditorSheet").classList.remove("open")
+  document.getElementById("tripEditorOverlay").classList.remove("show")
+}
+
+function renderTripEditor() {
+  const container = document.getElementById("tripEditorContent")
+  container.innerHTML = ""
+
+  // 1. Hotels
+  const hotelsSection = el("div", { className: "te-section" },
+    el("div", { className: "te-section-title" }, "🏨 Hotels")
+  )
+  data.hotels.forEach((hotel, i) => {
+    const card = el("div", { className: "te-card" },
+      el("div", { className: "te-card-header" }, hotel.name),
+      el("div", { className: "te-field" },
+        el("div", { className: "te-field-label" }, "Name"),
+        createTeInput("text", hotel.name, v => teUpdateHotel(i, "name", v))
+      ),
+      el("div", { className: "te-field" },
+        el("div", { className: "te-field-label" }, "Address"),
+        createTeInput("text", hotel.address, v => teUpdateHotel(i, "address", v))
+      ),
+      el("div", { className: "te-field" },
+        el("div", { className: "te-field-label" }, "Check-in Date"),
+        createTeInput("date", hotel.from, v => teUpdateHotel(i, "from", v))
+      )
+    )
+    hotelsSection.append(card)
+  })
+  container.append(hotelsSection)
+
+  // 2. Phones & Identity
+  const phonesSection = el("div", { className: "te-section" },
+    el("div", { className: "te-section-title" }, "📱 Phones & Identity")
+  )
+  const user = getUser()
+  ;["PAW", "LAW"].forEach(who => {
+    const key = who.toLowerCase()
+    const isActive = user === who
+    const starBtn = el("button", {
+      className: "starBtn" + (isActive ? " active" : ""),
+      "aria-label": "I am " + who,
+      onClick: () => {
+        setUser(who)
+        document.querySelectorAll("#tripEditorContent .starBtn").forEach(b => b.classList.remove("active"))
+        starBtn.classList.add("active")
+      }
+    }, "★")
+    const labelRow = el("div", { className: "te-card-header" },
+      el("span", null, who),
+      starBtn
+    )
+    const phoneInput = el("input", { type: "tel", placeholder: "+44 7700 900000", value: formatPhoneNumber(getPhone(key)) })
+    phoneInput.addEventListener("input", () => {
+      formatPhoneInput(phoneInput)
+      const digits = phoneInput.value.replace(/\D/g, "")
+      if (digits) localStorage.setItem("nyc-phone-" + key, digits)
+      else localStorage.removeItem("nyc-phone-" + key)
+    })
+    const card = el("div", { className: "te-card" }, labelRow,
+      el("div", { className: "te-field" }, phoneInput)
+    )
+    phonesSection.append(card)
+  })
+  container.append(phonesSection)
+
+  // 3. Stops (All / Reserved filter)
+  const stopsSection = el("div", { className: "te-section" })
+  const titleRow = el("div", { className: "te-section-title" }, "📍 Stops")
+  stopsSection.append(titleRow)
+
+  const filterToggle = el("div", { className: "settingsToggle te-filter" })
+  const btnReserved = el("button", {
+    className: "toggleBtn" + (teStopFilter === "reserved" ? " active" : ""),
+    onClick: () => { teStopFilter = "reserved"; renderTripEditor() }
+  }, "Reserved")
+  const btnAll = el("button", {
+    className: "toggleBtn" + (teStopFilter === "all" ? " active" : ""),
+    onClick: () => { teStopFilter = "all"; renderTripEditor() }
+  }, "All Stops")
+  filterToggle.append(btnReserved, btnAll)
+  stopsSection.append(filterToggle)
+
+  data.days.forEach((day, di) => {
+    const stops = day.stops.filter(s => teStopFilter === "all" || s.type === "reserved")
+    if (!stops.length) return
+    stopsSection.append(el("div", { className: "te-day-sub" }, teDayLabel(day.date) + " — " + day.title))
+    stops.forEach(stop => {
+      const si = day.stops.indexOf(stop)
+      const isReserved = stop.type === "reserved"
+      const fields = []
+      // Icon + Name row
+      fields.push(el("div", { className: "te-field-row" },
+        el("div", { className: "te-field", style: "flex:0 0 60px" },
+          el("div", { className: "te-field-label" }, "Icon"),
+          createTeInput("text", stop.icon || "", v => teUpdateStop(di, si, "icon", v))
+        ),
+        el("div", { className: "te-field" },
+          el("div", { className: "te-field-label" }, "Name"),
+          createTeInput("text", stop.name, v => teUpdateStop(di, si, "name", v))
+        )
+      ))
+      // Time (reserved only)
+      if (isReserved) {
+        fields.push(el("div", { className: "te-field" },
+          el("div", { className: "te-field-label" }, "Time"),
+          createTeInput("time", stop.time || "", v => teUpdateStop(di, si, "time", v))
+        ))
+      }
+      // Address (read-only)
+      fields.push(el("div", { className: "te-field" },
+        el("div", { className: "te-field-label" }, "Address"),
+        el("div", { className: "te-readonly" }, stop.address)
+      ))
+      // Note
+      fields.push(el("div", { className: "te-field" },
+        el("div", { className: "te-field-label" }, "Note"),
+        createTeTextarea(stop.note || "", v => teUpdateStop(di, si, "note", v))
+      ))
+      const card = el("div", { className: "te-card" },
+        el("div", { className: "te-card-header" }, (stop.icon || "📍") + " " + stop.name),
+        ...fields
+      )
+      stopsSection.append(card)
+    })
+  })
+  container.append(stopsSection)
+
+  // 4. Day Titles
+  const daysSection = el("div", { className: "te-section" },
+    el("div", { className: "te-section-title" }, "📅 Day Titles")
+  )
+  data.days.forEach((day, di) => {
+    const dayLabel = teDayLabel(day.date)
+    const card = el("div", { className: "te-card" },
+      el("div", { className: "te-card-header" }, dayLabel),
+      el("div", { className: "te-field" },
+        el("div", { className: "te-field-label" }, "Title"),
+        createTeInput("text", day.title, v => teUpdateDay(di, "title", v))
+      )
+    )
+    daysSection.append(card)
+  })
+  container.append(daysSection)
+
+  // 5. User Notes Overview
+  const notesSection = el("div", { className: "te-section" },
+    el("div", { className: "te-section-title" }, "📝 Your Notes")
+  )
+  const noteKeys = Object.keys(state.userNotes || {}).filter(k => state.userNotes[k])
+  if (noteKeys.length === 0) {
+    notesSection.append(el("div", { className: "te-empty" }, "No notes yet. Tap any stop to add a note."))
+  } else {
+    noteKeys.forEach(key => {
+      const parts = key.split("-")
+      const di = parseInt(parts[0])
+      const day = data.days[di]
+      if (!day) return
+      let stopName = "Unknown", stopIcon = "📍"
+      if (parts[1] === "a") {
+        // Added stop
+        const ai = parseInt(parts[2])
+        const added = (state.added[di] || [])[ai]
+        if (added) { stopName = added.name; stopIcon = added.icon || "📍" }
+      } else {
+        const si = parseInt(parts[1])
+        const stop = getStop(di, si)
+        if (stop) { stopName = stop.name; stopIcon = stop.icon || "📍" }
+      }
+      const card = el("div", { className: "te-card" },
+        el("div", { className: "te-card-header" }, stopIcon + " " + stopName + " — " + teDayLabel(day.date)),
+        el("div", { className: "te-field" },
+          createTeTextarea(state.userNotes[key], v => {
+            saveUserNote(key, v)
+          })
+        )
+      )
+      notesSection.append(card)
+    })
+  }
+  container.append(notesSection)
+
+  // Reset
+  const resetBtn = el("button", { className: "te-reset-btn", onClick: resetTripEdits }, "Reset All Edits")
+  container.append(resetBtn)
+}
+
+function teDayLabel(dateStr) {
+  const d = new Date(dateStr + "T12:00:00")
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+  return days[d.getDay()] + " " + d.getDate() + " " + months[d.getMonth()]
+}
+
+function createTeInput(type, value, onChange) {
+  const input = el("input", { type: type, value: value || "" })
+  let timer
+  input.addEventListener("input", () => {
+    clearTimeout(timer)
+    timer = setTimeout(() => {
+      onChange(input.value)
+      render()
+    }, 400)
+  })
+  return input
+}
+
+function createTeTextarea(value, onChange) {
+  const ta = el("textarea", { rows: "2" })
+  ta.value = value || ""
+  let timer
+  ta.addEventListener("input", () => {
+    clearTimeout(timer)
+    timer = setTimeout(() => {
+      onChange(ta.value)
+      render()
+    }, 400)
+  })
+  return ta
+}
+
+function teUpdateHotel(index, field, value) {
+  const edits = loadTripEdits()
+  if (!edits.hotels) edits.hotels = []
+  // Fill gaps so JSON serialisation doesn't create nulls
+  for (let j = edits.hotels.length; j <= index; j++) edits.hotels[j] = {}
+  edits.hotels[index][field] = value
+  saveTripEdits(edits)
+  data.hotels[index][field] = value
+}
+
+function teUpdateStop(dayIndex, stopIndex, field, value) {
+  const edits = loadTripEdits()
+  if (!edits.stops) edits.stops = {}
+  const key = dayIndex + "-" + stopIndex
+  if (!edits.stops[key]) edits.stops[key] = {}
+  edits.stops[key][field] = value
+  saveTripEdits(edits)
+  data.days[dayIndex].stops[stopIndex][field] = value
+}
+
+function teUpdateDay(dayIndex, field, value) {
+  const edits = loadTripEdits()
+  if (!edits.days) edits.days = {}
+  if (!edits.days[dayIndex]) edits.days[dayIndex] = {}
+  edits.days[dayIndex][field] = value
+  saveTripEdits(edits)
+  data.days[dayIndex][field] = value
+}
+
+function resetTripEdits() {
+  if (!confirm("Reset all trip edits? This will reload the original data.")) return
+  localStorage.removeItem(TE_STORAGE_KEY)
+  closeTripEditor()
+  forceReload()
 }
 
 function forceReload() {
@@ -1315,6 +1820,10 @@ function fetchTravelTimes() {
     pairs.push({ a: effective[effective.length - 1].stop, b: hotel, key: dayIndex + "-h1" })
 
     const modes = [["WALKING", "walk"], ["TRANSIT", "transit"], ["DRIVING", "drive"]]
+
+    // Skip entirely if all pairs already have all modes cached
+    const allCached = pairs.every(({ key }) => travelTimes[key]?.walk && travelTimes[key]?.transit && travelTimes[key]?.drive)
+    if (allCached) return
 
     pairs.forEach(({ a, b, key }) => {
       if (travelTimes[key]?.walk && travelTimes[key]?.transit && travelTimes[key]?.drive) return
@@ -1389,6 +1898,8 @@ function getExploreItems() {
         address: item.address,
         icon: item.icon || guide.icon,
         category: guide.title,
+        tag: item.tag || null,
+        price: item.price || null,
         flatIndex: items.length
       })
     })
@@ -1426,6 +1937,14 @@ function renderExploreFilters() {
     title: "All",
     onclick: () => { exploreFilter = new Set(); renderExploreFilters(); renderExplore() }
   }, "All"))
+
+  // "Nearby" chip — opens Google Maps near-me links
+  const nearbyOn = !allOn && exploreFilter.has("__nearby__")
+  chips.push(el("button", {
+    className: "filterChip filterChip-icon" + (nearbyOn ? " active" : ""),
+    title: "Around Me",
+    onclick: () => toggleFilter("__nearby__")
+  }, "\uD83E\uDDED"))
 
   cats.forEach(cat => {
     const isOn = !allOn && exploreFilter.has(cat.title)
@@ -1499,6 +2018,41 @@ function renderExplore() {
   let items = getExploreItems()
   const allOn = isAllFilters()
 
+  // If "Around Me" filter is active alone, show nearby Google Maps links
+  if (!allOn && exploreFilter.has("__nearby__") && exploreFilter.size === 1) {
+    const nearbyItems = [
+      { icon: "\u2615", label: "Coffee", search: "coffee+near+me" },
+      { icon: "\uD83C\uDF7D", label: "Food & Restaurants", search: "food+near+me" },
+      { icon: "\uD83C\uDF55", label: "Pizza", search: "pizza+near+me" },
+      { icon: "\uD83C\uDF78", label: "Bars & Cocktails", search: "bars+near+me" },
+      { icon: "\uD83D\uDECD", label: "Shopping", search: "shopping+near+me" },
+      { icon: "\uD83C\uDFEA", label: "Grocery & Bodega", search: "grocery+store+near+me" },
+      { icon: "\uD83D\uDEBB", label: "Restrooms", search: "public+restroom+near+me" },
+      { icon: "\uD83D\uDC8A", label: "Pharmacy", search: "pharmacy+near+me" },
+      { icon: "\uD83C\uDFE7", label: "ATM", search: "atm+near+me" }
+    ]
+    const nearbyNodes = []
+    nearbyNodes.push(el("div", { className: "exploreSectionHead" }, "\uD83E\uDDED Around Me"))
+    nearbyItems.forEach(function(ni) {
+      var card = el("a", {
+        className: "guideItem nearbyLink",
+        href: "https://www.google.com/maps/search/" + ni.search,
+        target: "_blank",
+        style: "text-decoration:none;display:block"
+      },
+        el("div", { className: "exploreCardTop" },
+          el("div", { className: "exploreCardInfo" },
+            el("div", { className: "guideName" }, ni.icon + " " + ni.label)
+          ),
+          el("div", { className: "exploreDist", style: "color:var(--stone);font-size:12px" }, "Maps \u203A")
+        )
+      )
+      nearbyNodes.push(card)
+    })
+    container.replaceChildren.apply(container, nearbyNodes)
+    return
+  }
+
   if (!allOn) {
     items = items.filter(it => exploreFilter.has(it.category))
   }
@@ -1523,11 +2077,18 @@ function renderExplore() {
 
   const nodes = []
   let lastCat = null
+  let lastTag = null
 
   items.forEach(item => {
     if (showSections && item.category !== lastCat) {
       lastCat = item.category
+      lastTag = null
       nodes.push(el("div", { className: "exploreSectionHead" }, catIcons[item.category] + " " + item.category))
+    }
+
+    if (item.tag && item.tag !== lastTag && !hasDistances) {
+      lastTag = item.tag
+      nodes.push(el("div", { className: "exploreTagHead" }, item.tag))
     }
 
     const dist = exploreDistances[item.flatIndex]
@@ -1538,6 +2099,12 @@ function renderExplore() {
       : (hasDistances ? el("div", { className: "exploreDist travelLoading" }, "...") : null)
     if (dist) rightSide.append(" " + dist.text)
 
+    const nameEl = el("div", { className: "guideName" }, item.icon + " " + item.name)
+    if (item.price) {
+      nameEl.append(" ")
+      nameEl.append(el("span", { className: "priceBadge" }, item.price))
+    }
+
     const card = el("div", {
       className: "guideItem" + (swapTarget != null ? " swappable" : ""),
       onclick: () => {
@@ -1547,7 +2114,7 @@ function renderExplore() {
     },
       el("div", { className: "exploreCardTop" },
         el("div", { className: "exploreCardInfo" },
-          el("div", { className: "guideName" }, item.icon + " " + item.name),
+          nameEl,
           el("a", { className: "guideAddr", href: mapsUrl, target: "_blank", onclick: (e) => e.stopPropagation() }, item.address),
           el("div", { className: "guideNote" }, item.note)
         ),
@@ -1946,109 +2513,159 @@ let pendingSyncData = null
 function syncCopyChanges() {
   const btn = document.getElementById("syncCopyBtn")
   const status = document.getElementById("syncStatus")
+  const tripEdits = loadTripEdits()
   const payload = {
     v: APP_VERSION,
     s: state.swaps,
     a: state.added,
-    r: state.removed
+    r: state.removed,
+    o: state.reorder,
+    n: state.userNotes,
+    e: tripEdits
   }
-  const hasChanges = Object.keys(payload.s).length || Object.keys(payload.a).length || Object.keys(payload.r).length
+  const hasChanges = Object.keys(payload.s).length || Object.keys(payload.a).length || Object.keys(payload.r).length || Object.keys(payload.o).length || Object.keys(payload.n).length || Object.keys(payload.e).length
   if (!hasChanges) {
-    status.textContent = "Nothing to share — no swaps, added places, or removals yet."
+    status.textContent = "Nothing to share — no changes yet."
     status.className = "syncStatus syncWarn"
     setTimeout(() => { status.textContent = ""; status.className = "syncStatus" }, 3000)
     return
   }
   const jsonStr = JSON.stringify(payload)
   const encoded = btoa(new TextEncoder().encode(jsonStr).reduce((s, b) => s + String.fromCharCode(b), ""))
-  navigator.clipboard.writeText(encoded).then(() => {
-    btn.textContent = "Copied!"
-    status.textContent = "Now send this to your partner via WhatsApp or text."
-    status.className = "syncStatus syncOk"
-    setTimeout(() => { btn.textContent = "Copy My Changes"; status.textContent = ""; status.className = "syncStatus" }, 4000)
-  }).catch(() => {
-    status.textContent = "Clipboard not available — try long-press to copy instead."
+  const shareUrl = location.origin + location.pathname + "#sync=" + encoded
+
+  if (navigator.share) {
+    navigator.share({ title: "NYC Trip Changes", url: shareUrl }).then(() => {
+      btn.textContent = "Shared!"
+      status.textContent = ""
+      setTimeout(() => { btn.textContent = "Share My Changes" }, 2000)
+    }).catch(() => {})
+  } else {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      btn.textContent = "Link Copied!"
+      status.textContent = "Send this link to your partner."
+      status.className = "syncStatus syncOk"
+      setTimeout(() => { btn.textContent = "Share My Changes"; status.textContent = ""; status.className = "syncStatus" }, 4000)
+    }).catch(() => {
+      status.textContent = "Could not copy — try manually selecting the URL."
+      status.className = "syncStatus syncErr"
+    })
+  }
+}
+
+function parseSyncData(encoded) {
+  try {
+    const bytes = atob(encoded.trim())
+    const decoded = new TextDecoder().decode(Uint8Array.from(bytes, c => c.charCodeAt(0)))
+    return JSON.parse(decoded)
+  } catch (e) {
+    return null
+  }
+}
+
+function validateSyncPayload(parsed) {
+  if (!parsed || typeof parsed !== "object" || !parsed.v) return null
+  const alts = getAllAlternatives()
+  const cleanSwaps = {}
+  if (parsed.s && typeof parsed.s === "object") {
+    Object.keys(parsed.s).forEach(key => {
+      const parts = key.split("-")
+      const dayIdx = parseInt(parts[0], 10)
+      const stopIdx = parseInt(parts[1], 10)
+      const day = data.days[dayIdx]
+      if (!day || !day.stops[stopIdx]) return
+      if (day.stops[stopIdx].type === "reserved") return
+      const altIdx = parsed.s[key]
+      if (typeof altIdx !== "number" || !alts[altIdx]) return
+      cleanSwaps[key] = altIdx
+    })
+  }
+  const cleanAdded = (parsed.a && typeof parsed.a === "object") ? parsed.a : {}
+  const cleanRemoved = (parsed.r && typeof parsed.r === "object") ? parsed.r : {}
+  const cleanReorder = (parsed.o && typeof parsed.o === "object") ? parsed.o : {}
+  const cleanNotes = {}
+  if (parsed.n && typeof parsed.n === "object") {
+    Object.keys(parsed.n).forEach(key => {
+      if (typeof parsed.n[key] === "string" && parsed.n[key].trim()) {
+        cleanNotes[key] = parsed.n[key].trim().slice(0, 200)
+      }
+    })
+  }
+  const cleanEdits = (parsed.e && typeof parsed.e === "object") ? parsed.e : {}
+  const swapCount = Object.keys(cleanSwaps).length
+  const addedCount = Object.values(cleanAdded).reduce((n, arr) => n + (Array.isArray(arr) ? arr.length : 0), 0)
+  const removedCount = Object.keys(cleanRemoved).filter(k => cleanRemoved[k]).length
+  const reorderCount = Object.keys(cleanReorder).length
+  const noteCount = Object.keys(cleanNotes).length
+  const editCount = Object.keys(cleanEdits).length
+  if (!swapCount && !addedCount && !removedCount && !reorderCount && !noteCount && !editCount) return null
+  const summary = []
+  if (swapCount) summary.push(swapCount + " swap" + (swapCount > 1 ? "s" : ""))
+  if (addedCount) summary.push(addedCount + " added place" + (addedCount > 1 ? "s" : ""))
+  if (removedCount) summary.push(removedCount + " removed stop" + (removedCount > 1 ? "s" : ""))
+  if (reorderCount) summary.push(reorderCount + " reordered day" + (reorderCount > 1 ? "s" : ""))
+  if (noteCount) summary.push(noteCount + " note" + (noteCount > 1 ? "s" : ""))
+  if (editCount) summary.push("trip edits")
+  return { data: { s: cleanSwaps, a: cleanAdded, r: cleanRemoved, o: cleanReorder, n: cleanNotes, e: cleanEdits }, summary: summary.join(", "), version: parsed.v }
+}
+
+function showSyncPreview(result) {
+  const status = document.getElementById("syncStatus")
+  const preview = document.getElementById("syncPreview")
+  const previewText = document.getElementById("syncPreviewText")
+  if (!result) {
+    status.textContent = "No valid changes found."
+    status.className = "syncStatus syncWarn"
+    return
+  }
+  if (result.version !== APP_VERSION) {
+    status.textContent = "App version mismatch (yours: " + APP_VERSION + ", theirs: " + result.version + "). Both do Force Reload first."
     status.className = "syncStatus syncErr"
-  })
+    return
+  }
+  pendingSyncData = result.data
+  previewText.textContent = "Apply " + result.summary + "? This will replace your current changes."
+  preview.style.display = ""
+  status.textContent = ""
+  status.className = "syncStatus"
 }
 
 function syncPasteChanges() {
   const status = document.getElementById("syncStatus")
-  const preview = document.getElementById("syncPreview")
-  const previewText = document.getElementById("syncPreviewText")
-
   navigator.clipboard.readText().then(text => {
     if (!text || !text.trim()) {
-      status.textContent = "Clipboard is empty — copy the message from your partner first."
+      status.textContent = "Clipboard is empty."
       status.className = "syncStatus syncErr"
       return
     }
-    let parsed
-    try {
-      const bytes = atob(text.trim())
-      const decoded = new TextDecoder().decode(Uint8Array.from(bytes, c => c.charCodeAt(0)))
-      parsed = JSON.parse(decoded)
-    } catch (e) {
-      status.textContent = "That doesn't look like trip data — copy the exact message from your partner."
+    // Support both raw encoded data and full URLs with #sync=
+    let encoded = text.trim()
+    if (encoded.includes("#sync=")) encoded = encoded.split("#sync=")[1]
+    const parsed = parseSyncData(encoded)
+    const result = parsed ? validateSyncPayload(parsed) : null
+    if (!result) {
+      status.textContent = "That doesn't look like trip data."
       status.className = "syncStatus syncErr"
       return
     }
-    if (!parsed || typeof parsed !== "object" || !parsed.v) {
-      status.textContent = "Invalid sync data — ask your partner to copy again from Settings."
-      status.className = "syncStatus syncErr"
-      return
-    }
-    if (parsed.v !== APP_VERSION) {
-      status.textContent = "App version mismatch (yours: " + APP_VERSION + ", theirs: " + parsed.v + "). Both do Force Reload first."
-      status.className = "syncStatus syncErr"
-      return
-    }
-
-    // Validate: filter out swaps targeting reserved stops
-    const alts = getAllAlternatives()
-    const cleanSwaps = {}
-    if (parsed.s && typeof parsed.s === "object") {
-      Object.keys(parsed.s).forEach(key => {
-        const parts = key.split("-")
-        const dayIdx = parseInt(parts[0], 10)
-        const stopIdx = parseInt(parts[1], 10)
-        const day = data.days[dayIdx]
-        if (!day || !day.stops[stopIdx]) return
-        if (day.stops[stopIdx].type === "reserved") return
-        const altIdx = parsed.s[key]
-        if (typeof altIdx !== "number" || !alts[altIdx]) return
-        cleanSwaps[key] = altIdx
-      })
-    }
-
-    const cleanAdded = (parsed.a && typeof parsed.a === "object") ? parsed.a : {}
-    const cleanRemoved = (parsed.r && typeof parsed.r === "object") ? parsed.r : {}
-
-    // Build summary
-    const swapCount = Object.keys(cleanSwaps).length
-    const addedCount = Object.values(cleanAdded).reduce((n, arr) => n + (Array.isArray(arr) ? arr.length : 0), 0)
-    const removedCount = Object.keys(cleanRemoved).filter(k => cleanRemoved[k]).length
-
-    if (!swapCount && !addedCount && !removedCount) {
-      status.textContent = "No changes in this share — your partner hasn't made any swaps or edits."
-      status.className = "syncStatus syncWarn"
-      return
-    }
-
-    const summary = []
-    if (swapCount) summary.push(swapCount + " swap" + (swapCount > 1 ? "s" : ""))
-    if (addedCount) summary.push(addedCount + " added place" + (addedCount > 1 ? "s" : ""))
-    if (removedCount) summary.push(removedCount + " removed stop" + (removedCount > 1 ? "s" : ""))
-
-    pendingSyncData = { s: cleanSwaps, a: cleanAdded, r: cleanRemoved }
-    previewText.textContent = "Apply " + summary.join(", ") + "? This will replace your current changes."
-    preview.style.display = ""
-    status.textContent = ""
-    status.className = "syncStatus"
+    showSyncPreview(result)
   }).catch(() => {
-    status.textContent = "Can't read clipboard — paste permission needed. Try copying again."
+    status.textContent = "Can't read clipboard — paste permission needed."
     status.className = "syncStatus syncErr"
   })
+}
+
+function checkSyncHash() {
+  const hash = location.hash
+  if (!hash.startsWith("#sync=")) return
+  const encoded = hash.slice(6)
+  history.replaceState(null, "", location.pathname)
+  const parsed = parseSyncData(encoded)
+  if (!parsed) return
+  const result = validateSyncPayload(parsed)
+  if (!result) return
+  openSettings()
+  setTimeout(() => showSyncPreview(result), 300)
 }
 
 function syncApply() {
@@ -2056,6 +2673,12 @@ function syncApply() {
   state.swaps = pendingSyncData.s
   state.added = pendingSyncData.a
   state.removed = pendingSyncData.r
+  state.reorder = pendingSyncData.o || {}
+  state.userNotes = pendingSyncData.n || {}
+  if (pendingSyncData.e && Object.keys(pendingSyncData.e).length) {
+    saveTripEdits(pendingSyncData.e)
+    applyTripEdits()
+  }
   pendingSyncData = null
   document.getElementById("syncPreview").style.display = "none"
   const status = document.getElementById("syncStatus")
@@ -2115,8 +2738,13 @@ function renderSearchResults() {
     guide.items.forEach(item => {
       const text = (item.name + " " + (item.note || "") + " " + (item.address || "")).toLowerCase()
       if (text.includes(q)) {
-        // avoid duplicates if already in day results
-        const isDup = results.some(r => r.type === "day" && r.stop.name === item.name && r.stop.address === item.address)
+        // avoid duplicates if already in day results (fuzzy: check if day stop name contains guide name or vice versa)
+        const gName = item.name.toLowerCase()
+        const isDup = results.some(r => {
+          if (r.type !== "day") return false
+          const dName = r.stop.name.toLowerCase()
+          return dName === gName || dName.includes(gName) || gName.includes(dName)
+        })
         if (!isDup) {
           results.push({ type: "guide", item: item, category: guide.title, icon: item.icon || guide.icon })
         }
@@ -2133,7 +2761,7 @@ function renderSearchResults() {
     if (r.type === "day") {
       const date = new Date(r.date + "T12:00:00")
       const label = date.toLocaleDateString("en-GB", { weekday: "short", day: "numeric" })
-      return el("div", { className: "searchResult", onclick: () => { closeSearch(); goDay(r.dayIndex) } },
+      return el("div", { className: "searchResult", onclick: () => { closeSearch(); state.day = r.dayIndex; state.stop = r.stopIndex; loadWeather(); render(); setTimeout(() => document.querySelector(".stop.active")?.scrollIntoView({ behavior: "smooth", block: "center" }), 100) } },
         el("div", { className: "searchResultName" }, (r.stop.icon || "") + " " + r.stop.name),
         el("div", { className: "searchResultMeta" }, label + " \u2014 " + r.dayTitle)
       )
