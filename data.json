@@ -30,7 +30,7 @@
       {"name": "Little Island", "address": "Pier 55 Hudson River Park, New York", "icon": "🌿", "type": "flexible", "note": "Free timed tickets may be needed, check website", "alertNote": "Check if free timed tickets are required"},
       {"name": "High Line Walk", "address": "820 Washington St, New York", "icon": "🚶", "type": "flexible", "note": "Enter at Gansevoort St, walk north. Fully exposed — if windy/wet, cab to Chelsea Market instead"},
       {"name": "Chelsea Market", "address": "75 9th Ave, New York", "icon": "🍜", "type": "flexible", "note": "Los Tacos No.1 is the must-try. Gets busy at lunch"},
-      {"name": "MoMA", "address": "11 W 53rd St, New York", "icon": "🖼", "type": "flexible", "note": "$25 entry, or free after 4pm (Fridays). Starry Night floor 5", "alertNote": "Free entry after 4pm on Fridays!"},
+      {"name": "MoMA", "address": "11 W 53rd St, New York", "icon": "🖼", "type": "flexible", "note": "FREE entry after 4pm (it's Friday!). Head back to hotel after Chelsea Market to rest, then hit MoMA at 4. Starry Night floor 5", "alertNote": "Free entry after 4pm on Fridays!"},
       {"name": "Bar Centrale", "address": "324 W 46th St, New York", "icon": "🍸", "type": "flexible", "note": "Hidden above Joe Allen's, Broadway actors hang here"},
       {"name": "Buena Vista Social Club", "address": "236 W 45th St, New York", "icon": "🎭", "type": "reserved", "time": "19:00", "note": "Musical. Arrive 15 min early"}
     ]
