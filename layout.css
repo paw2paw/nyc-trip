@@ -8,6 +8,7 @@
 
 html {
   overflow-x: hidden;
+  overscroll-behavior: none;
 }
 
 :root {
@@ -44,6 +45,9 @@ body {
   color: var(--ink-mid);
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  overscroll-behavior-y: contain;
 }
 
 /* === Focus indicators for keyboard navigation === */
@@ -635,6 +639,8 @@ a.stopAddr:active {
   margin-top: 4px;
   padding-left: 34px;
   line-height: 1.4;
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 .stop.active .stopNote {
@@ -1577,6 +1583,8 @@ a.stopAddr:active {
   font-style: italic;
   margin-top: 2px;
   line-height: 1.4;
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 /* === Emergency Sheet === */
@@ -1813,6 +1821,8 @@ a.stopAddr:active {
   font-size: 13px;
   color: var(--stone);
   text-align: right;
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 .emergencyItem a {
