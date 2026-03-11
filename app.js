@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "1.2.3"
+const APP_VERSION = "1.3.0"
 
 // --- SVG icons ---
 
@@ -175,8 +175,26 @@ function applyTheme() {
 
 // --- Compact mode ---
 
-function isCompact() {
+function isCompact(dayIndex) {
+  if (dayIndex !== undefined) {
+    const perDay = localStorage.getItem("nyc-compact-" + dayIndex)
+    if (perDay === "full") return false
+    if (perDay === "compact") return true
+  }
   return localStorage.getItem("nyc-compact") === "1"
+}
+
+function getDayViewMode(dayIndex) {
+  return localStorage.getItem("nyc-compact-" + dayIndex) || "default"
+}
+
+function setDayViewMode(dayIndex, mode) {
+  if (mode === "default") {
+    localStorage.removeItem("nyc-compact-" + dayIndex)
+  } else {
+    localStorage.setItem("nyc-compact-" + dayIndex, mode)
+  }
+  render()
 }
 
 function toggleCompact() {
@@ -475,7 +493,7 @@ function stopCard(entry, i, dayIndex, nextUpIdx, effectiveLen) {
       (stop.icon || "") + " " + stop.name)
   )
 
-  const compact = isCompact()
+  const compact = isCompact(dayIndex)
 
   const badge = reserved && stop.time
     ? el("span", { className: "timeBadge" }, stop.time)
@@ -737,6 +755,27 @@ function hotelRow(name, address) {
   return el("a", { className: "stop hotel", href: url, target: "_blank" }, "🏨 " + name)
 }
 
+// --- Flight row ---
+
+function getFlights(date) {
+  if (!data.flights) return []
+  return data.flights.filter(f => f.date === date)
+}
+
+function flightRow(flight) {
+  const inbound = flight.direction === "inbound"
+  const icon = "✈️"
+  const label = inbound
+    ? flight.from + " → " + flight.to + "  ·  Lands " + flight.arrive
+    : flight.from + " → " + flight.to + "  ·  Departs " + flight.depart
+  const sub = flight.code + (flight.note ? "  ·  " + flight.note : "")
+  const row = el("div", { className: "stop flight " + flight.direction },
+    el("div", { className: "flightMain" }, icon + " " + label),
+    el("div", { className: "flightSub" }, sub)
+  )
+  return row
+}
+
 // --- Travel row (SVG icons) ---
 
 function travelRow(a, b, travelKey) {
@@ -911,7 +950,20 @@ function daySummaryRow(dayIndex, effective) {
     parts.push((e.stop.icon || "") + " " + e.stop.time + " " + e.stop.name)
   })
 
-  return el("div", { className: "daySummary" }, parts.join("  ·  "))
+  const mode = getDayViewMode(dayIndex)
+  const fullBtn = el("button", {
+    className: "dayViewBtn" + (mode === "full" || (mode === "default" && !isCompact()) ? " active" : ""),
+    onclick: (e) => { e.stopPropagation(); setDayViewMode(dayIndex, mode === "full" ? "default" : "full") }
+  }, "Full")
+  const compactBtn = el("button", {
+    className: "dayViewBtn" + (mode === "compact" || (mode === "default" && isCompact()) ? " active" : ""),
+    onclick: (e) => { e.stopPropagation(); setDayViewMode(dayIndex, mode === "compact" ? "default" : "compact") }
+  }, "Compact")
+  const viewToggle = el("div", { className: "dayViewToggle" }, fullBtn, compactBtn)
+
+  const summaryText = el("div", { className: "daySummaryText" }, parts.join("  ·  "))
+
+  return el("div", { className: "daySummary" }, summaryText, viewToggle)
 }
 
 function render() {
@@ -929,7 +981,7 @@ function render() {
   }
 
   const nodes = []
-  const compact = isCompact()
+  const compact = isCompact(state.day)
   const effective = getEffectiveStops(state.day)
   const nextUpIdx = getNextUpIndex(state.day, effective)
 
@@ -941,6 +993,12 @@ function render() {
     const wxRow = weatherAlertRow(state.day)
     if (wxRow) nodes.push(wxRow)
   }
+
+  // Inbound flight card (before hotel)
+  const flights = getFlights(day.date)
+  const inbound = flights.find(f => f.direction === "inbound")
+  const outbound = flights.find(f => f.direction === "outbound")
+  if (inbound) nodes.push(flightRow(inbound))
 
   nodes.push(hotelRow(hotel.name, hotel.address))
 
@@ -972,6 +1030,7 @@ function render() {
     const lastStop = effective[effective.length - 1].stop
     if (!compact) nodes.push(travelRow(lastStop, hotel, state.day + "-h1"))
     nodes.push(hotelRow(hotel.name, hotel.address))
+    if (outbound) nodes.push(flightRow(outbound))
   }
 
   document.getElementById("stops").replaceChildren(...nodes)

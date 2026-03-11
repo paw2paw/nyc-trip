@@ -2,6 +2,11 @@
 "pawPhoneHash": "704d0e9063abd2db33abd001442e6a0638f9c9f25827930ec7c7cdfe5190e5f0",
 "lawPhoneHash": "37bbe1857bb07333b2dc7d3997995c315faa116ae41355d2116c99c01941448c",
 
+"flights": [
+  {"date": "2026-03-12", "direction": "inbound", "code": "VS3", "depart": "09:25", "arrive": "12:30", "from": "LHR", "to": "JFK", "note": "Virgin Atlantic · Terminal 4"},
+  {"date": "2026-03-18", "direction": "outbound", "code": "VS4", "depart": "21:05", "arrive": "09:15+1", "from": "JFK", "to": "LHR", "note": "Virgin Atlantic · Terminal 4"}
+],
+
 "hotels": [
   {"from": "2026-03-12", "name": "The Dominick", "address": "246 Spring St, New York"},
   {"from": "2026-03-16", "name": "1 Hotel Brooklyn Bridge", "address": "60 Furman St, Brooklyn"}
@@ -13,9 +18,6 @@
     "date": "2026-03-12",
     "title": "Arrival SoHo",
     "stops": [
-      {"name": "La Cabra", "address": "284 Lafayette St, New York", "icon": "☕", "type": "flexible", "note": "Scandinavian specialty coffee, great pastries"},
-      {"name": "McNally Jackson Books", "address": "134 Prince St, New York", "icon": "📚", "type": "flexible", "note": "Independent bookshop, lovely stationery section"},
-      {"name": "SoHo Cast Iron District", "address": "Prince St, New York", "icon": "🏙", "type": "flexible", "note": "Walk Greene St & Broome St for best facades"},
       {"name": "Washington Square Park", "address": "Washington Square, New York", "icon": "🌳", "type": "flexible", "note": "Street performers, iconic arch. NYU campus surrounds"},
       {"name": "Rubirosa", "address": "235 Mulberry St, New York", "icon": "🍕", "type": "flexible", "note": "Thin crust vodka pie is the move. Cash only bar"},
       {"name": "Ear Inn", "address": "326 Spring St, New York", "icon": "🍺", "type": "flexible", "note": "One of NYC's oldest bars (1817). No frills, great pints. 2 min from hotel"},
@@ -96,7 +98,8 @@
     "stops": [
       {"name": "Almondine Bakery", "address": "85 Water St, Brooklyn", "icon": "☕", "type": "flexible", "note": "French bakery in DUMBO, steps from the hotel. Croissants and coffee"},
       {"name": "Brooklyn Bridge Park", "address": "334 Furman St, Brooklyn", "icon": "🌳", "type": "flexible", "note": "Final morning walk along the waterfront. Manhattan skyline goodbye"},
-      {"name": "Kalustyan's", "address": "123 Lexington Ave, New York", "icon": "🛍", "type": "flexible", "note": "20 min subway from DUMBO. Worth the trip for spice gifts & legendary sandwiches — skip if short on time"}
+      {"name": "Kalustyan's", "address": "123 Lexington Ave, New York", "icon": "🛍", "type": "flexible", "note": "20 min subway from DUMBO. Worth the trip for spice gifts & legendary sandwiches — skip if short on time"},
+      {"name": "Leave for JFK", "address": "60 Furman St, Brooklyn", "icon": "🚕", "type": "reserved", "time": "17:00", "note": "Uber from hotel ~45-60 min to JFK T4. Aim to arrive by 18:00 for 21:05 flight"}
     ]
   }
 
