@@ -1846,6 +1846,142 @@ function restoreRemovedStop(key) {
   renderRemoved()
 }
 
+// --- Sync (copy/paste trip changes) ---
+
+let pendingSyncData = null
+
+function syncCopyChanges() {
+  const btn = document.getElementById("syncCopyBtn")
+  const status = document.getElementById("syncStatus")
+  const payload = {
+    v: APP_VERSION,
+    s: state.swaps,
+    a: state.added,
+    r: state.removed
+  }
+  const hasChanges = Object.keys(payload.s).length || Object.keys(payload.a).length || Object.keys(payload.r).length
+  if (!hasChanges) {
+    status.textContent = "Nothing to share — no swaps, added places, or removals yet."
+    status.className = "syncStatus syncWarn"
+    setTimeout(() => { status.textContent = ""; status.className = "syncStatus" }, 3000)
+    return
+  }
+  const jsonStr = JSON.stringify(payload)
+  const encoded = btoa(new TextEncoder().encode(jsonStr).reduce((s, b) => s + String.fromCharCode(b), ""))
+  navigator.clipboard.writeText(encoded).then(() => {
+    btn.textContent = "Copied!"
+    status.textContent = "Now send this to your partner via WhatsApp or text."
+    status.className = "syncStatus syncOk"
+    setTimeout(() => { btn.textContent = "Copy My Changes"; status.textContent = ""; status.className = "syncStatus" }, 4000)
+  }).catch(() => {
+    status.textContent = "Clipboard not available — try long-press to copy instead."
+    status.className = "syncStatus syncErr"
+  })
+}
+
+function syncPasteChanges() {
+  const status = document.getElementById("syncStatus")
+  const preview = document.getElementById("syncPreview")
+  const previewText = document.getElementById("syncPreviewText")
+
+  navigator.clipboard.readText().then(text => {
+    if (!text || !text.trim()) {
+      status.textContent = "Clipboard is empty — copy the message from your partner first."
+      status.className = "syncStatus syncErr"
+      return
+    }
+    let parsed
+    try {
+      const bytes = atob(text.trim())
+      const decoded = new TextDecoder().decode(Uint8Array.from(bytes, c => c.charCodeAt(0)))
+      parsed = JSON.parse(decoded)
+    } catch (e) {
+      status.textContent = "That doesn't look like trip data — copy the exact message from your partner."
+      status.className = "syncStatus syncErr"
+      return
+    }
+    if (!parsed || typeof parsed !== "object" || !parsed.v) {
+      status.textContent = "Invalid sync data — ask your partner to copy again from Settings."
+      status.className = "syncStatus syncErr"
+      return
+    }
+    if (parsed.v !== APP_VERSION) {
+      status.textContent = "App version mismatch (yours: " + APP_VERSION + ", theirs: " + parsed.v + "). Both do Force Reload first."
+      status.className = "syncStatus syncErr"
+      return
+    }
+
+    // Validate: filter out swaps targeting reserved stops
+    const alts = getAllAlternatives()
+    const cleanSwaps = {}
+    if (parsed.s && typeof parsed.s === "object") {
+      Object.keys(parsed.s).forEach(key => {
+        const parts = key.split("-")
+        const dayIdx = parseInt(parts[0], 10)
+        const stopIdx = parseInt(parts[1], 10)
+        const day = data.days[dayIdx]
+        if (!day || !day.stops[stopIdx]) return
+        if (day.stops[stopIdx].type === "reserved") return
+        const altIdx = parsed.s[key]
+        if (typeof altIdx !== "number" || !alts[altIdx]) return
+        cleanSwaps[key] = altIdx
+      })
+    }
+
+    const cleanAdded = (parsed.a && typeof parsed.a === "object") ? parsed.a : {}
+    const cleanRemoved = (parsed.r && typeof parsed.r === "object") ? parsed.r : {}
+
+    // Build summary
+    const swapCount = Object.keys(cleanSwaps).length
+    const addedCount = Object.values(cleanAdded).reduce((n, arr) => n + (Array.isArray(arr) ? arr.length : 0), 0)
+    const removedCount = Object.keys(cleanRemoved).filter(k => cleanRemoved[k]).length
+
+    if (!swapCount && !addedCount && !removedCount) {
+      status.textContent = "No changes in this share — your partner hasn't made any swaps or edits."
+      status.className = "syncStatus syncWarn"
+      return
+    }
+
+    const summary = []
+    if (swapCount) summary.push(swapCount + " swap" + (swapCount > 1 ? "s" : ""))
+    if (addedCount) summary.push(addedCount + " added place" + (addedCount > 1 ? "s" : ""))
+    if (removedCount) summary.push(removedCount + " removed stop" + (removedCount > 1 ? "s" : ""))
+
+    pendingSyncData = { s: cleanSwaps, a: cleanAdded, r: cleanRemoved }
+    previewText.textContent = "Apply " + summary.join(", ") + "? This will replace your current changes."
+    preview.style.display = ""
+    status.textContent = ""
+    status.className = "syncStatus"
+  }).catch(() => {
+    status.textContent = "Can't read clipboard — paste permission needed. Try copying again."
+    status.className = "syncStatus syncErr"
+  })
+}
+
+function syncApply() {
+  if (!pendingSyncData) return
+  state.swaps = pendingSyncData.s
+  state.added = pendingSyncData.a
+  state.removed = pendingSyncData.r
+  pendingSyncData = null
+  document.getElementById("syncPreview").style.display = "none"
+  const status = document.getElementById("syncStatus")
+  status.textContent = "Done! Trip updated."
+  status.className = "syncStatus syncOk"
+  mapCache = {}
+  travelTimes = {}
+  clampState()
+  render()
+  setTimeout(() => { status.textContent = ""; status.className = "syncStatus" }, 3000)
+}
+
+function syncCancel() {
+  pendingSyncData = null
+  document.getElementById("syncPreview").style.display = "none"
+  document.getElementById("syncStatus").textContent = ""
+  document.getElementById("syncStatus").className = "syncStatus"
+}
+
 // --- Service worker ---
 
 if ("serviceWorker" in navigator) {

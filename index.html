@@ -213,6 +213,20 @@
 </button>
 </div>
 <p class="settingsNote">Requires notification permission. Alerts fire while the app is open.</p>
+<label class="settingsLabel">Sync Trip</label>
+<p class="settingsNote">Share your swaps, added places, and removed stops with your travel partner.</p>
+<div class="syncBtns">
+<button id="syncCopyBtn" class="toggleBtn" style="width:100%" onclick="syncCopyChanges()">Copy My Changes</button>
+<button id="syncPasteBtn" class="toggleBtn" style="width:100%;margin-top:8px" onclick="syncPasteChanges()">Paste Partner's Changes</button>
+</div>
+<div id="syncStatus" class="syncStatus"></div>
+<div id="syncPreview" class="syncPreview" style="display:none">
+<div id="syncPreviewText"></div>
+<div class="syncPreviewBtns">
+<button id="syncApplyBtn" class="toggleBtn" onclick="syncApply()">Apply</button>
+<button class="toggleBtn" onclick="syncCancel()">Cancel</button>
+</div>
+</div>
 <button class="toggleBtn" style="width:100%;margin-top:1.2em" onclick="forceReload()">Force Reload App</button>
 <div id="settingsVersion" class="settingsVersion"></div>
 </div>

@@ -1678,6 +1678,48 @@ a.stopAddr:active {
   opacity: 0.6;
 }
 
+/* === Sync === */
+
+.syncStatus {
+  font-size: 13px;
+  margin-top: 8px;
+  min-height: 1.4em;
+  line-height: 1.4;
+}
+
+.syncOk { color: #2a7d4f; }
+.syncWarn { color: #b8860b; }
+.syncErr { color: #c0392b; }
+
+[data-theme="dark"] .syncOk { color: #5dbe88; }
+[data-theme="dark"] .syncWarn { color: #e0b44a; }
+[data-theme="dark"] .syncErr { color: #e87461; }
+
+.syncPreview {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.04);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+[data-theme="dark"] .syncPreview {
+  background: rgba(255,255,255,0.05);
+}
+
+.syncPreviewBtns {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.syncPreviewBtns .toggleBtn {
+  flex: 1;
+  padding: 10px;
+}
+
 /* === Route Overview Card === */
 
 .routeCard {
