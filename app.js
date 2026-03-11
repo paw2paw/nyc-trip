@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "2.1.3"
+const APP_VERSION = "2.1.4"
 
 // --- SVG icons ---
 
@@ -3027,8 +3027,9 @@ function renderSearchResults() {
   let pulling = false
   let committed = false
 
+  const hdr = document.querySelector("header")
   document.addEventListener("touchstart", e => {
-    if (window.scrollY === 0 && e.touches.length === 1) {
+    if (window.scrollY === 0 && e.touches.length === 1 && hdr && hdr.contains(e.target)) {
       startY = e.touches[0].clientY
       pulling = true
       committed = false
@@ -3062,6 +3063,63 @@ function renderSearchResults() {
     }
     committed = false
   }, { passive: true })
+})()
+
+// --- Sheet pull-down-to-dismiss ---
+
+;(function initSheetDismiss() {
+  const sheets = [
+    { id: "guidesSheet", close: () => closeGuides() },
+    { id: "settingsSheet", close: () => closeSettings() },
+    { id: "currencySheet", close: () => closeCurrency() },
+    { id: "emergencySheet", close: () => closeEmergency() },
+    { id: "subwayMapSheet", close: () => closeSubwayMap() },
+    { id: "backupSheet", close: () => { document.getElementById("backupSheet").classList.remove("open"); document.getElementById("backupOverlay").classList.remove("show") } },
+    { id: "searchSheet", close: () => closeSearch() },
+    { id: "tripEditorSheet", close: () => closeTripEditor() },
+    { id: "addPlaceSheet", close: () => closeAddPlace() },
+    { id: "removedSheet", close: () => closeRemoved() }
+  ]
+
+  sheets.forEach(({ id, close }) => {
+    const sheet = document.getElementById(id)
+    if (!sheet) return
+    const header = sheet.querySelector(".sheetHeader")
+    if (!header) return
+
+    let startY = 0, currentY = 0, dragging = false
+
+    header.addEventListener("touchstart", e => {
+      if (!sheet.classList.contains("open")) return
+      startY = e.touches[0].clientY
+      currentY = 0
+      dragging = true
+      sheet.style.transition = "none"
+    }, { passive: true })
+
+    header.addEventListener("touchmove", e => {
+      if (!dragging) return
+      currentY = e.touches[0].clientY - startY
+      if (currentY < 0) currentY = 0
+      sheet.style.transform = "translateY(" + currentY + "px)"
+    }, { passive: true })
+
+    const endDrag = () => {
+      if (!dragging) return
+      dragging = false
+      sheet.style.transition = ""
+      if (currentY > 80) {
+        sheet.style.transform = "translateY(100%)"
+        setTimeout(() => { sheet.style.transform = ""; close() }, 300)
+        if (navigator.vibrate) navigator.vibrate(8)
+      } else {
+        sheet.style.transform = "translateY(0)"
+      }
+    }
+
+    header.addEventListener("touchend", endDrag, { passive: true })
+    header.addEventListener("touchcancel", endDrag, { passive: true })
+  })
 })()
 
 // --- Service worker ---

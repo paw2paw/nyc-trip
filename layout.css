@@ -1233,6 +1233,19 @@ a.stopAddr:active {
   flex-shrink: 0;
   letter-spacing: 1px;
   text-transform: uppercase;
+  position: relative;
+}
+
+.sheetHeader::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
 }
 
 .originBtn {
@@ -1380,7 +1393,7 @@ a.stopAddr:active {
   bottom: 0;
   left: 0;
   right: 0;
-  max-height: 75vh;
+  height: 85vh;
   background: var(--cream);
   clip-path: polygon(0 16px, 16px 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
   box-shadow: 0 -4px 20px rgba(26, 26, 26, 0.15);
