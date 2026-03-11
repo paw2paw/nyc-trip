@@ -1838,6 +1838,14 @@ a.stopAddr:active {
   border: 0;
 }
 
+.routeMapImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 0;
+}
+
 .routeMapPlaceholder {
   display: flex;
   align-items: center;

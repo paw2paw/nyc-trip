@@ -484,21 +484,23 @@ function routeCard(dayIndex) {
 
   let mapContent
   if (apiKey) {
-    const embedUrl = "https://www.google.com/maps/embed/v1/directions?key=" + apiKey
-      + "&origin=" + origin
-      + "&destination=" + dest
-      + "&waypoints=" + stops.map(s => encodeURIComponent(s.address)).join("|")
-      + "&mode=walking"
+    const markers = stops.map((s, i) =>
+      "&markers=color:0xC9A84C%7Clabel:" + (i + 1) + "%7C" + encodeURIComponent(s.address)
+    ).join("")
+    const hotelMarker = "&markers=color:0x2A7D4F%7Clabel:H%7C" + origin
+    const staticUrl = "https://maps.googleapis.com/maps/api/staticmap?size=640x300&scale=2"
+      + "&style=feature:poi%7Cvisibility:off"
+      + hotelMarker + markers + "&key=" + apiKey
     const skeleton = el("div", { className: "mapSkeleton" }, "Loading map…")
-    const iframe = el("iframe", {
-      className: "routeMapEmbed",
-      src: embedUrl,
+    const img = el("img", {
+      className: "routeMapImg",
+      src: staticUrl,
+      alt: "Route map for " + day.title,
       loading: "lazy",
-      referrerpolicy: "no-referrer",
-      "aria-hidden": "true",
-      onload: () => skeleton.classList.add("loaded")
+      onload: () => skeleton.classList.add("loaded"),
+      onerror: () => { skeleton.textContent = "Map unavailable"; skeleton.classList.add("loaded") }
     })
-    mapContent = el("div", { className: "routeMapWrap" }, skeleton, iframe)
+    mapContent = el("div", { className: "routeMapWrap" }, skeleton, img)
   } else {
     const placeholder = el("div", { className: "routeMapPlaceholder" },
       el("span", null, "🗺"),
@@ -506,13 +508,6 @@ function routeCard(dayIndex) {
     )
     mapContent = el("div", { className: "routeMapWrap" }, placeholder)
   }
-
-  const stopLegend = el("div", { className: "routeStopLegend" },
-    ...stops.map((s, i) => el("span", { className: "routeStopPill", title: s.name },
-      el("span", { className: "routeStopNum" }, (i + 1).toString())
-    ))
-  )
-  mapContent.appendChild(stopLegend)
 
   const collapsed = localStorage.getItem("nyc-map-collapsed") !== "0"
   const body = el("div", { className: "routeCardBody" + (collapsed ? " collapsed" : "") },
