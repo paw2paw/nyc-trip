@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "1.0.3"
+const APP_VERSION = "1.0.4"
 
 // --- SVG icons ---
 
@@ -2067,6 +2067,81 @@ function syncCancel() {
   document.getElementById("syncPreview").style.display = "none"
   document.getElementById("syncStatus").textContent = ""
   document.getElementById("syncStatus").className = "syncStatus"
+}
+
+// --- Search ---
+
+function openSearch() {
+  document.getElementById("searchSheet").classList.add("open")
+  document.getElementById("searchOverlay").classList.add("show")
+  const input = document.getElementById("searchInput")
+  input.value = ""
+  document.getElementById("searchResults").replaceChildren()
+  setTimeout(() => input.focus(), 100)
+}
+
+function closeSearch() {
+  document.getElementById("searchSheet").classList.remove("open")
+  document.getElementById("searchOverlay").classList.remove("show")
+}
+
+function renderSearchResults() {
+  const q = document.getElementById("searchInput").value.trim().toLowerCase()
+  const container = document.getElementById("searchResults")
+  if (!q) { container.replaceChildren(); return }
+
+  const results = []
+
+  // Search day stops
+  data.days.forEach((day, di) => {
+    const effective = getEffectiveStops(di)
+    effective.forEach((entry, ei) => {
+      const s = entry.stop
+      const text = (s.name + " " + (s.note || "") + " " + (s.address || "")).toLowerCase()
+      if (text.includes(q)) {
+        results.push({ type: "day", dayIndex: di, stopIndex: ei, stop: s, dayTitle: day.title, date: day.date })
+      }
+    })
+  })
+
+  // Search guide items
+  data.guides.forEach(guide => {
+    guide.items.forEach(item => {
+      const text = (item.name + " " + (item.note || "") + " " + (item.address || "")).toLowerCase()
+      if (text.includes(q)) {
+        // avoid duplicates if already in day results
+        const isDup = results.some(r => r.type === "day" && r.stop.name === item.name && r.stop.address === item.address)
+        if (!isDup) {
+          results.push({ type: "guide", item: item, category: guide.title, icon: item.icon || guide.icon })
+        }
+      }
+    })
+  })
+
+  if (!results.length) {
+    container.replaceChildren(el("div", { className: "searchEmpty" }, "No results for \u201c" + document.getElementById("searchInput").value.trim() + "\u201d"))
+    return
+  }
+
+  const nodes = results.slice(0, 30).map(r => {
+    if (r.type === "day") {
+      const date = new Date(r.date + "T12:00:00")
+      const label = date.toLocaleDateString("en-GB", { weekday: "short", day: "numeric" })
+      return el("div", { className: "searchResult", onclick: () => { closeSearch(); goDay(r.dayIndex) } },
+        el("div", { className: "searchResultName" }, (r.stop.icon || "") + " " + r.stop.name),
+        el("div", { className: "searchResultMeta" }, label + " \u2014 " + r.dayTitle)
+      )
+    } else {
+      const mapsUrl = "https://www.google.com/maps/search/" + encodeURIComponent(r.item.name + ", " + r.item.address)
+      return el("div", { className: "searchResult", onclick: () => { window.open(mapsUrl, "_blank") } },
+        el("div", { className: "searchResultName" }, (r.icon || "") + " " + r.item.name),
+        el("div", { className: "searchResultMeta" }, r.category),
+        el("div", { className: "searchResultNote" }, r.item.note || "")
+      )
+    }
+  })
+
+  container.replaceChildren(...nodes)
 }
 
 // --- Service worker ---

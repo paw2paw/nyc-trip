@@ -91,6 +91,8 @@
 
 <div id="dayCarousel" role="tablist" aria-label="Trip days"></div>
 
+<button class="headerBtn" onclick="openSearch()" aria-label="Search"><svg viewBox="0 0 24 32" fill="currentColor"><circle cx="10.5" cy="12.5" r="5.5" fill="none" stroke="currentColor" stroke-width="2.5"/><line x1="14.5" y1="17" x2="20" y2="23" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+
 <button class="headerBtn" onclick="sendMyLocation()" aria-label="Send my location"><svg viewBox="0 0 24 32" fill="currentColor"><path d="M12 2C8 2 5 5.6 5 10c0 6 7 16 7 16s7-10 7-16c0-4.4-3-8-7-8zm0 11a3 3 0 110-6 3 3 0 010 6z"/></svg></button>
 
 <button id="compactBtn" class="headerBtn" onclick="toggleCompact()" aria-label="Toggle compact view"><svg viewBox="0 0 24 32" fill="currentColor"><rect class="compact-line cl1" x="4" y="8" width="16" height="2" rx="1"/><rect class="compact-line cl2" x="4" y="15" width="16" height="2" rx="1"/><rect class="compact-line cl3" x="4" y="22" width="16" height="2" rx="1"/></svg></button>
@@ -276,6 +278,18 @@
 <button onclick="closeRemoved()" aria-label="Close">✕</button>
 </div>
 <div id="removedContent"></div>
+</div>
+
+<div id="searchOverlay" onclick="closeSearch()"></div>
+<div id="searchSheet">
+<div class="sheetHeader">
+<span>Search</span>
+<button onclick="closeSearch()" aria-label="Close">✕</button>
+</div>
+<div class="searchInputWrap">
+<input id="searchInput" type="text" class="settingsInput" placeholder="Search places..." autocomplete="off" oninput="renderSearchResults()">
+</div>
+<div id="searchResults"></div>
 </div>
 
 <script src="app.js" defer></script>
