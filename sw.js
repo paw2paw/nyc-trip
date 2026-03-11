@@ -1,4 +1,4 @@
-const CACHE = "nyc-trip-v35"
+const CACHE = "nyc-trip-v36"
 
 const SHELL = [
   "./",

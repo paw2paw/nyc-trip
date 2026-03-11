@@ -1369,16 +1369,10 @@ a.stopAddr:active {
 /* Explore filter chips */
 .guidesFilters {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   padding: 8px 20px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
   flex-shrink: 0;
-}
-
-.guidesFilters::-webkit-scrollbar {
-  display: none;
 }
 
 .filterChip {
@@ -1395,7 +1389,7 @@ a.stopAddr:active {
   color: var(--stone);
   white-space: nowrap;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
 .filterChip-icon {
@@ -2832,12 +2826,11 @@ a.stopAddr:active {
   border: none;
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.15s ease;
 }
 
 #addPlaceFab:active {
   transform: scale(0.9);
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
 }
 
 /* === Move Buttons === */
