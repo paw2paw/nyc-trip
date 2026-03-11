@@ -116,7 +116,7 @@ a:focus-visible,
 #stops {
   width: 100%;
   padding: 16px;
-  transition: opacity 0.12s ease, transform 0.12s ease;
+  transition: opacity 0.15s ease, transform 0.2s cubic-bezier(0.22, 0.61, 0.36, 1);
   padding-bottom: calc(16px + env(safe-area-inset-bottom));
   background:
     /* deco fan pattern */
@@ -269,7 +269,7 @@ header.scrolled {
   max-height: 60px;
   opacity: 1;
   overflow: hidden;
-  transition: max-height 0.3s ease, opacity 0.2s ease, margin 0.3s ease;
+  transition: max-height 0.3s ease, opacity 0.2s ease, margin 0.3s ease, transform 0.2s ease;
   cursor: pointer;
 }
 
@@ -2147,6 +2147,10 @@ a.stopAddr:active {
 }
 
 /* === Route Overview Card === */
+
+#routeMapContainer {
+  transition: opacity 0.15s ease, transform 0.2s ease;
+}
 
 .routeCard {
   background: white;

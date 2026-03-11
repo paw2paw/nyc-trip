@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "2.1.1"
+const APP_VERSION = "2.1.2"
 
 // --- SVG icons ---
 
@@ -393,7 +393,8 @@ function renderCarousel() {
 
 function goDay(i) {
   if (i === state.day) return
-  switchDay(() => { state.day = i; state.stop = 0; loadWeather(); render() })
+  const dir = i > state.day ? 1 : -1
+  switchDay(() => { state.day = i; state.stop = 0; loadWeather(); render() }, dir)
 }
 
 // --- Hotel ---
@@ -1109,26 +1110,38 @@ function setStop(i) {
 
 // --- Day navigation ---
 
-function switchDay(fn) {
+function switchDay(fn, dir) {
+  dir = dir || 1
   const stops = document.getElementById("stops")
+  const mapC = document.getElementById("routeMapContainer")
+  const title = document.getElementById("title")
+  const slideX = dir * 18
   stops.style.opacity = "0"
-  stops.style.transform = "translateY(8px)"
+  stops.style.transform = "translateX(" + slideX + "px)"
+  if (mapC) { mapC.style.opacity = "0"; mapC.style.transform = "scale(0.97)" }
+  if (title) { title.style.opacity = "0"; title.style.transform = "translateY(-4px)" }
   setTimeout(() => {
+    window.scrollTo({ top: 0 })
     fn()
-    stops.style.opacity = ""
-    stops.style.transform = ""
-  }, 120)
+    stops.style.transform = "translateX(" + (-slideX) + "px)"
+    requestAnimationFrame(() => {
+      stops.style.opacity = ""
+      stops.style.transform = ""
+      if (mapC) { mapC.style.opacity = ""; mapC.style.transform = "" }
+      if (title) { title.style.opacity = ""; title.style.transform = "" }
+    })
+  }, 150)
 }
 
 function prevDay() {
   if (state.day > 0) {
-    switchDay(() => { state.day--; state.stop = 0; loadWeather(); render() })
+    switchDay(() => { state.day--; state.stop = 0; loadWeather(); render() }, -1)
   }
 }
 
 function nextDay() {
   if (state.day < data.days.length - 1) {
-    switchDay(() => { state.day++; state.stop = 0; loadWeather(); render() })
+    switchDay(() => { state.day++; state.stop = 0; loadWeather(); render() }, 1)
   }
 }
 
