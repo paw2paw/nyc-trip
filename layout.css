@@ -465,8 +465,8 @@ header {
 }
 
 .doneBtn {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 2px solid var(--gold);
   background: transparent;
@@ -565,8 +565,8 @@ header {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--cream);
@@ -1383,7 +1383,7 @@ a.stopAddr:active {
 
 .filterChip {
   padding: 8px 14px;
-  min-height: 36px;
+  min-height: 44px;
   border: 1px solid var(--border);
   clip-path: var(--deco-clip-sm);
   background: white;
@@ -2701,8 +2701,8 @@ a.stopAddr:active {
 /* === Expand/Collapse Button === */
 
 .expandBtn {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--stone);
@@ -2768,7 +2768,7 @@ a.stopAddr:active {
 }
 
 .stopUrl:active {
-  text-decoration: underline;
+  opacity: 0.6;
 }
 
 .bookingRef {
@@ -2854,12 +2854,12 @@ a.stopAddr:active {
 }
 
 .moveBtn {
-  width: 26px;
-  height: 18px;
+  width: 32px;
+  height: 24px;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--stone);
-  font-size: 8px;
+  font-size: 10px;
   line-height: 1;
   border-radius: 4px;
   cursor: pointer;
@@ -2900,8 +2900,8 @@ a.stopAddr:active {
 /* === Remove Button === */
 
 .removeBtn {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--stone);
