@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "2.1.6"
+const APP_VERSION = "3.0.0"
 
 // --- SVG icons ---
 
@@ -380,6 +380,25 @@ function weatherIcon(code) {
   if (code <= 77) return "❄️"
   if (code <= 82) return "🌦"
   return "⛈"
+}
+
+function renderHeaderWeather(dayIndex) {
+  const el2 = document.getElementById("headerWeather")
+  if (!el2) return
+  if (!hourlyWeather) { el2.textContent = ""; return }
+  const temps = hourlyWeather.temperature_2m
+  const rain = hourlyWeather.precipitation_probability
+  const codes = hourlyWeather.weather_code
+  if (!temps || !temps.length) { el2.textContent = ""; return }
+  const hi = Math.round(Math.max(...temps.slice(8, 21)))
+  const lo = Math.round(Math.min(...temps.slice(8, 21)))
+  const maxRain = Math.max(...rain.slice(8, 21))
+  const midCode = codes[14] || codes[12] || 0
+  const icon = weatherIcon(midCode)
+  const unitLabel = getTempUnit() === "fahrenheit" ? "°F" : "°C"
+  let text = icon + " " + lo + "–" + hi + unitLabel
+  if (maxRain >= 30) text += "  ·  💧" + maxRain + "% rain"
+  el2.textContent = text
 }
 
 // --- Carousel ---
@@ -844,6 +863,23 @@ function flightRow(flight) {
     el("div", { className: "flightMain" }, icon + " " + label),
     el("div", { className: "flightSub" }, sub)
   )
+
+  // Departure timeline for outbound flights
+  if (flight.direction === "outbound" && flight.depart) {
+    const [dh, dm] = flight.depart.split(":").map(Number)
+    const departMins = dh * 60 + dm
+    const arriveAirport = departMins - 180 // 3 hours early for international
+    const leaveHotel = arriveAirport - 60 // ~1 hour Uber to JFK
+    const fmt = (m) => { const h = Math.floor(m / 60); return String(h).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0") }
+    const timeline = el("div", { className: "departureTimeline" })
+    timeline.innerHTML =
+      '<span class="dtHighlight">🚕 ' + fmt(leaveHotel) + '</span> — Leave hotel (allow 60 min to JFK)<br>' +
+      '<strong>🛂 ' + fmt(arriveAirport) + '</strong> — Arrive JFK ' + (flight.note && flight.note.match(/T\d/) ? flight.note.match(/JFK (T\d)/)[1] : '') + ' (check-in, security)<br>' +
+      '<strong>✈️ ' + flight.depart + '</strong> — Board &amp; depart → ' + flight.to +
+      (flight.arrive ? '<br>🛬 ' + flight.arrive + ' — Land ' + flight.to : '')
+    row.appendChild(timeline)
+  }
+
   return row
 }
 
@@ -1036,6 +1072,7 @@ function render() {
   document.getElementById("title").innerText = day.title
   document.getElementById("menuHotel").lastChild.textContent = " Back to " + hotel.name
   document.getElementById("menuVersion").textContent = "v" + APP_VERSION
+  renderHeaderWeather(state.day)
   applyCompact()
   renderCarousel()
 
@@ -1108,8 +1145,27 @@ function render() {
   })
 
   document.getElementById("stops").replaceChildren(...nodes)
+
+  // Populate sticky next-stop bar
+  const nextBar = document.getElementById("nextStopBar")
+  if (nextBar) {
+    if (nextUpIdx >= 0) {
+      const ns = effective[nextUpIdx].stop
+      nextBar.textContent = "NEXT ▸ " + (ns.icon || "") + " " + ns.name + (ns.time ? " · " + ns.time : "")
+    } else {
+      nextBar.textContent = ""
+      nextBar.classList.remove("visible")
+    }
+  }
+
   saveState()
   fetchTravelTimes()
+}
+
+function jumpToNext() {
+  haptic(6)
+  const nextCard = document.querySelector(".stop.nextup")
+  if (nextCard) nextCard.scrollIntoView({ behavior: "smooth", block: "center" })
 }
 
 function setStop(i) {
@@ -1198,6 +1254,7 @@ document.addEventListener("keydown", e => {
 ;(function initScrollEffects() {
   const header = document.querySelector("header")
   const scrollBtn = document.getElementById("scrollTopBtn")
+  const nextBar = document.getElementById("nextStopBar")
   const themeMeta = document.querySelector('meta[name="theme-color"]')
   const isDark = () => document.documentElement.getAttribute("data-theme") === "dark"
   let ticking = false
@@ -1209,6 +1266,16 @@ document.addEventListener("keydown", e => {
         header.classList.toggle("scrolled", scrolled)
         if (scrollBtn) scrollBtn.classList.toggle("visible", y > 300)
         if (themeMeta) themeMeta.setAttribute("content", scrolled ? (isDark() ? "#0a0a0a" : "#f0ebe0") : (isDark() ? "#111" : "#fffdf6"))
+        // Show sticky next-stop bar when scrolled past the next-up card
+        if (nextBar) {
+          const nextCard = document.querySelector(".stop.nextup")
+          if (nextCard && scrolled) {
+            const rect = nextCard.getBoundingClientRect()
+            nextBar.classList.toggle("visible", rect.bottom < 0)
+          } else {
+            nextBar.classList.remove("visible")
+          }
+        }
         ticking = false
       })
       ticking = true
@@ -2357,6 +2424,16 @@ function renderExplore() {
       if (swapTarget != null) selectAlternative(item.flatIndex)
       else window.open(mapsUrl, "_blank")
     }
+
+    const addBtn = swapTarget == null ? el("button", {
+      className: "quickAddBtn",
+      onclick: (e) => {
+        e.stopPropagation()
+        haptic(8)
+        quickAddFromGuide(item)
+      }
+    }, "+ Today") : null
+
     const card = el("div", {
       className: "guideItem" + (swapTarget != null ? " swappable" : ""),
       role: "button",
@@ -2368,7 +2445,8 @@ function renderExplore() {
         el("div", { className: "exploreCardInfo" },
           nameEl,
           el("a", { className: "guideAddr", href: mapsUrl, target: "_blank", onclick: (e) => e.stopPropagation() }, item.address),
-          el("div", { className: "guideNote" }, item.note)
+          el("div", { className: "guideNote" }, item.note),
+          addBtn
         ),
         rightSide
       )
@@ -2686,6 +2764,28 @@ function submitAddPlace() {
   state.added[key].push(stop)
 
   closeAddPlace()
+  render()
+}
+
+function quickAddFromGuide(item) {
+  const effective = getEffectiveStops(state.day)
+  // Add after last non-done stop, or at end
+  let pos = effective.length
+  for (let i = effective.length - 1; i >= 0; i--) {
+    if (!state.done[effective[i].key]) { pos = i + 1; break }
+  }
+  const stop = {
+    name: item.name,
+    address: item.address,
+    icon: item.icon || "📍",
+    type: "flexible",
+    note: item.note || "",
+    position: pos
+  }
+  const key = String(state.day)
+  if (!state.added[key]) state.added[key] = []
+  state.added[key].push(stop)
+  closeGuides()
   render()
 }
 
