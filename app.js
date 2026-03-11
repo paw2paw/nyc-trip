@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "3.0.2"
+const APP_VERSION = "3.0.3"
 
 // --- SVG icons ---
 
@@ -1376,7 +1376,10 @@ function openSubwayMap() {
 }
 
 function closeSubwayMap() {
-  document.getElementById("subwayMapSheet").classList.remove("open")
+  const sheet = document.getElementById("subwayMapSheet")
+  sheet.style.transform = ""
+  sheet.style.transition = ""
+  sheet.classList.remove("open")
   document.getElementById("subwayMapOverlay").classList.remove("show")
 }
 
@@ -1506,7 +1509,10 @@ function openCurrency() {
 }
 
 function closeCurrency() {
-  document.getElementById("currencySheet").classList.remove("open")
+  const sheet = document.getElementById("currencySheet")
+  sheet.style.transform = ""
+  sheet.style.transition = ""
+  sheet.classList.remove("open")
   document.getElementById("currencyOverlay").classList.remove("show")
 }
 
@@ -1690,7 +1696,10 @@ function openEmergency() {
 }
 
 function closeEmergency() {
-  document.getElementById("emergencySheet").classList.remove("open")
+  const sheet = document.getElementById("emergencySheet")
+  sheet.style.transform = ""
+  sheet.style.transition = ""
+  sheet.classList.remove("open")
   document.getElementById("emergencyOverlay").classList.remove("show")
 }
 
@@ -1741,7 +1750,10 @@ function copyGmapsKey() {
 }
 
 function closeSettings() {
-  document.getElementById("settingsSheet").classList.remove("open")
+  const sheet = document.getElementById("settingsSheet")
+  sheet.style.transform = ""
+  sheet.style.transition = ""
+  sheet.classList.remove("open")
   document.getElementById("settingsOverlay").classList.remove("show")
 }
 
@@ -1817,7 +1829,10 @@ function openTripEditor() {
 }
 
 function closeTripEditor() {
-  document.getElementById("tripEditorSheet").classList.remove("open")
+  const sheet = document.getElementById("tripEditorSheet")
+  sheet.style.transform = ""
+  sheet.style.transition = ""
+  sheet.classList.remove("open")
   document.getElementById("tripEditorOverlay").classList.remove("show")
 }
 
@@ -2179,7 +2194,10 @@ function showExploreSheet() {
 }
 
 function closeGuides() {
-  document.getElementById("guidesSheet").classList.remove("open")
+  const sheet = document.getElementById("guidesSheet")
+  sheet.style.transform = ""
+  sheet.style.transition = ""
+  sheet.classList.remove("open")
   document.getElementById("guidesOverlay").classList.remove("show")
   swapTarget = null
 }
@@ -2734,7 +2752,10 @@ function openAddPlace() {
 }
 
 function closeAddPlace() {
-  document.getElementById("addPlaceSheet").classList.remove("open")
+  const sheet = document.getElementById("addPlaceSheet")
+  sheet.style.transform = ""
+  sheet.style.transition = ""
+  sheet.classList.remove("open")
   document.getElementById("addPlaceOverlay").classList.remove("show")
 }
 
@@ -2800,7 +2821,10 @@ function openRemoved() {
 }
 
 function closeRemoved() {
-  document.getElementById("removedSheet").classList.remove("open")
+  const sheet = document.getElementById("removedSheet")
+  sheet.style.transform = ""
+  sheet.style.transition = ""
+  sheet.classList.remove("open")
   document.getElementById("removedOverlay").classList.remove("show")
 }
 
@@ -3069,7 +3093,10 @@ function openSearch() {
 }
 
 function closeSearch() {
-  document.getElementById("searchSheet").classList.remove("open")
+  const sheet = document.getElementById("searchSheet")
+  sheet.style.transform = ""
+  sheet.style.transition = ""
+  sheet.classList.remove("open")
   document.getElementById("searchOverlay").classList.remove("show")
 }
 
@@ -3242,6 +3269,7 @@ function renderSearchResults() {
         haptic(8)
       } else {
         sheet.style.transform = "translateY(0)"
+        setTimeout(() => { sheet.style.transform = "" }, 400)
       }
     }
 

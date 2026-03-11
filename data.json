@@ -16,7 +16,7 @@
     "title": "Arrival SoHo",
     "stops": [
       {"name": "Washington Square Park", "address": "Washington Square, New York", "icon": "🌳", "type": "flexible", "note": "Street performers, iconic arch. NYU campus surrounds. Shake off the flight"},
-      {"name": "Balthazar", "address": "80 Spring St, New York, NY 10012", "icon": "🍽", "type": "flexible", "note": "Iconic French brasserie — THE first-night-in-NYC dinner. 5 min walk from hotel. Book on Resy 30 days ahead (opens midnight). Walk-ins near impossible at peak. Call (212) 965-1414 for phone tables", "alertNote": "Reserve on Resy 30 days ahead — walk-ins near impossible", "url": "https://balthazarny.com/"},
+      {"name": "Fanelli Cafe", "address": "94 Prince St, New York", "icon": "🍽", "type": "flexible", "note": "SoHo institution since 1847 — one of NYC's oldest bars. No reservation needed. Solid burgers, steaks, classic pub fare. 3 min walk from hotel. Perfect low-key arrival dinner"},
       {"name": "Ear Inn", "address": "326 Spring St, New York", "icon": "🍺", "type": "flexible", "note": "One of NYC's oldest bars (1817). No frills, great pints. 2 min from hotel"},
       {"name": "The Django", "address": "2 6th Ave, New York", "icon": "🎷", "type": "flexible", "note": "Live jazz in the Roxy Hotel basement. No cover, great cocktails. Locals' favourite"}
     ]

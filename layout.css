@@ -655,20 +655,24 @@ header.scrolled #headerWeather {
 }
 
 .headerSwapBtn {
-  display: inline-flex;
+  display: none;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  border: 1px solid var(--border);
-  background: var(--cream);
+  border: none;
+  background: transparent;
   color: var(--stone);
   font-size: 14px;
   cursor: pointer;
   flex-shrink: 0;
   transition: transform 0.1s ease, background 0.15s ease;
 }
+
+.stop.active .headerSwapBtn { display: inline-flex; }
+.stop.active .moveGroup { display: flex; }
+.stop.active .removeBtn { display: flex; }
 
 .headerSwapBtn:active {
   background: #e8e0d4;
@@ -2597,8 +2601,7 @@ a.stopAddr:active {
 
 [data-theme="dark"] .swapBtn,
 [data-theme="dark"] .headerSwapBtn {
-  background: #2a2a2a;
-  border-color: var(--border);
+  background: transparent;
   color: var(--stone);
 }
 
@@ -3050,19 +3053,19 @@ a.stopAddr:active {
 /* === Move Buttons === */
 
 .moveGroup {
-  display: flex;
+  display: none;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   flex-shrink: 0;
 }
 
 .moveBtn {
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--border);
+  width: 28px;
+  height: 28px;
+  border: none;
   background: transparent;
   color: var(--stone);
-  font-size: 10px;
+  font-size: 9px;
   line-height: 1;
   border-radius: 4px;
   cursor: pointer;
@@ -3103,12 +3106,15 @@ a.stopAddr:active {
 /* === Remove Button === */
 
 .removeBtn {
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--border);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
   background: transparent;
   color: var(--stone);
-  font-size: 12px;
+  font-size: 11px;
   border-radius: 50%;
   cursor: pointer;
   flex-shrink: 0;
@@ -3270,7 +3276,6 @@ a.stopAddr:active {
 }
 
 [data-theme="dark"] .moveBtn {
-  border-color: var(--border);
   color: var(--stone);
 }
 
@@ -3286,7 +3291,6 @@ a.stopAddr:active {
 }
 
 [data-theme="dark"] .removeBtn {
-  border-color: var(--border);
   color: var(--stone);
 }
 
