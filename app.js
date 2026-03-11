@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "1.2.2"
+const APP_VERSION = "1.2.3"
 
 // --- SVG icons ---
 
@@ -1461,6 +1461,24 @@ function closeSettings() {
 
 const TE_STORAGE_KEY = "nyc-trip-edits"
 let teStopFilter = "reserved"
+const teCollapsed = {}
+
+function teSection(id, titleText) {
+  const body = el("div", { className: "te-section-body" })
+  if (teCollapsed[id]) body.style.display = "none"
+  const chevron = teCollapsed[id] ? "▸" : "▾"
+  const title = el("div", {
+    className: "te-section-title",
+    style: "cursor:pointer;display:flex;justify-content:space-between;align-items:center",
+    onclick: () => {
+      teCollapsed[id] = !teCollapsed[id]
+      body.style.display = teCollapsed[id] ? "none" : ""
+      title.lastChild.textContent = teCollapsed[id] ? "▸" : "▾"
+    }
+  }, titleText, el("span", { style: "font-size:12px" }, chevron))
+  const section = el("div", { className: "te-section" }, title, body)
+  return { section, body }
+}
 
 function loadTripEdits() {
   try { return JSON.parse(localStorage.getItem(TE_STORAGE_KEY)) || {} } catch { return {} }
@@ -1519,9 +1537,7 @@ function renderTripEditor() {
   container.innerHTML = ""
 
   // 1. Hotels
-  const hotelsSection = el("div", { className: "te-section" },
-    el("div", { className: "te-section-title" }, "🏨 Hotels")
-  )
+  const { section: hotelsSection, body: hotelsBody } = teSection("hotels", "🏨 Hotels")
   data.hotels.forEach((hotel, i) => {
     const card = el("div", { className: "te-card" },
       el("div", { className: "te-card-header" }, hotel.name),
@@ -1538,14 +1554,12 @@ function renderTripEditor() {
         createTeInput("date", hotel.from, v => teUpdateHotel(i, "from", v))
       )
     )
-    hotelsSection.append(card)
+    hotelsBody.append(card)
   })
   container.append(hotelsSection)
 
   // 2. Phones & Identity
-  const phonesSection = el("div", { className: "te-section" },
-    el("div", { className: "te-section-title" }, "📱 Phones & Identity")
-  )
+  const { section: phonesSection, body: phonesBody } = teSection("phones", "📱 Phones & Identity")
   const user = getUser()
   ;["PAW", "LAW"].forEach(who => {
     const key = who.toLowerCase()
@@ -1573,14 +1587,12 @@ function renderTripEditor() {
     const card = el("div", { className: "te-card" }, labelRow,
       el("div", { className: "te-field" }, phoneInput)
     )
-    phonesSection.append(card)
+    phonesBody.append(card)
   })
   container.append(phonesSection)
 
   // 3. Stops (All / Reserved filter)
-  const stopsSection = el("div", { className: "te-section" })
-  const titleRow = el("div", { className: "te-section-title" }, "📍 Stops")
-  stopsSection.append(titleRow)
+  const { section: stopsSection, body: stopsBody } = teSection("stops", "📍 Stops")
 
   const filterToggle = el("div", { className: "settingsToggle te-filter" })
   const btnReserved = el("button", {
@@ -1592,12 +1604,12 @@ function renderTripEditor() {
     onClick: () => { teStopFilter = "all"; renderTripEditor() }
   }, "All Stops")
   filterToggle.append(btnReserved, btnAll)
-  stopsSection.append(filterToggle)
+  stopsBody.append(filterToggle)
 
   data.days.forEach((day, di) => {
     const stops = day.stops.filter(s => teStopFilter === "all" || s.type === "reserved")
     if (!stops.length) return
-    stopsSection.append(el("div", { className: "te-day-sub" }, teDayLabel(day.date) + " — " + day.title))
+    stopsBody.append(el("div", { className: "te-day-sub" }, teDayLabel(day.date) + " — " + day.title))
     stops.forEach(stop => {
       const si = day.stops.indexOf(stop)
       const isReserved = stop.type === "reserved"
@@ -1634,15 +1646,13 @@ function renderTripEditor() {
         el("div", { className: "te-card-header" }, (stop.icon || "📍") + " " + stop.name),
         ...fields
       )
-      stopsSection.append(card)
+      stopsBody.append(card)
     })
   })
   container.append(stopsSection)
 
   // 4. Day Titles
-  const daysSection = el("div", { className: "te-section" },
-    el("div", { className: "te-section-title" }, "📅 Day Titles")
-  )
+  const { section: daysSection, body: daysBody } = teSection("days", "📅 Day Titles")
   data.days.forEach((day, di) => {
     const dayLabel = teDayLabel(day.date)
     const card = el("div", { className: "te-card" },
@@ -1652,17 +1662,15 @@ function renderTripEditor() {
         createTeInput("text", day.title, v => teUpdateDay(di, "title", v))
       )
     )
-    daysSection.append(card)
+    daysBody.append(card)
   })
   container.append(daysSection)
 
   // 5. User Notes Overview
-  const notesSection = el("div", { className: "te-section" },
-    el("div", { className: "te-section-title" }, "📝 Your Notes")
-  )
+  const { section: notesSection, body: notesBody } = teSection("notes", "📝 Your Notes")
   const noteKeys = Object.keys(state.userNotes || {}).filter(k => state.userNotes[k])
   if (noteKeys.length === 0) {
-    notesSection.append(el("div", { className: "te-empty" }, "No notes yet. Tap any stop to add a note."))
+    notesBody.append(el("div", { className: "te-empty" }, "No notes yet. Tap any stop to add a note."))
   } else {
     noteKeys.forEach(key => {
       const parts = key.split("-")
@@ -1688,7 +1696,7 @@ function renderTripEditor() {
           })
         )
       )
-      notesSection.append(card)
+      notesBody.append(card)
     })
   }
   container.append(notesSection)
