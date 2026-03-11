@@ -287,36 +287,6 @@ header {
   width: 100%;
 }
 
-.dayViewToggle {
-  display: inline-flex;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  clip-path: var(--deco-clip-sm);
-}
-
-.dayViewBtn {
-  font-family: 'Josefin Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  padding: 8px 16px;
-  min-height: 36px;
-  border: none;
-  background: transparent;
-  color: var(--stone);
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.dayViewBtn:active {
-  transform: scale(0.95);
-}
-
-.dayViewBtn.active {
-  background: var(--gold);
-  color: white;
-}
 
 /* === Stop Cards === */
 
@@ -2380,17 +2350,6 @@ a.stopAddr:active {
 
 [data-theme="dark"] .dayViewToggle {
   border-color: var(--border);
-}
-
-[data-theme="dark"] .dayViewBtn {
-  background: #222;
-  border-color: var(--border);
-  color: var(--stone);
-}
-
-[data-theme="dark"] .dayViewBtn.active {
-  background: var(--gold);
-  color: #1a1a1a;
 }
 
 [data-theme="dark"] .stop.nextup {

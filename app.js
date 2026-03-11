@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "1.5.0"
+const APP_VERSION = "1.5.1"
 
 // --- SVG icons ---
 
@@ -217,12 +217,26 @@ function setCompact(on) {
   render()
 }
 
+function toggleDayCompact() {
+  const mode = getDayViewMode(state.day)
+  const currentlyCompact = mode === "compact" || (mode === "default" && isCompact())
+  setDayViewMode(state.day, currentlyCompact ? "full" : "compact")
+}
+
+const SVG_VIEW_FULL = '<svg viewBox="0 0 24 32" fill="currentColor"><rect x="4" y="8" width="16" height="2.5" rx="1"/><rect x="4" y="13" width="12" height="1.5" rx=".75" opacity=".4"/><rect x="4" y="18" width="16" height="2.5" rx="1"/><rect x="4" y="23" width="12" height="1.5" rx=".75" opacity=".4"/></svg>'
+const SVG_VIEW_COMPACT = '<svg viewBox="0 0 24 32" fill="currentColor"><rect x="4" y="10" width="16" height="2.5" rx="1"/><rect x="4" y="15" width="16" height="2.5" rx="1"/><rect x="4" y="20" width="16" height="2.5" rx="1"/></svg>'
+
 function applyCompact() {
-  const on = isCompact()
+  const on = isCompact(state.day)
   const offBtn = document.getElementById("compactOff")
   const onBtn = document.getElementById("compactOn")
   if (offBtn) offBtn.classList.toggle("active", !on)
   if (onBtn) onBtn.classList.toggle("active", on)
+  const toggleBtn = document.getElementById("compactToggleBtn")
+  if (toggleBtn) {
+    toggleBtn.innerHTML = on ? SVG_VIEW_COMPACT : SVG_VIEW_FULL
+    toggleBtn.setAttribute("aria-label", on ? "Switch to full view" : "Switch to compact view")
+  }
 }
 
 // Listen for system theme changes
@@ -996,20 +1010,9 @@ function daySummaryRow(dayIndex, effective) {
     parts.push((e.stop.icon || "") + " " + e.stop.time + " " + e.stop.name)
   })
 
-  const mode = getDayViewMode(dayIndex)
-  const fullBtn = el("button", {
-    className: "dayViewBtn" + (mode === "full" || (mode === "default" && !isCompact()) ? " active" : ""),
-    onclick: (e) => { e.stopPropagation(); setDayViewMode(dayIndex, mode === "full" ? "default" : "full") }
-  }, "Full")
-  const compactBtn = el("button", {
-    className: "dayViewBtn" + (mode === "compact" || (mode === "default" && isCompact()) ? " active" : ""),
-    onclick: (e) => { e.stopPropagation(); setDayViewMode(dayIndex, mode === "compact" ? "default" : "compact") }
-  }, "Compact")
-  const viewToggle = el("div", { className: "dayViewToggle" }, fullBtn, compactBtn)
-
   const summaryText = el("div", { className: "daySummaryText" }, parts.join("  ·  "))
 
-  return el("div", { className: "daySummary" }, summaryText, viewToggle)
+  return el("div", { className: "daySummary" }, summaryText)
 }
 
 function render() {
@@ -1021,6 +1024,7 @@ function render() {
   document.getElementById("title").innerText = day.title
   document.getElementById("menuHotel").lastChild.textContent = " Back to " + hotel.name
   document.getElementById("menuVersion").textContent = "v" + APP_VERSION
+  applyCompact()
   renderCarousel()
 
   const mapContainer = document.getElementById("routeMapContainer")
