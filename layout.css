@@ -116,6 +116,7 @@ a:focus-visible,
 #stops {
   width: 100%;
   padding: 16px;
+  transition: opacity 0.12s ease, transform 0.12s ease;
   padding-bottom: calc(16px + env(safe-area-inset-bottom));
   background:
     /* deco fan pattern */
@@ -252,6 +253,7 @@ header.scrolled {
   color: var(--ink-mid);
   opacity: 1;
   font-weight: 700;
+  box-shadow: 0 0 8px rgba(201, 168, 76, 0.4);
 }
 
 /* === Title === */
@@ -401,7 +403,8 @@ header.scrolled #title {
   font-style: italic;
   font-size: 14px;
   padding: 10px 16px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid transparent;
+  border-image: linear-gradient(90deg, transparent, var(--gold), transparent) 1;
   margin-bottom: 12px;
   text-decoration: none;
   display: block;
@@ -488,7 +491,7 @@ header.scrolled #title {
   flex-shrink: 0;
   margin-right: 4px;
   padding: 0;
-  transition: opacity 0.1s ease, transform 0.1s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.15s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .doneBtn:active {
@@ -500,6 +503,13 @@ header.scrolled #title {
   border-color: var(--gold);
   color: white;
   font-size: 13px;
+  animation: doneBounce 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes doneBounce {
+  0% { transform: scale(0.7); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
 }
 
 .stop.done {
@@ -867,6 +877,8 @@ a.stopAddr:active {
 .alertRow {
   display: flex;
   align-items: center;
+  animation: cardReveal 0.4s ease both;
+  animation-delay: 0.15s;
   gap: 8px;
   padding: 8px 16px;
   margin-bottom: 6px;
@@ -1141,6 +1153,12 @@ a.stopAddr:active {
   transition: opacity 0.25s 0.36s ease, transform 0.35s 0.36s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Frosted overlay for all sheets */
+[id$="Overlay"].show {
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
 #menuOverlay {
   position: fixed;
   top: 0;
@@ -1190,7 +1208,7 @@ a.stopAddr:active {
   clip-path: polygon(0 16px, 16px 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
   box-shadow: 0 -4px 20px rgba(26, 26, 26, 0.15);
   transform: translateY(100%);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.4s cubic-bezier(0.22, 1.12, 0.36, 1);
   will-change: transform;
   z-index: 40;
   display: flex;
@@ -1367,7 +1385,7 @@ a.stopAddr:active {
   clip-path: polygon(0 16px, 16px 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
   box-shadow: 0 -4px 20px rgba(26, 26, 26, 0.15);
   transform: translateY(100%);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.4s cubic-bezier(0.22, 1.12, 0.36, 1);
   will-change: transform;
   z-index: 40;
   display: flex;
@@ -1625,7 +1643,7 @@ a.stopAddr:active {
   clip-path: polygon(0 16px, 16px 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
   box-shadow: 0 -4px 20px rgba(26, 26, 26, 0.15);
   transform: translateY(100%);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.4s cubic-bezier(0.22, 1.12, 0.36, 1);
   will-change: transform;
   z-index: 40;
   display: flex;
@@ -1722,7 +1740,7 @@ a.stopAddr:active {
   bottom: 0;
   background: var(--cream);
   transform: translateY(100%);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.4s cubic-bezier(0.22, 1.12, 0.36, 1);
   will-change: transform;
   z-index: 50;
   display: flex;
@@ -1792,7 +1810,7 @@ a.stopAddr:active {
   clip-path: polygon(0 16px, 16px 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
   box-shadow: 0 -4px 20px rgba(26, 26, 26, 0.15);
   transform: translateY(100%);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.4s cubic-bezier(0.22, 1.12, 0.36, 1);
   will-change: transform;
   z-index: 40;
   display: flex;
@@ -1868,7 +1886,7 @@ a.stopAddr:active {
   clip-path: polygon(0 16px, 16px 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
   box-shadow: 0 -4px 20px rgba(26, 26, 26, 0.15);
   transform: translateY(100%);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.4s cubic-bezier(0.22, 1.12, 0.36, 1);
   will-change: transform;
   z-index: 40;
   display: flex;
@@ -2727,7 +2745,7 @@ a.stopAddr:active {
 
 .expandBtn.open svg {
   opacity: 0.45;
-  transform: scaleY(0.65) translateY(3px);
+  transform: rotate(180deg) scaleY(0.65);
 }
 
 .expandBtn:active {
@@ -2988,7 +3006,7 @@ a.stopAddr:active {
   clip-path: polygon(0 16px, 16px 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
   box-shadow: 0 -4px 20px rgba(26, 26, 26, 0.15);
   transform: translateY(100%);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.4s cubic-bezier(0.22, 1.12, 0.36, 1);
   will-change: transform;
   z-index: 40;
   display: flex;
@@ -3167,7 +3185,7 @@ a.stopAddr:active {
   clip-path: polygon(0 16px, 16px 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
   box-shadow: 0 -4px 20px rgba(26, 26, 26, 0.15);
   transform: translateY(100%);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.4s cubic-bezier(0.22, 1.12, 0.36, 1);
   will-change: transform;
   z-index: 40;
   display: flex;
@@ -3376,7 +3394,7 @@ a.stopAddr:active {
   clip-path: polygon(0 16px, 16px 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
   box-shadow: 0 -4px 20px rgba(26, 26, 26, 0.15);
   transform: translateY(100%);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.4s cubic-bezier(0.22, 1.12, 0.36, 1);
   will-change: transform;
   z-index: 40;
   display: flex;

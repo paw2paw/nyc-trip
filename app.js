@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "2.0.0"
+const APP_VERSION = "2.1.0"
 
 // --- SVG icons ---
 
@@ -392,10 +392,8 @@ function renderCarousel() {
 }
 
 function goDay(i) {
-  state.day = i
-  state.stop = 0
-  loadWeather()
-  render()
+  if (i === state.day) return
+  switchDay(() => { state.day = i; state.stop = 0; loadWeather(); render() })
 }
 
 // --- Hotel ---
@@ -418,6 +416,7 @@ function toggleDone(dayIndex, stopIndex) {
   const key = dayIndex + "-" + stopIndex
   if (state.done[key]) delete state.done[key]
   else state.done[key] = true
+  if (navigator.vibrate) navigator.vibrate(8)
   render()
 }
 
@@ -1105,26 +1104,31 @@ function setStop(i) {
   if (navigator.vibrate) navigator.vibrate(6)
   state.stop = i
   render()
-  document.querySelector(".stop.active")?.scrollIntoView({ behavior: "smooth", block: "nearest" })
+  document.querySelector(".stop.active")?.scrollIntoView({ behavior: "smooth", block: "center" })
 }
 
 // --- Day navigation ---
 
+function switchDay(fn) {
+  const stops = document.getElementById("stops")
+  stops.style.opacity = "0"
+  stops.style.transform = "translateY(8px)"
+  setTimeout(() => {
+    fn()
+    stops.style.opacity = ""
+    stops.style.transform = ""
+  }, 120)
+}
+
 function prevDay() {
   if (state.day > 0) {
-    state.day--
-    state.stop = 0
-    loadWeather()
-    render()
+    switchDay(() => { state.day--; state.stop = 0; loadWeather(); render() })
   }
 }
 
 function nextDay() {
   if (state.day < data.days.length - 1) {
-    state.day++
-    state.stop = 0
-    loadWeather()
-    render()
+    switchDay(() => { state.day++; state.stop = 0; loadWeather(); render() })
   }
 }
 
@@ -1168,13 +1172,17 @@ document.addEventListener("keydown", e => {
 ;(function initScrollEffects() {
   const header = document.querySelector("header")
   const scrollBtn = document.getElementById("scrollTopBtn")
+  const themeMeta = document.querySelector('meta[name="theme-color"]')
+  const isDark = () => document.documentElement.getAttribute("data-theme") === "dark"
   let ticking = false
   window.addEventListener("scroll", () => {
     if (!ticking) {
       requestAnimationFrame(() => {
         const y = window.scrollY
-        header.classList.toggle("scrolled", y > 30)
+        const scrolled = y > 30
+        header.classList.toggle("scrolled", scrolled)
         if (scrollBtn) scrollBtn.classList.toggle("visible", y > 300)
+        if (themeMeta) themeMeta.setAttribute("content", scrolled ? (isDark() ? "#0a0a0a" : "#f0ebe0") : (isDark() ? "#111" : "#fffdf6"))
         ticking = false
       })
       ticking = true
