@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "1.3.6"
+const APP_VERSION = "1.3.7"
 
 // --- SVG icons ---
 
@@ -114,7 +114,9 @@ function getStop(dayIndex, stopIndex) {
     if (alts[swapIdx]) return alts[swapIdx]
     delete state.swaps[key] // stale swap — alternative no longer exists
   }
-  return data.days[dayIndex].stops[stopIndex]
+  const day = data.days[dayIndex]
+  if (!day || !day.stops[stopIndex]) return { name: "Unknown", address: "", icon: "📍", type: "flexible", note: "" }
+  return day.stops[stopIndex]
 }
 
 function isSwapped(dayIndex, stopIndex) {
@@ -123,6 +125,7 @@ function isSwapped(dayIndex, stopIndex) {
 
 function getEffectiveStops(dayIndex) {
   const day = data.days[dayIndex]
+  if (!day || !day.stops) return []
   const result = []
 
   // Collect non-removed original stops with swap resolution
@@ -305,6 +308,7 @@ function loadWeather() {
   if (weatherController) weatherController.abort()
   weatherController = new AbortController()
   const day = data.days[state.day]
+  if (!day) return
   hourlyWeather = null
   const tempUnit = getTempUnit()
   const unitParam = tempUnit === "fahrenheit" ? "&temperature_unit=fahrenheit" : ""
@@ -890,6 +894,7 @@ function alertRow(icon, text, cls) {
 function weatherAlertRow(dayIndex) {
   if (!getAlertPref("weather") || !hourlyWeather) return null
   const day = data.days[dayIndex]
+  if (!day || !day.stops) return null
   const rainy = []
   day.stops.forEach((_, i) => {
     const stop = getStop(dayIndex, i)
@@ -1008,7 +1013,9 @@ function daySummaryRow(dayIndex, effective) {
 }
 
 function render() {
+  if (!data || !data.days || !data.days.length) return
   const day = data.days[state.day]
+  if (!day) return
   const hotel = getHotel(day.date)
 
   document.getElementById("title").innerText = day.title
@@ -1112,6 +1119,38 @@ function nextDay() {
 
 let startX = 0, startY = 0, startTime = 0, swiping = false
 
+// --- Keyboard navigation ---
+
+document.addEventListener("keydown", e => {
+  // Escape closes the topmost open sheet
+  if (e.key === "Escape") {
+    const closers = [
+      ["searchSheet", closeSearch],
+      ["guidesSheet", closeGuides],
+      ["currencySheet", closeCurrency],
+      ["emergencySheet", closeEmergency],
+      ["subwayMapSheet", closeSubwayMap],
+      ["settingsSheet", closeSettings],
+      ["addPlaceSheet", closeAddPlace],
+      ["removedSheet", closeRemoved],
+      ["tripEditorSheet", closeTripEditor]
+    ]
+    for (const [id, fn] of closers) {
+      if (document.getElementById(id)?.classList.contains("open")) { fn(); return }
+    }
+    if (document.getElementById("menu")?.classList.contains("open")) { closeMenu(); return }
+    return
+  }
+
+  // Skip if focused on an input/textarea/select
+  const tag = document.activeElement?.tagName
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return
+  // Skip if any sheet is open
+  if (document.querySelector(".open[id$='Sheet']")) return
+  if (e.key === "ArrowLeft") { e.preventDefault(); prevDay() }
+  else if (e.key === "ArrowRight") { e.preventDefault(); nextDay() }
+})
+
 document.addEventListener("touchstart", e => {
   // Don't start a swipe from interactive elements
   const tag = e.target.closest("button, a, input, select, textarea, .removeBtn, .expandBtn, .doneBtn")
@@ -1178,6 +1217,9 @@ function openSubwayMap() {
 
   const content = document.getElementById("subwayMapContent")
   const img = document.getElementById("subwayMapImg")
+
+  // Lazy-load: set src from data-src on first open
+  if (!img.src && img.dataset.src) img.src = img.dataset.src
 
   // Fit map to viewport on open
   const fitMap = () => {
@@ -1635,7 +1677,7 @@ function closeTripEditor() {
 
 function renderTripEditor() {
   const container = document.getElementById("tripEditorContent")
-  container.innerHTML = ""
+  container.replaceChildren()
 
   // 1. Hotels
   const { section: hotelsSection, body: hotelsBody } = teSection("hotels", "🏨 Hotels")
@@ -1912,6 +1954,7 @@ function fetchTravelTimes() {
     const service = new google.maps.DistanceMatrixService()
     const dayIndex = state.day
     const day = data.days[dayIndex]
+    if (!day) return
     const hotel = getHotel(day.date)
     const effective = getEffectiveStops(dayIndex)
 
@@ -2208,12 +2251,16 @@ function renderExplore() {
       nameEl.append(el("span", { className: "priceBadge" }, item.price))
     }
 
+    const guideAction = () => {
+      if (swapTarget != null) selectAlternative(item.flatIndex)
+      else window.open(mapsUrl, "_blank")
+    }
     const card = el("div", {
       className: "guideItem" + (swapTarget != null ? " swappable" : ""),
-      onclick: () => {
-        if (swapTarget != null) selectAlternative(item.flatIndex)
-        else window.open(mapsUrl, "_blank")
-      }
+      role: "button",
+      tabindex: "0",
+      onclick: guideAction,
+      onkeydown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); guideAction() } }
     },
       el("div", { className: "exploreCardTop" },
         el("div", { className: "exploreCardInfo" },
@@ -2378,6 +2425,7 @@ function checkAlerts() {
   if (dayIndex < 0) return
 
   const day = data.days[dayIndex]
+  if (!day || !day.stops) return
   const effective = getEffectiveStops(dayIndex)
   const now = new Date()
   const nowMins = now.getHours() * 60 + now.getMinutes()
@@ -2866,13 +2914,15 @@ function renderSearchResults() {
     if (r.type === "day") {
       const date = new Date(r.date + "T12:00:00")
       const label = date.toLocaleDateString("en-GB", { weekday: "short", day: "numeric" })
-      return el("div", { className: "searchResult", onclick: () => { closeSearch(); state.day = r.dayIndex; state.stop = r.stopIndex; loadWeather(); render(); setTimeout(() => document.querySelector(".stop.active")?.scrollIntoView({ behavior: "smooth", block: "center" }), 100) } },
+      const action = () => { closeSearch(); state.day = r.dayIndex; state.stop = r.stopIndex; loadWeather(); render(); setTimeout(() => document.querySelector(".stop.active")?.scrollIntoView({ behavior: "smooth", block: "center" }), 100) }
+      return el("div", { className: "searchResult", role: "button", tabindex: "0", onclick: action, onkeydown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); action() } } },
         el("div", { className: "searchResultName" }, (r.stop.icon || "") + " " + r.stop.name),
         el("div", { className: "searchResultMeta" }, label + " \u2014 " + r.dayTitle)
       )
     } else {
       const mapsUrl = "https://www.google.com/maps/search/" + encodeURIComponent(r.item.name + ", " + r.item.address)
-      return el("div", { className: "searchResult", onclick: () => { window.open(mapsUrl, "_blank") } },
+      const action = () => { window.open(mapsUrl, "_blank") }
+      return el("div", { className: "searchResult", role: "button", tabindex: "0", onclick: action, onkeydown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); action() } } },
         el("div", { className: "searchResultName" }, (r.icon || "") + " " + r.item.name),
         el("div", { className: "searchResultMeta" }, r.category),
         el("div", { className: "searchResultNote" }, r.item.note || "")

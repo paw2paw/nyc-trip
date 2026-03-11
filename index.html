@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Josefin+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="layout.css?v=1.3.2">
+<link rel="stylesheet" href="layout.css?v=1.3.7">
 </head>
 
 <body>
@@ -109,7 +109,7 @@
 <button id="addPlaceFab" onclick="openAddPlace()" aria-label="Add place" title="Add a place to today's itinerary">+</button>
 
 <div id="guidesOverlay" onclick="closeGuides()"></div>
-<div id="guidesSheet">
+<div id="guidesSheet" role="dialog" aria-modal="true" aria-label="Explore">
 <div class="sheetHeader">
 <span id="guidesTitle">&#9733;</span>
 <button id="guidesOriginBtn" class="originBtn" onclick="cycleExploreOrigin()" aria-label="Change origin"></button>
@@ -122,7 +122,7 @@
 
 
 <div id="currencyOverlay" onclick="closeCurrency()"></div>
-<div id="currencySheet">
+<div id="currencySheet" role="dialog" aria-modal="true" aria-label="Currency converter">
 <div class="sheetHeader">
 <span>Currency</span>
 <button onclick="closeCurrency()" aria-label="Close">✕</button>
@@ -139,7 +139,7 @@
 </div>
 
 <div id="emergencyOverlay" onclick="closeEmergency()"></div>
-<div id="emergencySheet">
+<div id="emergencySheet" role="dialog" aria-modal="true" aria-label="Emergency info">
 <div class="sheetHeader">
 <span>Emergency Info</span>
 <button onclick="closeEmergency()" aria-label="Close">✕</button>
@@ -148,19 +148,19 @@
 </div>
 
 <div id="subwayMapOverlay" onclick="closeSubwayMap()"></div>
-<div id="subwayMapSheet">
+<div id="subwayMapSheet" role="dialog" aria-modal="true" aria-label="Subway map">
 <div class="sheetHeader">
 <span>Subway Map</span>
 <button onclick="resetSubwayZoom()" aria-label="Reset zoom">⟲</button>
 <button onclick="closeSubwayMap()" aria-label="Close">✕</button>
 </div>
 <div id="subwayMapContent">
-<img id="subwayMapImg" src="subway-map.svg" alt="NYC Subway Map" draggable="false">
+<img id="subwayMapImg" data-src="subway-map.svg" alt="NYC Subway Map" draggable="false">
 </div>
 </div>
 
 <div id="settingsOverlay" onclick="closeSettings()"></div>
-<div id="settingsSheet">
+<div id="settingsSheet" role="dialog" aria-modal="true" aria-label="Settings">
 <div class="sheetHeader">
 <span>Settings</span>
 <button onclick="closeSettings()" aria-label="Close">✕</button>
@@ -237,7 +237,7 @@
 </div>
 
 <div id="addPlaceOverlay" onclick="closeAddPlace()"></div>
-<div id="addPlaceSheet">
+<div id="addPlaceSheet" role="dialog" aria-modal="true" aria-label="Add place">
 <div class="sheetHeader">
 <span>Add Place</span>
 <button onclick="closeAddPlace()" aria-label="Close">✕</button>
@@ -267,7 +267,7 @@
 </div>
 
 <div id="removedOverlay" onclick="closeRemoved()"></div>
-<div id="removedSheet">
+<div id="removedSheet" role="dialog" aria-modal="true" aria-label="Removed places">
 <div class="sheetHeader">
 <span>Removed Places</span>
 <button onclick="closeRemoved()" aria-label="Close">✕</button>
@@ -276,7 +276,7 @@
 </div>
 
 <div id="searchOverlay" onclick="closeSearch()"></div>
-<div id="searchSheet">
+<div id="searchSheet" role="dialog" aria-modal="true" aria-label="Search">
 <div class="sheetHeader">
 <span>Search</span>
 <button onclick="closeSearch()" aria-label="Close">✕</button>
@@ -288,7 +288,7 @@
 </div>
 
 <div id="tripEditorOverlay" onclick="closeTripEditor()"></div>
-<div id="tripEditorSheet">
+<div id="tripEditorSheet" role="dialog" aria-modal="true" aria-label="Trip editor">
 <div class="sheetHeader">
 <span>Trip Editor</span>
 <button onclick="closeTripEditor()" aria-label="Close">✕</button>
@@ -296,7 +296,7 @@
 <div id="tripEditorContent"></div>
 </div>
 
-<script src="app.js?v=1.3.1" defer></script>
+<script src="app.js?v=1.3.7" defer></script>
 
 </body>
 </html>
