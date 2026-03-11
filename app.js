@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "1.5.1"
+const APP_VERSION = "1.5.2"
 
 // --- SVG icons ---
 
@@ -1154,6 +1154,25 @@ document.addEventListener("keydown", e => {
   if (e.key === "ArrowLeft") { e.preventDefault(); prevDay() }
   else if (e.key === "ArrowRight") { e.preventDefault(); nextDay() }
 })
+
+// --- Collapsing header on scroll ---
+;(function initScrollHeader() {
+  const header = document.querySelector("header")
+  let ticking = false
+  window.addEventListener("scroll", () => {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        header.classList.toggle("scrolled", window.scrollY > 30)
+        ticking = false
+      })
+      ticking = true
+    }
+  }, { passive: true })
+
+  document.getElementById("title").addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  })
+})()
 
 document.addEventListener("touchstart", e => {
   // Don't start a swipe from interactive elements

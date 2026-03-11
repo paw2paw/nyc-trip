@@ -149,6 +149,16 @@ header {
   position: sticky;
   top: 0;
   z-index: 20;
+  transition: padding 0.25s ease;
+}
+
+header.scrolled {
+  padding-bottom: 6px;
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  backdrop-filter: blur(12px) saturate(1.2);
+  background:
+    linear-gradient(var(--gold), var(--gold)) 0 100% / 100% 1px no-repeat,
+    rgba(255, 253, 246, 0.85);
 }
 
 .headerRow {
@@ -254,6 +264,17 @@ header {
   margin: 10px 0 4px;
   letter-spacing: 1.5px;
   text-transform: uppercase;
+  max-height: 60px;
+  opacity: 1;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.2s ease, margin 0.3s ease;
+  cursor: pointer;
+}
+
+header.scrolled #title {
+  max-height: 0;
+  opacity: 0;
+  margin: 0;
 }
 
 /* Deco chevron divider under title */
@@ -2316,6 +2337,12 @@ a.stopAddr:active {
     linear-gradient(var(--gold), var(--gold)) 0 100% / 100% 1px no-repeat,
     #111;
   color: #f0ead8;
+}
+
+[data-theme="dark"] header.scrolled {
+  background:
+    linear-gradient(var(--gold), var(--gold)) 0 100% / 100% 1px no-repeat,
+    rgba(17, 17, 17, 0.85);
 }
 
 [data-theme="dark"] .headerBtn {
