@@ -193,26 +193,32 @@ async function verifyAccess() {
   const input = document.getElementById("verifyPhone").value.trim()
   const errEl = document.getElementById("verifyError")
   if (!input) { errEl.textContent = "Please enter your phone number"; return }
-  const hash = await hashPhone(input)
   const resp = await fetch("data.json")
   const d = resp.ok ? await resp.json() : null
   if (!d) { errEl.textContent = "Could not load trip data"; return }
-  const digits = input.replace(/\D/g, "")
-  if (hash === d.pawPhoneHash) {
-    localStorage.setItem("nyc-verified", "true")
-    localStorage.setItem("nyc-phone-paw", digits)
-    localStorage.setItem("nyc-user", "PAW")
-    dismissGate()
-    bootApp(d)
-  } else if (hash === d.lawPhoneHash) {
-    localStorage.setItem("nyc-verified", "true")
-    localStorage.setItem("nyc-phone-law", digits)
-    localStorage.setItem("nyc-user", "LAW")
-    dismissGate()
-    bootApp(d)
-  } else {
-    errEl.textContent = "Phone number not recognised"
+  const raw = input.replace(/\D/g, "")
+  // Try common UK formats: raw, +44 prefix, drop leading 0 + add 44
+  const candidates = [raw]
+  if (raw.startsWith("0")) candidates.push("44" + raw.slice(1))
+  if (!raw.startsWith("44") && !raw.startsWith("0")) candidates.push("44" + raw)
+  if (raw.startsWith("44")) candidates.push(raw.slice(2))
+  for (const digits of candidates) {
+    const hash = await hashPhone(digits)
+    if (hash === d.pawPhoneHash) {
+      localStorage.setItem("nyc-verified", "true")
+      localStorage.setItem("nyc-phone-paw", digits)
+      localStorage.setItem("nyc-user", "PAW")
+      dismissGate()
+      return bootApp(d)
+    } else if (hash === d.lawPhoneHash) {
+      localStorage.setItem("nyc-verified", "true")
+      localStorage.setItem("nyc-phone-law", digits)
+      localStorage.setItem("nyc-user", "LAW")
+      dismissGate()
+      return bootApp(d)
+    }
   }
+  errEl.textContent = "Phone number not recognised"
 }
 
 function dismissGate() {
