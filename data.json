@@ -3,8 +3,8 @@
 "lawPhoneHash": "37bbe1857bb07333b2dc7d3997995c315faa116ae41355d2116c99c01941448c",
 
 "flights": [
-  {"date": "2026-03-12", "direction": "inbound", "code": "VS3", "depart": "09:25", "arrive": "12:30", "from": "LHR", "to": "JFK", "note": "Virgin Atlantic · Terminal 4"},
-  {"date": "2026-03-18", "direction": "outbound", "code": "VS4", "depart": "21:05", "arrive": "09:15+1", "from": "JFK", "to": "LHR", "note": "Virgin Atlantic · Terminal 4"}
+  {"date": "2026-03-12", "direction": "inbound", "code": "BA173", "depart": "11:20", "arrive": "14:20", "from": "LHR", "to": "JFK", "note": "British Airways · LHR T5 → JFK T8"},
+  {"date": "2026-03-18", "direction": "outbound", "code": "BA172", "depart": "21:40", "arrive": "08:40+1", "from": "JFK", "to": "LHR", "note": "British Airways · JFK T8 → LHR T5"}
 ],
 
 "hotels": [
@@ -99,7 +99,7 @@
       {"name": "Almondine Bakery", "address": "85 Water St, Brooklyn", "icon": "☕", "type": "flexible", "note": "French bakery in DUMBO, steps from the hotel. Croissants and coffee"},
       {"name": "Brooklyn Bridge Park", "address": "334 Furman St, Brooklyn", "icon": "🌳", "type": "flexible", "note": "Final morning walk along the waterfront. Manhattan skyline goodbye"},
       {"name": "Kalustyan's", "address": "123 Lexington Ave, New York", "icon": "🛍", "type": "flexible", "note": "20 min subway from DUMBO. Worth the trip for spice gifts & legendary sandwiches — skip if short on time"},
-      {"name": "Leave for JFK", "address": "60 Furman St, Brooklyn", "icon": "🚕", "type": "reserved", "time": "17:00", "note": "Uber from hotel ~45-60 min to JFK T4. Aim to arrive by 18:00 for 21:05 flight"}
+      {"name": "Leave for JFK", "address": "60 Furman St, Brooklyn", "icon": "🚕", "type": "reserved", "time": "17:45", "note": "Uber from hotel ~45-60 min to JFK T8. Aim to arrive by 18:40 for 21:40 flight"}
     ]
   }
 
