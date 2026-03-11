@@ -16,7 +16,7 @@
     "title": "Arrival SoHo",
     "stops": [
       {"name": "Washington Square Park", "address": "Washington Square, New York", "icon": "🌳", "type": "flexible", "note": "Street performers, iconic arch. NYU campus surrounds. Shake off the flight"},
-      {"name": "Balthazar", "address": "80 Spring St, New York", "icon": "🍽", "type": "flexible", "note": "Iconic French brasserie — THE first-night-in-NYC dinner. 5 min walk from hotel. Book on Resy", "alertNote": "Reserve on Resy — books up fast"},
+      {"name": "Balthazar", "address": "80 Spring St, New York, NY 10012", "icon": "🍽", "type": "flexible", "note": "Iconic French brasserie — THE first-night-in-NYC dinner. 5 min walk from hotel. Book on Resy 30 days ahead (opens midnight). Walk-ins near impossible at peak. Call (212) 965-1414 for phone tables", "alertNote": "Reserve on Resy 30 days ahead — walk-ins near impossible", "url": "https://balthazarny.com/"},
       {"name": "Ear Inn", "address": "326 Spring St, New York", "icon": "🍺", "type": "flexible", "note": "One of NYC's oldest bars (1817). No frills, great pints. 2 min from hotel"},
       {"name": "The Django", "address": "2 6th Ave, New York", "icon": "🎷", "type": "flexible", "note": "Live jazz in the Roxy Hotel basement. No cover, great cocktails. Locals' favourite"}
     ]
@@ -27,7 +27,7 @@
     "title": "High Line & Theatre",
     "stops": [
       {"name": "Birch Coffee", "address": "56 Crosby St, New York", "icon": "☕", "type": "flexible", "note": "Local NYC chain, solid flat white"},
-      {"name": "Rubirosa", "address": "235 Mulberry St, New York", "icon": "🍕", "type": "flexible", "note": "Thin crust vodka pie is the move. Quick lunch before heading west. Book on Resy or walk in early", "alertNote": "Resy recommended — busy at peak lunch"},
+      {"name": "Rubirosa", "address": "235 Mulberry St, New York", "icon": "🍕", "type": "flexible", "note": "Thin crust vodka pie is the move. Walk-in waits 45 min–2 hrs at peak! Book on Resy, or put name down 1-2 hrs before on their waitlist. Lunch 11:30–4", "alertNote": "Book on Resy — walk-in waits up to 2 hours"},
       {"name": "Little Island", "address": "Pier 55 Hudson River Park, New York", "icon": "🌿", "type": "flexible", "note": "Free timed tickets may be needed, check website", "alertNote": "Check if free timed tickets are required"},
       {"name": "High Line Walk", "address": "820 Washington St, New York", "icon": "🚶", "type": "flexible", "note": "Enter at Gansevoort St, walk north. Fully exposed — if windy/wet, cab to Chelsea Market instead"},
       {"name": "Chelsea Market", "address": "75 9th Ave, New York", "icon": "🍜", "type": "flexible", "note": "Los Tacos No.1 is the must-try. Gets busy at lunch"},
@@ -44,9 +44,9 @@
       {"name": "Round K", "address": "99 Allen St, New York", "icon": "☕", "type": "flexible", "note": "Hong Kong–style coffee and egg waffles. Right by Chinatown"},
       {"name": "Columbus Park Chinatown", "address": "67 Mulberry St, New York", "icon": "🌳", "type": "flexible", "note": "Morning tai chi, mahjong games to watch"},
       {"name": "Doyers Street", "address": "Doyers St, New York", "icon": "📷", "type": "flexible", "note": "The 'Bloody Angle' — great photo op, old school barbers"},
-      {"name": "Nom Wah Tea Parlor", "address": "13 Doyers St, New York", "icon": "🥟", "type": "flexible", "note": "NYC's oldest dim sum. Get the OG egg roll. Saturday = busy, book on Resy to skip queue", "alertNote": "Book on Resy — Saturday queues are long"},
+      {"name": "Nom Wah Tea Parlor", "address": "13 Doyers St, New York", "icon": "🥟", "type": "flexible", "note": "NYC's oldest dim sum. Get the OG egg roll. Saturday queue 30+ min — go early or grab a to-go order and sit outside. Resy for weekday parties only", "alertNote": "Saturday queue 30+ min — arrive early to beat it"},
       {"name": "New Museum", "address": "235 Bowery, New York", "icon": "🖼", "type": "flexible", "note": "Contemporary art, striking building. Steps from Chinatown on Bowery. $18 entry, skip if tired"},
-      {"name": "Katz's Delicatessen", "address": "205 E Houston St, New York", "icon": "🥪", "type": "flexible", "note": "Pastrami on rye since 1888. Hit it ~2-3pm when the lunch rush clears. 10 min walk from hotel. Cash only counter, card at table"},
+      {"name": "Katz's Delicatessen", "address": "205 E Houston St, New York", "icon": "🥪", "type": "flexible", "note": "Pastrami on rye since 1888. Queue 30–60+ min at lunch, near zero at 2-3pm. ~$28 sandwiches, share one. Cash only counter, card at table. 10 min walk from hotel", "alertNote": "Go 2-3pm to skip the queue — lunch rush is 30-60 min wait"},
       {"name": "East Village Wander", "address": "St Marks Pl, New York", "icon": "🚶", "type": "flexible", "note": "St Marks Place, Tompkins Square Park, quirky shops. Abraço for espresso (81 E 7th St). Chill before dinner"},
       {"name": "Laser Wolf", "address": "97 Wythe Ave, Brooklyn", "icon": "🍽", "type": "reserved", "time": "20:00", "note": "Uber from hotel ~15 min. Israeli grill, rooftop. The salatim spread is unreal"}
     ]
@@ -59,7 +59,7 @@
       {"name": "Ivy Room Jazz Brunch", "address": "66 E 55th St, New York", "icon": "🎷", "type": "reserved", "time": "11:15", "note": "Live jazz, cocktails. Smart casual"},
       {"name": "Central Park South Walk", "address": "Central Park South, New York", "icon": "🌳", "type": "flexible", "note": "Enter at Columbus Circle, walk along The Mall"},
       {"name": "Death Becomes Her", "address": "205 W 46th St, New York", "icon": "🎭", "type": "reserved", "time": "15:00", "note": "Musical. Lunt-Fontanne Theatre"},
-      {"name": "Joe's Pizza", "address": "7 Carmine St, New York", "icon": "🍕", "type": "flexible", "note": "Classic NYC slice. Cash only, always a queue"},
+      {"name": "Joe's Pizza", "address": "7 Carmine St, New York", "icon": "🍕", "type": "flexible", "note": "Classic NYC slice. Queue 5-15 min, moves fast. Go off-peak to walk straight in. Cash and card accepted"},
       {"name": "West Village Walk", "address": "Bleecker St, New York", "icon": "🚶", "type": "flexible", "note": "Perry St, Grove St for pretty brownstones. Friends building on Bedford"},
       {"name": "Smalls Jazz Club", "address": "183 W 10th St, New York", "icon": "🎷", "type": "flexible", "note": "Legendary basement jazz. $20 cover, BYOB. Sets from 7:30pm. Buy tickets at smallslive.com to guarantee entry", "alertNote": "Buy tickets at smallslive.com — BYOB!"}
     ]
@@ -85,7 +85,7 @@
     "stops": [
       {"name": "Butler Coffee", "address": "40 Water St, Brooklyn", "icon": "☕", "type": "flexible", "note": "Excellent cold brew, small but cosy"},
       {"name": "Brooklyn Heights Promenade", "address": "Montague St, Brooklyn", "icon": "🌉", "type": "flexible", "note": "Best unobstructed Manhattan skyline view"},
-      {"name": "Juliana's Pizza", "address": "19 Old Fulton St, Brooklyn", "icon": "🍕", "type": "flexible", "note": "Coal-fired, better than Grimaldi's next door. Lunch before heading north"},
+      {"name": "Juliana's Pizza", "address": "19 Old Fulton St, Brooklyn", "icon": "🍕", "type": "flexible", "note": "Coal-fired, better than Grimaldi's next door. No reservations, walk-in only. Queue 15-45 min depending on time — aim for noon or after 5pm", "alertNote": "Walk-in only — queue 15-45 min, best at noon"},
       {"name": "Pete's Candy Store", "address": "709 Lorimer St, Brooklyn", "icon": "🎵", "type": "flexible", "note": "Free live music nightly in the back room. Very local Williamsburg dive. Check set times"},
       {"name": "Beacon's Closet", "address": "74 Guernsey St, Brooklyn", "icon": "🛍", "type": "flexible", "note": "Vintage clothing, big Greenpoint location. Walk north from Williamsburg"},
       {"name": "Westlight Rooftop", "address": "111 N 12th St, Brooklyn", "icon": "🍸", "type": "flexible", "note": "22nd floor of William Vale hotel. Stunning 360 views. Walk-in bar OK, book table on Resy for guaranteed seating", "covered": true, "alertNote": "Resy for table — walk-in bar only without"}

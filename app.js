@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "3.0.1"
+const APP_VERSION = "3.0.2"
 
 // --- SVG icons ---
 
