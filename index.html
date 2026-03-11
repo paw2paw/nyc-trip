@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2a2a2a">
+<meta name="robots" content="noindex,nofollow">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>NYC Trip</title>
@@ -15,6 +16,17 @@
 </head>
 
 <body>
+
+<div id="verifyGate">
+<div class="verifyBox">
+<div class="verifyDeco">✦</div>
+<h2 class="verifyTitle">NYC Trip</h2>
+<p class="verifyText">Enter your phone number to continue</p>
+<input id="verifyPhone" type="tel" class="settingsInput" placeholder="+44 7700 900000" autocomplete="tel" inputmode="tel" oninput="if(typeof formatPhoneInput==='function')formatPhoneInput(this)">
+<button id="verifyBtn" class="addPlaceSubmit" onclick="verifyAccess()">Enter</button>
+<p id="verifyError" class="verifyError"></p>
+</div>
+</div>
 
 <div id="menuOverlay" onclick="toggleMenu()"></div>
 
@@ -81,7 +93,7 @@
 
 <button class="headerBtn" onclick="sendMyLocation()" aria-label="Send my location"><svg viewBox="0 0 24 32" fill="currentColor"><path d="M12 2C8 2 5 5.6 5 10c0 6 7 16 7 16s7-10 7-16c0-4.4-3-8-7-8zm0 11a3 3 0 110-6 3 3 0 010 6z"/></svg></button>
 
-<button id="compactBtn" class="headerBtn" onclick="toggleCompact()" aria-label="Toggle compact view"><svg viewBox="0 0 24 32" fill="currentColor"><path d="M4 8h16v2H4zm0 6h16v2H4zm0 6h16v2H4z"/></svg></button>
+<button id="compactBtn" class="headerBtn" onclick="toggleCompact()" aria-label="Toggle compact view"><svg viewBox="0 0 24 32" fill="currentColor"><rect class="compact-line cl1" x="4" y="8" width="16" height="2" rx="1"/><rect class="compact-line cl2" x="4" y="15" width="16" height="2" rx="1"/><rect class="compact-line cl3" x="4" y="22" width="16" height="2" rx="1"/></svg></button>
 
 </div>
 
@@ -157,16 +169,11 @@
 <button onclick="closeSettings()" aria-label="Close">✕</button>
 </div>
 <div id="settingsContent">
-<label class="settingsLabel">I Am</label>
-<div class="settingsToggle">
-<button id="iAmPaw" class="toggleBtn active" onclick="setUser('PAW')">PAW</button>
-<button id="iAmLaw" class="toggleBtn" onclick="setUser('LAW')">LAW</button>
-</div>
-<label for="pawPhoneInput" class="settingsLabel">PAW Phone</label>
-<input id="pawPhoneInput" type="tel" class="settingsInput" placeholder="+44 ..." oninput="savePhones()">
-<label for="lawPhoneInput" class="settingsLabel">LAW Phone</label>
-<input id="lawPhoneInput" type="tel" class="settingsInput" placeholder="+44 ..." oninput="savePhones()">
-<p class="settingsNote">Used for the 📍 Send Location feature. Update when you get your eSIMs.</p>
+<label class="settingsLabel phoneLabel"><span>PAW Phone</span><button id="starPaw" class="starBtn active" onclick="setUser('PAW')" aria-label="I am PAW">★</button></label>
+<input id="pawPhoneInput" type="tel" class="settingsInput" placeholder="+44 7700 900000" oninput="formatPhoneInput(this); savePhones()">
+<label class="settingsLabel phoneLabel"><span>LAW Phone</span><button id="starLaw" class="starBtn" onclick="setUser('LAW')" aria-label="I am LAW">★</button></label>
+<input id="lawPhoneInput" type="tel" class="settingsInput" placeholder="+44 7700 900000" oninput="formatPhoneInput(this); savePhones()">
+<p class="settingsNote">Tap ★ to set who you are. Used for the 📍 Send Location feature.</p>
 <label class="settingsLabel">Theme</label>
 <div class="settingsToggle">
 <button id="themeLight" class="toggleBtn" onclick="setTheme('light')">Light</button>
@@ -185,7 +192,7 @@
 </div>
 <label for="gmapsKeyInput" class="settingsLabel">Google Maps API Key</label>
 <div class="settingsInputRow">
-<input id="gmapsKeyInput" type="text" class="settingsInput" placeholder="AIza..." value="AIzaSyBql5cJfu7zX3___6-jB6TlXvCLOAvxYKo" oninput="saveGmapsKey()">
+<input id="gmapsKeyInput" type="text" class="settingsInput" placeholder="AIza..." oninput="saveGmapsKey()">
 <button class="copyBtn" onclick="copyGmapsKey()" aria-label="Copy API key">Copy</button>
 </div>
 <p class="settingsNote">Enables real-time walk, subway and taxi durations between stops.</p>

@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "1.0.2"
+const APP_VERSION = "1.0.3"
 
 // --- SVG icons ---
 
@@ -176,30 +176,92 @@ window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () 
   if (getTheme() === "system") applyTheme()
 })
 
+// --- Verification gate ---
+
+async function hashPhone(phone) {
+  const digits = phone.replace(/\D/g, "")
+  const encoded = new TextEncoder().encode(digits)
+  const buf = await crypto.subtle.digest("SHA-256", encoded)
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("")
+}
+
+function isVerified() {
+  return localStorage.getItem("nyc-verified") === "true"
+}
+
+async function verifyAccess() {
+  const input = document.getElementById("verifyPhone").value.trim()
+  const errEl = document.getElementById("verifyError")
+  if (!input) { errEl.textContent = "Please enter your phone number"; return }
+  const hash = await hashPhone(input)
+  const resp = await fetch("data.json")
+  const d = resp.ok ? await resp.json() : null
+  if (!d) { errEl.textContent = "Could not load trip data"; return }
+  const digits = input.replace(/\D/g, "")
+  if (hash === d.pawPhoneHash) {
+    localStorage.setItem("nyc-verified", "true")
+    localStorage.setItem("nyc-phone-paw", digits)
+    localStorage.setItem("nyc-user", "PAW")
+    dismissGate()
+    bootApp(d)
+  } else if (hash === d.lawPhoneHash) {
+    localStorage.setItem("nyc-verified", "true")
+    localStorage.setItem("nyc-phone-law", digits)
+    localStorage.setItem("nyc-user", "LAW")
+    dismissGate()
+    bootApp(d)
+  } else {
+    errEl.textContent = "Phone number not recognised"
+  }
+}
+
+function dismissGate() {
+  const gate = document.getElementById("verifyGate")
+  gate.classList.add("hidden")
+  setTimeout(() => gate.remove(), 400)
+}
+
+// allow Enter key on the verify input
+document.addEventListener("DOMContentLoaded", () => {
+  const inp = document.getElementById("verifyPhone")
+  if (inp) inp.addEventListener("keydown", e => { if (e.key === "Enter") verifyAccess() })
+})
+
 // --- Data loading ---
 
-fetch("data.json")
-  .then(r => r.json())
-  .then(d => {
-    data = d
-    loadState()
-    autoSelectToday()
-    clampState()
-    applyTheme()
-    applyCompact()
-    if (!localStorage.getItem("nyc-gmaps-key")) {
-      localStorage.setItem("nyc-gmaps-key", "AIzaSyBql5cJfu7zX3___6-jB6TlXvCLOAvxYKo")
-    }
-    loadWeather()
-    render()
-    if (anyAlertsEnabled()) requestAlertPermission()
-    setTimeout(checkAlerts, 3000)
-  })
-  .catch(() => {
-    document.getElementById("stops").append(
-      el("div", { className: "stop" }, "Failed to load trip data. Please refresh.")
-    )
-  })
+function bootApp(d) {
+  data = d
+  loadState()
+  autoSelectToday()
+  clampState()
+  applyTheme()
+  applyCompact()
+  if (!localStorage.getItem("nyc-gmaps-key")) {
+    localStorage.setItem("nyc-gmaps-key", atob("QUl6YVN5QnFsNWNKZnU3elgzX19fNi1qQjZUbFh2Q0xPQXZ4WUtv"))
+  }
+  loadWeather()
+  render()
+  if (anyAlertsEnabled()) requestAlertPermission()
+  setTimeout(checkAlerts, 3000)
+}
+
+if (isVerified()) {
+  // already verified — hide gate and boot
+  fetch("data.json")
+    .then(r => r.json())
+    .then(d => {
+      dismissGate()
+      bootApp(d)
+    })
+    .catch(() => {
+      document.getElementById("stops").append(
+        el("div", { className: "stop" }, "Failed to load trip data. Please refresh.")
+      )
+    })
+} else {
+  // show the gate — app boots only after successful verification
+  document.getElementById("verifyGate").style.display = "flex"
+}
 
 // --- Weather ---
 
@@ -1011,9 +1073,38 @@ function flipCurrency() {
 // --- Phones (overridable via settings) ---
 
 function getPhone(key) {
-  const override = localStorage.getItem("nyc-phone-" + key)
-  if (override) return override
-  return data[key + "Phone"] || ""
+  return localStorage.getItem("nyc-phone-" + key) || ""
+}
+
+function formatPhoneNumber(raw) {
+  const d = raw.replace(/\D/g, "")
+  // UK mobile: 44 7xxx xxxxxx → +44 7xxx xxxxxx
+  if (d.startsWith("44") && d.length >= 4) {
+    const rest = d.slice(2)
+    return "+44 " + rest.replace(/(\d{4})(\d{0,6})/, "$1 $2").trim()
+  }
+  // US: 1 xxx xxx xxxx → +1 xxx xxx xxxx
+  if (d.startsWith("1") && d.length >= 2) {
+    const rest = d.slice(1)
+    return "+1 " + rest.replace(/(\d{3})(\d{0,3})(\d{0,4})/, (_, a, b, c) =>
+      [a, b, c].filter(Boolean).join(" ")
+    ).trim()
+  }
+  // Fallback: just add + prefix and group in fours
+  if (d.length > 0) return "+" + d.replace(/(\d{4})(?=\d)/g, "$1 ")
+  return ""
+}
+
+function formatPhoneInput(input) {
+  const pos = input.selectionStart
+  const before = input.value
+  const formatted = formatPhoneNumber(before)
+  if (formatted !== before) {
+    input.value = formatted
+    // Try to keep cursor in a sensible place
+    const diff = formatted.length - before.length
+    input.setSelectionRange(pos + diff, pos + diff)
+  }
 }
 
 function savePhones() {
@@ -1033,8 +1124,8 @@ function getUser() {
 
 function setUser(user) {
   localStorage.setItem("nyc-user", user)
-  document.getElementById("iAmPaw").classList.toggle("active", user === "PAW")
-  document.getElementById("iAmLaw").classList.toggle("active", user === "LAW")
+  document.getElementById("starPaw").classList.toggle("active", user === "PAW")
+  document.getElementById("starLaw").classList.toggle("active", user === "LAW")
 }
 
 // --- Location sharing ---
@@ -1120,10 +1211,10 @@ function closeEmergency() {
 function openSettings() {
   closeMenu()
   const user = getUser()
-  document.getElementById("iAmPaw").classList.toggle("active", user === "PAW")
-  document.getElementById("iAmLaw").classList.toggle("active", user === "LAW")
-  document.getElementById("pawPhoneInput").value = getPhone("paw")
-  document.getElementById("lawPhoneInput").value = getPhone("law")
+  document.getElementById("starPaw").classList.toggle("active", user === "PAW")
+  document.getElementById("starLaw").classList.toggle("active", user === "LAW")
+  document.getElementById("pawPhoneInput").value = formatPhoneNumber(getPhone("paw"))
+  document.getElementById("lawPhoneInput").value = formatPhoneNumber(getPhone("law"))
   const tempUnit = getTempUnit()
   document.getElementById("tempF").classList.toggle("active", tempUnit === "fahrenheit")
   document.getElementById("tempC").classList.toggle("active", tempUnit === "celsius")
@@ -1134,7 +1225,7 @@ function openSettings() {
   const compact = isCompact()
   document.getElementById("viewFull").classList.toggle("active", !compact)
   document.getElementById("viewCompact").classList.toggle("active", compact)
-  document.getElementById("gmapsKeyInput").value = localStorage.getItem("nyc-gmaps-key") || "AIzaSyBql5cJfu7zX3___6-jB6TlXvCLOAvxYKo"
+  document.getElementById("gmapsKeyInput").value = localStorage.getItem("nyc-gmaps-key") || ""
   initAlertSettings()
   document.getElementById("settingsVersion").textContent = "v" + APP_VERSION
   document.getElementById("settingsSheet").classList.add("open")

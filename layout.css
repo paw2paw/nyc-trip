@@ -144,6 +144,19 @@ header {
   color: var(--ink);
 }
 
+/* Compact button line animation */
+.compact-line {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#compactBtn.active .cl1 {
+  transform: translateY(4px);
+}
+
+#compactBtn.active .cl3 {
+  transform: translateY(-4px);
+}
+
 /* === Day Carousel === */
 
 #dayCarousel {
@@ -1550,6 +1563,30 @@ a.stopAddr:active {
   margin-top: 0;
 }
 
+.settingsLabel.phoneLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.starBtn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: var(--stone);
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  transition: color 0.2s ease, transform 0.2s ease;
+  opacity: 0.4;
+}
+
+.starBtn.active {
+  color: var(--gold);
+  opacity: 1;
+  transform: scale(1.15);
+}
+
 .settingsInput {
   width: 100%;
   padding: 12px 14px;
@@ -2106,6 +2143,14 @@ a.stopAddr:active {
   color: var(--stone);
 }
 
+[data-theme="dark"] .starBtn {
+  color: #555;
+}
+
+[data-theme="dark"] .starBtn.active {
+  color: var(--gold);
+}
+
 [data-theme="dark"] .toggleBtn.active {
   background: var(--gold);
   color: #1a1a1a;
@@ -2480,4 +2525,79 @@ a.stopAddr:active {
 [data-theme="dark"] #addPlaceFab {
   background: var(--gold);
   color: #1a1a1a;
+}
+
+/* --- Verification Gate --- */
+
+#verifyGate {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cream);
+  transition: opacity 0.3s;
+}
+
+#verifyGate.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.verifyBox {
+  text-align: center;
+  padding: 2.5em 2em;
+  max-width: 320px;
+  width: 100%;
+}
+
+.verifyDeco {
+  font-size: 2em;
+  color: var(--gold);
+  margin-bottom: 0.3em;
+}
+
+.verifyTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6em;
+  color: var(--ink);
+  margin: 0 0 0.3em;
+}
+
+.verifyText {
+  font-family: 'Josefin Sans', sans-serif;
+  color: var(--stone);
+  font-size: 0.9em;
+  margin: 0 0 1.2em;
+}
+
+#verifyGate .settingsInput {
+  text-align: center;
+  font-size: 1.1em;
+  margin-bottom: 1em;
+}
+
+#verifyGate .addPlaceSubmit {
+  width: 100%;
+}
+
+.verifyError {
+  color: #c0392b;
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.85em;
+  min-height: 1.2em;
+  margin: 0.6em 0 0;
+}
+
+[data-theme="dark"] #verifyGate {
+  background: var(--ink-mid);
+}
+
+[data-theme="dark"] .verifyTitle {
+  color: var(--cream);
+}
+
+[data-theme="dark"] .verifyText {
+  color: #aaa;
 }
