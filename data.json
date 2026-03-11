@@ -109,12 +109,17 @@
     "title": "Block Walks",
     "icon": "🚶",
     "items": [
-      {"name": "Greene St, SoHo", "note": "Best cast iron facades in the city. Cobblestones, fire escapes, great light", "address": "Greene St, New York"},
+      {"name": "Greene St, SoHo", "note": "Best cast iron facades in the city. Cobblestones, fire escapes, great light. 2 min from hotel", "address": "Greene St, New York"},
       {"name": "Bleecker to Bank St", "note": "West Village brownstones, tree-lined, classic NYC", "address": "Bleecker St & Bank St, New York"},
-      {"name": "Perry St to Grove St", "note": "Film-location pretty. Quiet, leafy, the NYC dream", "address": "Perry St, New York"},
-      {"name": "Cranberry St, Brooklyn Heights", "note": "Gorgeous brownstones, quiet, near the Promenade", "address": "Cranberry St, Brooklyn"},
+      {"name": "Perry St to Grove St", "note": "Film-location pretty. Quiet, leafy, the NYC dream. Friends building on Bedford St", "address": "Perry St, New York"},
+      {"name": "Elizabeth St, Nolita", "note": "Boutiques, cafés, and flower shops. Quieter than SoHo, more local. 5 min from hotel", "address": "Elizabeth St & Prince St, New York"},
+      {"name": "Washington St, DUMBO", "note": "THE iconic Brooklyn Bridge between buildings shot. Cobblestones, converted warehouses, best at golden hour", "address": "Washington St & Water St, Brooklyn"},
+      {"name": "Bedford Ave, Williamsburg", "note": "Brooklyn's main drag. Vintage shops, street art, coffee. Walk north from Metropolitan to N 10th", "address": "Bedford Ave & N 7th St, Brooklyn"},
+      {"name": "Cranberry St, Brooklyn Heights", "note": "Gorgeous brownstones, quiet, near the Promenade. Perfect morning walk from 1 Hotel", "address": "Cranberry St, Brooklyn"},
+      {"name": "Avenue B & Tompkins Square", "note": "East Village community gardens, punk rock history, local coffee shops. Raw NYC energy", "address": "Avenue B & E 7th St, New York"},
       {"name": "Stone St, Financial District", "note": "Cobblestoned pedestrian street with outdoor dining. Old Dutch NYC", "address": "Stone St, New York"},
-      {"name": "Freeman Alley, LES", "note": "Hidden alley off Rivington. Graffiti, speakeasy entrance, very moody", "address": "Freeman Alley, New York"}
+      {"name": "Freeman Alley, LES", "note": "Hidden alley off Rivington. Graffiti, speakeasy entrance, very moody. Near hotel", "address": "Freeman Alley, New York"},
+      {"name": "Staple St, Tribeca", "note": "Tiny one-block alley with a skybridge. Most photographed hidden street in NYC. 10 min walk from hotel", "address": "Staple St, New York"}
     ]
   },
   {
