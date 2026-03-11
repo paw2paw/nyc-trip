@@ -38,13 +38,15 @@
 
   {
     "date": "2026-03-14",
-    "title": "Chinatown & Rest Day",
+    "title": "Chinatown & East Village",
     "stops": [
       {"name": "Round K", "address": "99 Allen St, New York", "icon": "☕", "type": "flexible", "note": "Hong Kong–style coffee and egg waffles. Right by Chinatown"},
       {"name": "Columbus Park Chinatown", "address": "67 Mulberry St, New York", "icon": "🌳", "type": "flexible", "note": "Morning tai chi, mahjong games to watch"},
       {"name": "Doyers Street", "address": "Doyers St, New York", "icon": "📷", "type": "flexible", "note": "The 'Bloody Angle' — great photo op, old school barbers"},
       {"name": "Nom Wah Tea Parlor", "address": "13 Doyers St, New York", "icon": "🥟", "type": "flexible", "note": "NYC's oldest dim sum. Get the OG egg roll"},
+      {"name": "New Museum", "address": "235 Bowery, New York", "icon": "🖼", "type": "flexible", "note": "Contemporary art, striking building. Steps from Chinatown on Bowery. $18 entry, skip if tired"},
       {"name": "Katz's Delicatessen", "address": "205 E Houston St, New York", "icon": "🥪", "type": "flexible", "note": "Pastrami on rye since 1888. Hit it ~2-3pm when the lunch rush clears. 10 min walk from hotel. Cash only counter, card at table"},
+      {"name": "East Village Wander", "address": "St Marks Pl, New York", "icon": "🚶", "type": "flexible", "note": "St Marks Place, Tompkins Square Park, quirky shops. Abraço for espresso (81 E 7th St). Chill before dinner"},
       {"name": "Laser Wolf", "address": "97 Wythe Ave, Brooklyn", "icon": "🍽", "type": "reserved", "time": "20:00", "note": "Uber from hotel ~15 min. Israeli grill, rooftop. The salatim spread is unreal"}
     ]
   },
