@@ -365,9 +365,33 @@ function routeCard(dayIndex) {
     mapContent = el("div", { className: "routeMapWrap" }, placeholder)
   }
 
-  const node = el("div", { className: "routeCard" },
+  const stopLegend = el("div", { className: "routeStopLegend" },
+    ...stops.map((s, i) => el("span", { className: "routeStopPill" },
+      el("span", { className: "routeStopNum" }, (i + 1).toString()),
+      el("span", { className: "routeStopLabel" }, (s.icon || "") + " " + s.name)
+    ))
+  )
+
+  const collapsed = localStorage.getItem("nyc-map-collapsed") !== "0"
+  const body = el("div", { className: "routeCardBody" + (collapsed ? " collapsed" : "") },
     mapContent,
-    el("a", { className: "routeCardLabel", href: mapsUrl, target: "_blank" }, "Open day route ›")
+    stopLegend,
+    el("a", { className: "routeCardLabel", href: mapsUrl, target: "_blank", onclick: (e) => e.stopPropagation() }, "Open day route ›")
+  )
+
+  const chevron = el("span", { className: "routeToggleChevron" }, collapsed ? "▸" : "▾")
+  const toggle = el("button", {
+    className: "routeToggle",
+    onclick: () => {
+      const isCollapsed = body.classList.toggle("collapsed")
+      chevron.textContent = isCollapsed ? "▸" : "▾"
+      localStorage.setItem("nyc-map-collapsed", isCollapsed ? "1" : "0")
+    }
+  }, chevron, "🗺 Day route · " + stops.length + " stops")
+
+  const node = el("div", { className: "routeCard" },
+    toggle,
+    body
   )
   mapCache[dayIndex] = { key: cacheKey, node }
   return node
@@ -1165,6 +1189,7 @@ function renderExploreFilters() {
 }
 
 function cycleExploreOrigin() {
+  if (swapTarget != null) return
   if (exploreOriginLabel === "You") {
     // Currently GPS — switch to selected stop
     exploreOriginMode = "stop"
@@ -1185,10 +1210,14 @@ function renderExplore() {
   if (swapTarget != null) {
     const original = data.days[state.day].stops[swapTarget]
     headerEl.textContent = "Swap"
-    originBtn.innerHTML = SVG_PIN + " " + (original.icon || "") + " " + original.name
-    originBtn.style.display = "none"
+    originBtn.innerHTML = SVG_PIN + " from " + (original.icon || "") + " " + original.name
+    originBtn.style.display = ""
+    originBtn.dataset.swapMode = "1"
+    originBtn.style.cursor = "default"
   } else {
     headerEl.innerHTML = "&#9733;"
+    originBtn.dataset.swapMode = ""
+    originBtn.style.cursor = ""
     if (exploreOriginLabel) {
       const isGeo = exploreOriginLabel === "You"
       originBtn.innerHTML = (isGeo ? SVG_PIN : SVG_PIN) + " " + exploreOriginLabel

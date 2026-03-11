@@ -1673,6 +1673,50 @@ a.stopAddr:active {
   overflow: hidden;
 }
 
+/* Collapse toggle header */
+.routeToggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 16px;
+  border: 0;
+  background: none;
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  cursor: pointer;
+  text-align: left;
+}
+
+.routeToggle:active {
+  background: var(--cream-warm);
+}
+
+.routeToggleChevron {
+  font-size: 11px;
+  line-height: 1;
+}
+
+/* Collapsible body */
+.routeCardBody {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.25s ease;
+}
+
+.routeCardBody > * {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.routeCardBody.collapsed {
+  grid-template-rows: 0fr;
+}
+
 .routeMapWrap {
   position: relative;
   width: 100%;
@@ -1752,6 +1796,46 @@ a.stopAddr:active {
   font-size: 22px;
 }
 
+/* Stop number legend strip */
+.routeStopLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--border);
+}
+
+.routeStopPill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.routeStopNum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: white;
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.routeStopLabel {
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
 .routeCardLabel {
   display: block;
   padding: 10px 16px;
@@ -1792,6 +1876,7 @@ a.stopAddr:active {
   background:
     linear-gradient(var(--gold), var(--gold)) 0 100% / 100% 1px no-repeat,
     #111;
+  color: #f0ead8;
 }
 
 [data-theme="dark"] .headerBtn {
