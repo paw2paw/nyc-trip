@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "0.9.001"
+const APP_VERSION = "1.0.0"
 
 // --- SVG icons ---
 
@@ -34,13 +34,14 @@ function el(tag, attrs, ...children) {
 const STORAGE_KEY = "nyc-trip-state"
 
 let data
-let state = { day: 0, stop: 0, swaps: {}, done: {} }
+let state = { day: 0, stop: 0, swaps: {}, done: {}, removed: {}, added: {} }
 let hourlyWeather = null
 let weatherController = null // AbortController for weather fetch
 let travelTimes = {}
 let travelRenderTimer = null
 let swapTarget = null // index of stop being swapped
 let mapCache = {} // dayIndex -> { key, node }
+let expandedStops = {} // "dayIndex-ei" -> true
 
 function loadState() {
   try {
@@ -49,6 +50,8 @@ function loadState() {
       state.day = saved.day ?? 0
       state.stop = saved.stop ?? 0
       state.done = saved.done ?? {}
+      state.removed = saved.removed ?? {}
+      state.added = saved.added ?? {}
       // Clear swaps if version changed (indices may have shifted)
       if (saved.version !== APP_VERSION) state.swaps = {}
       else state.swaps = saved.swaps ?? {}
@@ -70,9 +73,9 @@ function autoSelectToday() {
 function clampState() {
   if (!data || !data.days || !data.days.length) return
   state.day = Math.max(0, Math.min(state.day, data.days.length - 1))
-  const stops = data.days[state.day]?.stops
-  if (!stops || !stops.length) return
-  state.stop = Math.max(0, Math.min(state.stop, stops.length - 1))
+  const effective = getEffectiveStops(state.day)
+  if (!effective.length) { state.stop = 0; return }
+  state.stop = Math.max(0, Math.min(state.stop, effective.length - 1))
 }
 
 // --- Get effective stop (with swap applied) ---
@@ -99,6 +102,28 @@ function getStop(dayIndex, stopIndex) {
 
 function isSwapped(dayIndex, stopIndex) {
   return state.swaps[dayIndex + "-" + stopIndex] != null
+}
+
+function getEffectiveStops(dayIndex) {
+  const day = data.days[dayIndex]
+  const result = []
+
+  // Collect non-removed original stops with swap resolution
+  day.stops.forEach((s, i) => {
+    if (state.removed[dayIndex + "-" + i]) return
+    result.push({ stop: getStop(dayIndex, i), key: dayIndex + "-" + i, isAdded: false, origIndex: i })
+  })
+
+  // Insert added stops at their stored positions
+  const additions = state.added[dayIndex] || []
+  additions.forEach((addedStop, ai) => {
+    const addKey = dayIndex + "-a-" + ai
+    if (state.removed[addKey]) return
+    const pos = Math.max(0, Math.min(addedStop.position ?? result.length, result.length))
+    result.splice(pos, 0, { stop: addedStop, key: addKey, isAdded: true, origIndex: null })
+  })
+
+  return result
 }
 
 // --- Theme ---
@@ -271,18 +296,38 @@ function toggleDone(dayIndex, stopIndex) {
   render()
 }
 
-function stopCard(stop, i, dayIndex) {
+function toggleDoneKey(key) {
+  if (state.done[key]) delete state.done[key]
+  else state.done[key] = true
+  render()
+}
+
+function removeStop(key) {
+  state.removed[key] = true
+  delete state.done[key]
+  render()
+}
+
+function toggleExpand(expandKey) {
+  if (expandedStops[expandKey]) delete expandedStops[expandKey]
+  else expandedStops[expandKey] = true
+  render()
+}
+
+function stopCard(entry, i, dayIndex) {
+  const stop = entry.stop
+  const key = entry.key
   const active = i === state.stop ? " active" : ""
   const reserved = stop.type === "reserved"
-  const swapped = isSwapped(dayIndex, i)
-  const done = isDone(dayIndex, i)
+  const swapped = !entry.isAdded && isSwapped(dayIndex, entry.origIndex)
+  const done = state.done[key] === true
   const cls = "stop" + active + (reserved ? " reserved" : " flexible") + (done ? " done" : "")
 
   const checkBtn = el("button", {
     className: "doneBtn" + (done ? " checked" : ""),
     "aria-label": done ? "Mark not done" : "Mark done",
-    onclick: (e) => { e.stopPropagation(); toggleDone(dayIndex, i) }
-  }, done ? "✓" : (i + 1).toString().padStart(2, "0"))
+    onclick: (e) => { e.stopPropagation(); toggleDoneKey(key) }
+  }, done ? "✓" : (i + 1).toString())
 
   const mapsUrl = "https://www.google.com/maps/search/" + encodeURIComponent(stop.name + ", " + stop.address)
   const header = el("div", { className: "stopHeader" },
@@ -295,44 +340,108 @@ function stopCard(stop, i, dayIndex) {
     ? el("span", { className: "timeBadge" }, stop.time)
     : null
 
-  const swapBtn = !reserved
+  const swapBtn = !reserved && !entry.isAdded
     ? el("button", {
         className: "swapBtn",
         "aria-label": "Swap this stop",
-        onclick: (e) => { e.stopPropagation(); openSwap(i) }
+        onclick: (e) => { e.stopPropagation(); openSwap(entry.origIndex) }
       }, "↻")
     : null
+
+  const removeBtn = el("button", {
+    className: "removeBtn",
+    "aria-label": "Remove this stop",
+    onclick: (e) => { e.stopPropagation(); removeStop(key) }
+  }, "✕")
+
+  const expandKey = dayIndex + "-" + i
+  const expanded = expandedStops[expandKey] === true
+
+  const expandBtn = el("button", {
+    className: "expandBtn" + (expanded ? " open" : ""),
+    "aria-label": expanded ? "Collapse" : "Expand",
+    onclick: (e) => { e.stopPropagation(); toggleExpand(expandKey) }
+  }, "▾")
 
   const topRow = el("div", { className: "stopTop" },
     header,
     badge,
-    swapBtn
+    swapBtn,
+    removeBtn,
+    expandBtn
   )
 
-  const addr = el("a", {
-    className: "stopAddr",
-    href: mapsUrl,
-    target: "_blank",
-    onclick: (e) => e.stopPropagation()
-  }, stop.address)
-
-  const restore = swapped
-    ? el("div", {
-        className: "restoreLink",
-        onclick: (e) => { e.stopPropagation(); restoreStop(dayIndex, i) }
-      }, "↩ Restore original")
-    : null
-
-  const note = stop.note
-    ? el("div", { className: "stopNote" }, stop.note)
-    : null
-
   const compact = isCompact()
-  const content = el("div", { className: "stopContent" }, topRow, compact ? null : addr, compact ? null : note, restore)
 
+  // Expanded detail area
+  let detail = null
+  if (expanded && !compact) {
+    const addr = el("a", {
+      className: "stopAddr",
+      href: mapsUrl,
+      target: "_blank",
+      onclick: (e) => e.stopPropagation()
+    }, stop.address)
+
+    const restore = swapped
+      ? el("div", {
+          className: "restoreLink",
+          onclick: (e) => { e.stopPropagation(); restoreStop(dayIndex, entry.origIndex) }
+        }, "↩ Restore original")
+      : null
+
+    const note = stop.note
+      ? el("div", { className: "stopNote" }, stop.note)
+      : null
+
+    const urlLink = stop.url
+      ? el("a", { className: "stopUrl", href: stop.url, target: "_blank", onclick: (e) => e.stopPropagation() }, "Book / Website →")
+      : null
+
+    // Street View image
+    const apiKey = localStorage.getItem("nyc-gmaps-key")
+    const streetView = apiKey
+      ? el("img", {
+          className: "streetViewImg",
+          src: "https://maps.googleapis.com/maps/api/streetview?size=400x200&location=" + encodeURIComponent(stop.address) + "&key=" + apiKey,
+          alt: stop.name + " street view",
+          loading: "lazy"
+        })
+      : null
+
+    detail = el("div", { className: "stopDetail" },
+      el("div", { className: "stopDetailText" }, addr, note, urlLink, restore),
+      streetView
+    )
+  } else if (!compact) {
+    // Collapsed: still show address and note inline (existing behavior)
+    const addr = el("a", {
+      className: "stopAddr",
+      href: mapsUrl,
+      target: "_blank",
+      onclick: (e) => e.stopPropagation()
+    }, stop.address)
+
+    const restore = swapped
+      ? el("div", {
+          className: "restoreLink",
+          onclick: (e) => { e.stopPropagation(); restoreStop(dayIndex, entry.origIndex) }
+        }, "↩ Restore original")
+      : null
+
+    const note = stop.note
+      ? el("div", { className: "stopNote" }, stop.note)
+      : null
+
+    detail = el("div", { className: "stopDetailCollapsed" }, addr, note, restore)
+  }
+
+  const content = el("div", { className: "stopContent" }, topRow, detail)
+
+  const effectiveLen = getEffectiveStops(dayIndex).length
   let wthr = null
   if (hourlyWeather) {
-    const hour = stop.time ? parseInt(stop.time.split(":")[0], 10) : getStopHour(i, data.days[dayIndex].stops.length)
+    const hour = stop.time ? parseInt(stop.time.split(":")[0], 10) : getStopHour(i, effectiveLen)
     const maxHour = hourlyWeather.temperature_2m.length - 1
     const safeHour = Math.max(0, Math.min(hour, maxHour))
     const temp = Math.round(hourlyWeather.temperature_2m[safeHour])
@@ -348,7 +457,8 @@ function stopCard(stop, i, dayIndex) {
     wthr = el("div", { className: "weatherSkeleton" })
   }
 
-  return el("div", { className: cls, onclick: () => setStop(i) },
+  const cardCls = cls + (expanded ? " expanded" : "")
+  return el("div", { className: cardCls, onclick: () => setStop(i) },
     content, wthr
   )
 }
@@ -357,7 +467,7 @@ function stopCard(stop, i, dayIndex) {
 
 function routeCard(dayIndex) {
   const day = data.days[dayIndex]
-  const stops = day.stops.map((s, i) => getStop(dayIndex, i))
+  const stops = getEffectiveStops(dayIndex).map(e => e.stop)
   const hotel = getHotel(day.date)
 
   const origin = encodeURIComponent(hotel.address)
@@ -398,16 +508,15 @@ function routeCard(dayIndex) {
   }
 
   const stopLegend = el("div", { className: "routeStopLegend" },
-    ...stops.map((s, i) => el("span", { className: "routeStopPill" },
-      el("span", { className: "routeStopNum" }, (i + 1).toString()),
-      el("span", { className: "routeStopLabel" }, (s.icon || "") + " " + s.name)
+    ...stops.map((s, i) => el("span", { className: "routeStopPill", title: s.name },
+      el("span", { className: "routeStopNum" }, (i + 1).toString())
     ))
   )
+  mapContent.appendChild(stopLegend)
 
   const collapsed = localStorage.getItem("nyc-map-collapsed") !== "0"
   const body = el("div", { className: "routeCardBody" + (collapsed ? " collapsed" : "") },
     mapContent,
-    stopLegend,
     el("a", { className: "routeCardLabel", href: mapsUrl, target: "_blank", onclick: (e) => e.stopPropagation() }, "Open day route ›")
   )
 
@@ -563,34 +672,34 @@ function render() {
 
   nodes.push(hotelRow(hotel.name, hotel.address))
 
-  if (!compact) {
-    const firstStop = getStop(state.day, 0)
-    nodes.push(travelRow(hotel, firstStop, state.day + "-h0"))
+  const effective = getEffectiveStops(state.day)
+
+  if (!compact && effective.length) {
+    nodes.push(travelRow(hotel, effective[0].stop, state.day + "-h0"))
   }
 
-  day.stops.forEach((s, i) => {
-    const effective = getStop(state.day, i)
-
+  effective.forEach((entry, ei) => {
     // Alert rows before each stop
     if (!compact) {
-      const tKey = i === 0 ? state.day + "-h0" : state.day + "-" + (i - 1)
-      const resRow = reservationAlertRow(effective, tKey)
+      const tKey = ei === 0 ? state.day + "-h0" : state.day + "-e" + (ei - 1)
+      const resRow = reservationAlertRow(entry.stop, tKey)
       if (resRow) nodes.push(resRow)
-      const leaveRow = leaveNowAlertRow(effective, tKey)
+      const leaveRow = leaveNowAlertRow(entry.stop, tKey)
       if (leaveRow) nodes.push(leaveRow)
-      const sunRow = sunsetAlertRow(effective)
+      const sunRow = sunsetAlertRow(entry.stop)
       if (sunRow) nodes.push(sunRow)
     }
 
-    nodes.push(stopCard(effective, i, state.day))
-    if (!compact && i < day.stops.length - 1) {
-      const next = getStop(state.day, i + 1)
-      nodes.push(travelRow(effective, next, state.day + "-" + i))
+    nodes.push(stopCard(entry, ei, state.day))
+    if (!compact && ei < effective.length - 1) {
+      nodes.push(travelRow(entry.stop, effective[ei + 1].stop, state.day + "-e" + ei))
     }
   })
 
-  const lastStop = getStop(state.day, day.stops.length - 1)
-  if (!compact) nodes.push(travelRow(lastStop, hotel, state.day + "-h1"))
+  if (effective.length) {
+    const lastStop = effective[effective.length - 1].stop
+    if (!compact) nodes.push(travelRow(lastStop, hotel, state.day + "-h1"))
+  }
   nodes.push(hotelRow("Return to " + hotel.name, hotel.address))
 
   document.getElementById("stops").replaceChildren(...nodes)
@@ -950,7 +1059,7 @@ function sendMyLocation() {
     const lat = p.coords.latitude
     const lon = p.coords.longitude
     const msg = "Meet here https://maps.google.com/?q=" + lat + "," + lon
-    const url = "https://wa.me/" + phone + "?text=" + encodeURIComponent(msg)
+    const url = "whatsapp://send?phone=" + phone + "&text=" + encodeURIComponent(msg)
     window.open(url, "_blank")
   }, err => {
     const reasons = {1: "Permission denied", 2: "Position unavailable", 3: "Timed out"}
@@ -1100,16 +1209,17 @@ function fetchTravelTimes() {
     const dayIndex = state.day
     const day = data.days[dayIndex]
     const hotel = getHotel(day.date)
+    const effective = getEffectiveStops(dayIndex)
+
+    if (!effective.length) return
 
     // Build pairs: hotel->first, stop->stop, last->hotel
     const pairs = []
-    const first = getStop(dayIndex, 0)
-    pairs.push({ a: hotel, b: first, key: dayIndex + "-h0" })
-    for (let i = 0; i < day.stops.length - 1; i++) {
-      pairs.push({ a: getStop(dayIndex, i), b: getStop(dayIndex, i + 1), key: dayIndex + "-" + i })
+    pairs.push({ a: hotel, b: effective[0].stop, key: dayIndex + "-h0" })
+    for (let i = 0; i < effective.length - 1; i++) {
+      pairs.push({ a: effective[i].stop, b: effective[i + 1].stop, key: dayIndex + "-e" + i })
     }
-    const last = getStop(dayIndex, day.stops.length - 1)
-    pairs.push({ a: last, b: hotel, key: dayIndex + "-h1" })
+    pairs.push({ a: effective[effective.length - 1].stop, b: hotel, key: dayIndex + "-h1" })
 
     const modes = [["WALKING", "walk"], ["TRANSIT", "transit"], ["DRIVING", "drive"]]
 
@@ -1600,6 +1710,140 @@ function initAlertSettings() {
     const btn = document.getElementById("alert-" + type)
     if (btn) btn.classList.toggle("active", getAlertPref(type))
   })
+}
+
+// --- Add Place sheet ---
+
+function openAddPlace() {
+  closeMenu()
+  const effective = getEffectiveStops(state.day)
+  const sel = document.getElementById("addPlacePos")
+  sel.innerHTML = ""
+  sel.add(new Option("Start of day", "0"))
+  effective.forEach((entry, i) => {
+    sel.add(new Option("After " + (i + 1) + ". " + entry.stop.name, String(i + 1)))
+  })
+  sel.value = String(effective.length)
+
+  document.getElementById("addPlaceName").value = ""
+  document.getElementById("addPlaceAddr").value = ""
+  document.getElementById("addPlaceIcon").value = ""
+  document.getElementById("addPlaceNote").value = ""
+  document.getElementById("addPlaceTime").value = ""
+  document.getElementById("addPlaceTypeFlex").classList.add("active")
+  document.getElementById("addPlaceTypeRes").classList.remove("active")
+  document.getElementById("addPlaceTimeRow").style.display = "none"
+
+  document.getElementById("addPlaceSheet").classList.add("open")
+  document.getElementById("addPlaceOverlay").classList.add("show")
+}
+
+function closeAddPlace() {
+  document.getElementById("addPlaceSheet").classList.remove("open")
+  document.getElementById("addPlaceOverlay").classList.remove("show")
+}
+
+function setAddPlaceType(type) {
+  document.getElementById("addPlaceTypeFlex").classList.toggle("active", type === "flexible")
+  document.getElementById("addPlaceTypeRes").classList.toggle("active", type === "reserved")
+  document.getElementById("addPlaceTimeRow").style.display = type === "reserved" ? "" : "none"
+}
+
+function submitAddPlace() {
+  const name = document.getElementById("addPlaceName").value.trim()
+  const address = document.getElementById("addPlaceAddr").value.trim()
+  if (!name || !address) { alert("Name and address are required"); return }
+
+  const icon = document.getElementById("addPlaceIcon").value.trim() || "📍"
+  const note = document.getElementById("addPlaceNote").value.trim()
+  const isReserved = document.getElementById("addPlaceTypeRes").classList.contains("active")
+  const type = isReserved ? "reserved" : "flexible"
+  const time = isReserved ? document.getElementById("addPlaceTime").value : undefined
+  const position = parseInt(document.getElementById("addPlacePos").value, 10)
+
+  const stop = { name, address, icon, type, note, position }
+  if (time) stop.time = time
+
+  const key = String(state.day)
+  if (!state.added[key]) state.added[key] = []
+  state.added[key].push(stop)
+
+  closeAddPlace()
+  render()
+}
+
+// --- Removed Places sheet ---
+
+function openRemoved() {
+  closeMenu()
+  renderRemoved()
+  document.getElementById("removedSheet").classList.add("open")
+  document.getElementById("removedOverlay").classList.add("show")
+}
+
+function closeRemoved() {
+  document.getElementById("removedSheet").classList.remove("open")
+  document.getElementById("removedOverlay").classList.remove("show")
+}
+
+function renderRemoved() {
+  const container = document.getElementById("removedContent")
+  const nodes = []
+  const grouped = {}
+
+  Object.keys(state.removed).forEach(key => {
+    if (!state.removed[key]) return
+    const parts = key.split("-")
+    const dayIndex = parseInt(parts[0], 10)
+    const dayTitle = data.days[dayIndex]?.title || "Day " + (dayIndex + 1)
+
+    let stop
+    if (parts[1] === "a") {
+      // Added stop that was removed
+      const addedIndex = parseInt(parts[2], 10)
+      stop = (state.added[dayIndex] || [])[addedIndex]
+    } else {
+      // Original stop (may be swapped)
+      const stopIndex = parseInt(parts[1], 10)
+      stop = getStop(dayIndex, stopIndex)
+    }
+    if (!stop) return
+
+    if (!grouped[dayTitle]) grouped[dayTitle] = []
+    grouped[dayTitle].push({ stop, key, dayTitle })
+  })
+
+  Object.keys(grouped).forEach(dayTitle => {
+    nodes.push(el("div", { className: "removedDayHead" }, dayTitle))
+    grouped[dayTitle].forEach(({ stop, key }) => {
+      const mapsUrl = "https://www.google.com/maps/search/" + encodeURIComponent(stop.name + ", " + stop.address)
+      const card = el("div", { className: "removedCard" },
+        el("div", { className: "removedCardTop" },
+          el("a", { className: "removedCardName", href: mapsUrl, target: "_blank" },
+            (stop.icon || "") + " " + stop.name),
+          el("button", {
+            className: "toggleBtn",
+            onclick: () => { restoreRemovedStop(key) }
+          }, "↩ Restore")
+        ),
+        el("div", { className: "removedCardAddr" }, stop.address)
+      )
+      nodes.push(card)
+    })
+  })
+
+  if (nodes.length === 0) {
+    nodes.push(el("div", { className: "removedEmpty" }, "No removed places"))
+  }
+
+  container.replaceChildren(...nodes)
+}
+
+function restoreRemovedStop(key) {
+  delete state.removed[key]
+  saveState()
+  render()
+  renderRemoved()
 }
 
 // --- Service worker ---

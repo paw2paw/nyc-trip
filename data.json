@@ -76,7 +76,7 @@
       {"name": "DUMBO Waterfront", "address": "1 Water St, Brooklyn", "icon": "📷", "type": "flexible", "note": "Washington St for the classic bridge-between-buildings shot"},
       {"name": "Time Out Market", "address": "55 Water St, Brooklyn", "icon": "🍜", "type": "flexible", "note": "Food hall, rooftop has great views. Clinton St Baking Co inside"},
       {"name": "Vinegar Hill House", "address": "72 Hudson Ave, Brooklyn", "icon": "🍽", "type": "flexible", "note": "Hidden gem on cobblestone streets near DUMBO. Farm-to-table, candlelit. Locals only know this one"},
-      {"name": "Harriet's Rooftop", "address": "60 Furman St, Brooklyn", "icon": "🍸", "type": "flexible", "note": "At 1 Hotel. Sunset cocktails with Manhattan skyline"}
+      {"name": "Harriet's Rooftop", "address": "60 Furman St, Brooklyn", "icon": "🍸", "type": "flexible", "note": "At 1 Hotel. Sunset cocktails with Manhattan skyline", "covered": "partial"}
     ]
   },
 
@@ -90,7 +90,7 @@
       {"name": "Beacon's Closet", "address": "74 Guernsey St, Brooklyn", "icon": "🛍", "type": "flexible", "note": "Vintage clothing, big Greenpoint location"},
       {"name": "Domino Park Sunset", "address": "15 River St, Brooklyn", "icon": "🌅", "type": "flexible", "note": "Sunset around 7pm mid-March. Taco stand nearby"},
       {"name": "Pete's Candy Store", "address": "709 Lorimer St, Brooklyn", "icon": "🎵", "type": "flexible", "note": "Free live music nightly in the back room. Very local Williamsburg dive. Check set times"},
-      {"name": "Westlight Rooftop", "address": "111 N 12th St, Brooklyn", "icon": "🍸", "type": "flexible", "note": "22nd floor of William Vale hotel. Stunning 360 views"}
+      {"name": "Westlight Rooftop", "address": "111 N 12th St, Brooklyn", "icon": "🍸", "type": "flexible", "note": "22nd floor of William Vale hotel. Stunning 360 views", "covered": true}
     ]
   },
 
@@ -125,18 +125,27 @@
     "title": "Secret & Rooftop Bars",
     "icon": "🍸",
     "items": [
-      {"name": "Attaboy", "note": "No menu — tell them what you like. LES speakeasy legend", "address": "134 Eldridge St, New York"},
-      {"name": "Apotheke", "note": "Apothecary-themed cocktails in old Chinatown opium den", "address": "9 Doyers St, New York"},
-      {"name": "Please Don't Tell (PDT)", "note": "Enter through phone booth in Crif Dogs. Reservations essential", "address": "113 St Marks Pl, New York"},
-      {"name": "Westlight", "note": "22nd floor of William Vale hotel. 360° views, stunning at sunset", "address": "111 N 12th St, Brooklyn"},
-      {"name": "Harriet's Rooftop", "note": "At 1 Hotel Brooklyn Bridge. Manhattan skyline cocktails", "address": "60 Furman St, Brooklyn"},
-      {"name": "The Campbell", "note": "Grand Central's hidden bar. Painted ceilings, old-money glamour", "address": "15 Vanderbilt Ave, New York"},
-      {"name": "Dear Irving on Hudson", "note": "39th floor of Aliz Hotel. Themed rooms, jaw-dropping views", "address": "310 W 40th St, New York"},
-      {"name": "Temple Bar", "note": "Speakeasy vibes, no sign outside. Dress smart. Strong martinis", "address": "332 Lafayette St, New York"},
-      {"name": "Dante", "note": "World's Best Bar multiple years running. Negronis are the move. MacDougal St", "address": "79 MacDougal St, New York"},
-      {"name": "Dead Rabbit", "note": "Multi-floor cocktail bar in FiDi. Irish-inspired, award-winning. Taproom downstairs", "address": "30 Water St, New York"},
-      {"name": "Bemelmans Bar", "note": "Live piano, Madeline murals on the walls. Old-money Upper East Side glamour", "address": "35 E 76th St, New York"},
-      {"name": "Rudy's Bar & Grill", "note": "Legendary Hell's Kitchen dive. Free hot dogs, cheap pitchers. Pure NYC", "address": "627 9th Ave, New York"}
+      {"name": "Attaboy", "note": "No menu — tell them what you like. LES speakeasy legend", "address": "134 Eldridge St, New York", "covered": true},
+      {"name": "Apotheke", "note": "Apothecary-themed cocktails in old Chinatown opium den", "address": "9 Doyers St, New York", "covered": true},
+      {"name": "Please Don't Tell (PDT)", "note": "Enter through phone booth in Crif Dogs. Reservations essential", "address": "113 St Marks Pl, New York", "covered": true},
+      {"name": "Westlight", "note": "22nd floor of William Vale hotel. 360° views, stunning at sunset", "address": "111 N 12th St, Brooklyn", "covered": true},
+      {"name": "Harriet's Rooftop", "note": "At 1 Hotel Brooklyn Bridge. Manhattan skyline cocktails", "address": "60 Furman St, Brooklyn", "covered": "partial"},
+      {"name": "The Campbell", "note": "Grand Central's hidden bar. Painted ceilings, old-money glamour", "address": "15 Vanderbilt Ave, New York", "covered": true},
+      {"name": "Dear Irving on Hudson", "note": "39th floor of Aliz Hotel. Themed rooms, jaw-dropping views", "address": "310 W 40th St, New York", "covered": true},
+      {"name": "Temple Bar", "note": "Speakeasy vibes, no sign outside. Dress smart. Strong martinis", "address": "332 Lafayette St, New York", "covered": true},
+      {"name": "Dante", "note": "World's Best Bar multiple years running. Negronis are the move. MacDougal St", "address": "79 MacDougal St, New York", "covered": true},
+      {"name": "Dead Rabbit", "note": "Multi-floor cocktail bar in FiDi. Irish-inspired, award-winning. Taproom downstairs", "address": "30 Water St, New York", "covered": true},
+      {"name": "Bemelmans Bar", "note": "Live piano, Madeline murals on the walls. Old-money Upper East Side glamour", "address": "35 E 76th St, New York", "covered": true},
+      {"name": "Rudy's Bar & Grill", "note": "Legendary Hell's Kitchen dive. Free hot dogs, cheap pitchers. Pure NYC", "address": "627 9th Ave, New York", "covered": true},
+      {"name": "Jimmy", "note": "18th-floor rooftop at ModernHaus SoHo. Pool deck, fireplace, fashion crowd. Indoor lounge open year-round", "address": "30 Thompson St, New York", "covered": "partial", "url": "https://www.jimmysoho.com"},
+      {"name": "Nubeluz", "note": "50th-floor cocktail bar at Ritz-Carlton NoMad. Floor-to-ceiling windows, dazzling skyline. Great mid-March pick", "address": "25 W 28th St, New York", "covered": true, "url": "https://www.nubeluznyc.com"},
+      {"name": "230 Fifth", "note": "Massive rooftop with heated igloos in winter and Empire State Building views. Indoor penthouse lounge too", "address": "230 5th Ave, New York", "covered": "partial", "url": "https://www.230-fifth.com"},
+      {"name": "Spyglass", "note": "Intimate Midtown rooftop at Archer Hotel. Empire State Building as backdrop. Retractable enclosure in winter", "address": "45 W 38th St, New York", "covered": "partial", "url": "https://www.spyglassrooftopbar.com"},
+      {"name": "The Skylark", "note": "Sleek 30th-floor lounge in Garment District. Dramatic Midtown views. Indoor lounge year-round", "address": "200 W 39th St, New York", "covered": true, "url": "https://www.theskylarknyc.com"},
+      {"name": "Refinery Rooftop", "note": "Industrial-chic with retractable glass roof. Empire State views. Enclosed and heated in winter", "address": "63 W 38th St, New York", "covered": "partial", "url": "https://www.refineryrooftop.com"},
+      {"name": "Ophelia", "note": "Art Deco cocktail lounge on 26th floor of Beekman Tower. East River and Chrysler Building views. Fully indoor", "address": "3 Mitchell Pl, New York", "covered": true, "url": "https://www.opheliany.com"},
+      {"name": "The Roof at Public Hotel", "note": "Ian Schrager's trendy rooftop on LES. Downtown crowd. Seasonal — may be closed mid-March, check ahead", "address": "215 Chrystie St, New York", "covered": false},
+      {"name": "Bar 54", "note": "Highest hotel rooftop bar in NYC. 54th floor at Hyatt Times Square. 360° Midtown views. Indoor lounge year-round", "address": "135 W 45th St, New York", "covered": "partial", "url": "https://www.bar54nyc.com"}
     ]
   },
   {

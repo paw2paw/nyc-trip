@@ -63,6 +63,7 @@
 
 <div class="menu-section">Tools</div>
 <div class="menu-item" onclick="openGuides()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M9 1l2.5 5 5.5.8-4 3.9.9 5.3L9 13.5 4.1 16l.9-5.3-4-3.9L6.5 6z"/></svg> Curated</div>
+<div class="menu-item" onclick="openRemoved()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M5 3h8l1 2H4l1-2zm-1 3h10v9a1 1 0 01-1 1H5a1 1 0 01-1-1V6zm3 2v6h1V8H7zm3 0v6h1V8h-1z"/></svg> Removed</div>
 <div class="menu-item" onclick="openCurrency()"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M9 1a8 8 0 100 16A8 8 0 009 1zm.5 3v1.2c1.1.2 2 .8 2 1.8h-1.3c0-.5-.5-.9-1.2-.9-.8 0-1.3.4-1.3 1s.4.8 1.3 1l.7.2c1.3.3 2.1.9 2.1 2 0 1.1-.9 1.7-2.3 1.9V13h-1v-1.2c-1.2-.2-2.1-.8-2.2-1.9h1.4c.1.6.6 1 1.3 1 .9 0 1.3-.4 1.3-.9 0-.5-.3-.8-1.2-1l-.8-.2c-1.1-.3-2-.8-2-2 0-1 .8-1.7 2.1-1.9V4h1z"/></svg> Currency <span class="menu-badge">GBP/USD</span></div>
 
 <div class="menu-section">Help</div>
@@ -92,6 +93,8 @@
 <div id="routeMapContainer"></div>
 <div id="stops"></div>
 </main>
+
+<button id="addPlaceFab" onclick="openAddPlace()" aria-label="Add place">+</button>
 
 <div id="guidesOverlay" onclick="closeGuides()"></div>
 <div id="guidesSheet">
@@ -213,6 +216,45 @@
 <button class="toggleBtn" style="width:100%;margin-top:1.2em" onclick="forceReload()">Force Reload App</button>
 <div id="settingsVersion" class="settingsVersion"></div>
 </div>
+</div>
+
+<div id="addPlaceOverlay" onclick="closeAddPlace()"></div>
+<div id="addPlaceSheet">
+<div class="sheetHeader">
+<span>Add Place</span>
+<button onclick="closeAddPlace()" aria-label="Close">✕</button>
+</div>
+<div class="addPlaceForm">
+<label class="settingsLabel">Position</label>
+<select id="addPlacePos" class="settingsInput"></select>
+<label class="settingsLabel">Name *</label>
+<input id="addPlaceName" type="text" class="settingsInput" placeholder="Place name">
+<label class="settingsLabel">Address *</label>
+<input id="addPlaceAddr" type="text" class="settingsInput" placeholder="123 Street, New York">
+<label class="settingsLabel">Icon</label>
+<input id="addPlaceIcon" type="text" class="settingsInput" placeholder="📍" maxlength="4" style="width:60px">
+<label class="settingsLabel">Type</label>
+<div class="addPlaceTypeRow">
+<button id="addPlaceTypeFlex" class="toggleBtn active" onclick="setAddPlaceType('flexible')">Flexible</button>
+<button id="addPlaceTypeRes" class="toggleBtn" onclick="setAddPlaceType('reserved')">Reserved</button>
+</div>
+<div id="addPlaceTimeRow" style="display:none">
+<label class="settingsLabel">Time</label>
+<input id="addPlaceTime" type="time" class="settingsInput">
+</div>
+<label class="settingsLabel">Note</label>
+<textarea id="addPlaceNote" class="settingsInput" rows="2" placeholder="Optional notes"></textarea>
+<button class="addPlaceSubmit" onclick="submitAddPlace()">Add Place</button>
+</div>
+</div>
+
+<div id="removedOverlay" onclick="closeRemoved()"></div>
+<div id="removedSheet">
+<div class="sheetHeader">
+<span>Removed Places</span>
+<button onclick="closeRemoved()" aria-label="Close">✕</button>
+</div>
+<div id="removedContent"></div>
 </div>
 
 <script src="app.js" defer></script>
