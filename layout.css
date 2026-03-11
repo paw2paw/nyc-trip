@@ -296,6 +296,7 @@ header.scrolled #title {
   letter-spacing: 0.5px;
   color: var(--stone);
   text-align: center;
+  animation: cardReveal 0.25s ease both;
   padding: 8px 16px;
   line-height: 1.6;
   display: flex;
@@ -320,6 +321,18 @@ header.scrolled #title {
   line-height: 1.4;
   position: relative;
   transition: transform 0.1s ease;
+  animation: cardReveal 0.35s ease both;
+}
+
+@keyframes cardReveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .stop.flexible, .stop.reserved {
@@ -2806,6 +2819,46 @@ a.stopAddr:active {
 
 [data-theme="dark"] .streetViewImg {
   background: #2a2a2a;
+}
+
+/* === Scroll to Top Button === */
+
+#scrollTopBtn {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 90;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--cream-warm);
+  color: var(--gold);
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 1;
+  border: 1px solid var(--gold);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+#scrollTopBtn.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+#scrollTopBtn:active {
+  transform: scale(0.9);
+}
+
+[data-theme="dark"] #scrollTopBtn {
+  background: #222;
+  border-color: var(--gold);
+  color: var(--gold);
 }
 
 /* === FAB Add Place Button === */

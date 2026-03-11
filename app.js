@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "1.5.2"
+const APP_VERSION = "2.0.0"
 
 // --- SVG icons ---
 
@@ -1086,6 +1086,15 @@ function render() {
     if (outbound) nodes.push(flightRow(outbound))
   }
 
+  // Stagger card reveal animations
+  let cardIdx = 0
+  nodes.forEach(n => {
+    if (n.classList && n.classList.contains("stop")) {
+      n.style.animationDelay = (cardIdx * 0.04) + "s"
+      cardIdx++
+    }
+  })
+
   document.getElementById("stops").replaceChildren(...nodes)
   saveState()
   fetchTravelTimes()
@@ -1155,14 +1164,17 @@ document.addEventListener("keydown", e => {
   else if (e.key === "ArrowRight") { e.preventDefault(); nextDay() }
 })
 
-// --- Collapsing header on scroll ---
-;(function initScrollHeader() {
+// --- Collapsing header + scroll-to-top on scroll ---
+;(function initScrollEffects() {
   const header = document.querySelector("header")
+  const scrollBtn = document.getElementById("scrollTopBtn")
   let ticking = false
   window.addEventListener("scroll", () => {
     if (!ticking) {
       requestAnimationFrame(() => {
-        header.classList.toggle("scrolled", window.scrollY > 30)
+        const y = window.scrollY
+        header.classList.toggle("scrolled", y > 30)
+        if (scrollBtn) scrollBtn.classList.toggle("visible", y > 300)
         ticking = false
       })
       ticking = true
