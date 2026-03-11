@@ -1489,8 +1489,7 @@ a.stopAddr:active {
 }
 
 .exploreSectionChevron {
-  display: inline-block;
-  width: 16px;
+  margin-left: auto;
   font-size: 13px;
   color: var(--gold);
 }
