@@ -2531,7 +2531,7 @@ function openAddPlace() {
   closeMenu()
   const effective = getEffectiveStops(state.day)
   const sel = document.getElementById("addPlacePos")
-  sel.innerHTML = ""
+  sel.replaceChildren()
   sel.add(new Option("Start of day", "0"))
   effective.forEach((entry, i) => {
     sel.add(new Option("After " + (i + 1) + ". " + entry.stop.name, String(i + 1)))
