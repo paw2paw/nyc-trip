@@ -289,21 +289,24 @@ header {
 
 .dayViewToggle {
   display: inline-flex;
-  border-radius: 6px;
   overflow: hidden;
-  border: 1px solid var(--border, #ddd);
+  border: 1px solid var(--border);
+  clip-path: var(--deco-clip-sm);
 }
 
 .dayViewBtn {
   font-family: 'Josefin Sans', sans-serif;
-  font-size: 11px;
-  letter-spacing: 0.3px;
-  padding: 4px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  min-height: 36px;
   border: none;
   background: transparent;
   color: var(--stone);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .dayViewBtn:active {
