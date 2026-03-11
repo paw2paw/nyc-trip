@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "2.1.0"
+const APP_VERSION = "2.1.1"
 
 // --- SVG icons ---
 
@@ -1662,7 +1662,7 @@ function teSection(id, titleText) {
       body.style.display = teCollapsed[id] ? "none" : ""
       title.lastChild.textContent = teCollapsed[id] ? "▸" : "▾"
     }
-  }, titleText, el("span", { style: "font-size:13px;color:var(--gold)" }, chevron))
+  }, titleText, el("span", { style: "font-size:18px;color:var(--gold)" }, chevron))
   const section = el("div", { className: "te-section" }, title, body)
   return { section, body }
 }
@@ -2277,7 +2277,9 @@ function renderExplore() {
       const key = "nyc-explore-col-" + item.category
       const isCollapsed = localStorage.getItem(key) === "1"
       const chevron = el("span", { className: "exploreSectionChevron" }, isCollapsed ? "▸" : "▾")
-      sectionBody = el("div", { className: "exploreSectionBody" + (isCollapsed ? " collapsed" : "") })
+      const sectionInner = el("div", { className: "exploreSectionInner" })
+      sectionBody = el("div", { className: "exploreSectionBody" + (isCollapsed ? " collapsed" : "") }, sectionInner)
+      sectionBody._inner = sectionInner
       const head = el("div", { className: "exploreSectionHead", role: "button", tabindex: "0" },
         catIcons[item.category] + " " + item.category, chevron
       )
@@ -2294,7 +2296,7 @@ function renderExplore() {
     if (item.tag && item.tag !== lastTag && !hasDistances) {
       lastTag = item.tag
       const tagEl = el("div", { className: "exploreTagHead" }, item.tag)
-      if (sectionBody) sectionBody.append(tagEl)
+      if (sectionBody && sectionBody._inner) sectionBody._inner.append(tagEl)
       else nodes.push(tagEl)
     }
 
@@ -2332,7 +2334,7 @@ function renderExplore() {
         rightSide
       )
     )
-    if (sectionBody && showSections) sectionBody.append(card)
+    if (sectionBody && showSections && sectionBody._inner) sectionBody._inner.append(card)
     else nodes.push(card)
   })
 

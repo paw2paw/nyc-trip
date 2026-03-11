@@ -1515,19 +1515,19 @@ a.stopAddr:active {
 
 .exploreSectionChevron {
   margin-left: auto;
-  font-size: 13px;
+  font-size: 18px;
   color: var(--gold);
 }
 
 .exploreSectionBody {
   display: grid;
   grid-template-rows: 1fr;
-  overflow: hidden;
   transition: grid-template-rows 0.25s ease;
 }
 
-.exploreSectionBody > * {
+.exploreSectionInner {
   min-height: 0;
+  overflow: hidden;
 }
 
 .exploreSectionBody.collapsed {
@@ -2181,7 +2181,7 @@ a.stopAddr:active {
 
 .routeToggleChevron {
   margin-left: auto;
-  font-size: 13px;
+  font-size: 18px;
   color: var(--gold);
 }
 
