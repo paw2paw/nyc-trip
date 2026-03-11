@@ -405,7 +405,8 @@ function stopCard(entry, i, dayIndex) {
           className: "streetViewImg",
           src: "https://maps.googleapis.com/maps/api/streetview?size=400x200&location=" + encodeURIComponent(stop.address) + "&key=" + apiKey,
           alt: stop.name + " street view",
-          loading: "lazy"
+          loading: "lazy",
+          onerror: function() { this.style.display = "none" }
         })
       : null
 
@@ -487,7 +488,7 @@ function routeCard(dayIndex) {
     const markers = stops.map((s, i) =>
       "&markers=color:0xC9A84C%7Clabel:" + (i + 1) + "%7C" + encodeURIComponent(s.address)
     ).join("")
-    const hotelMarker = "&markers=color:0x2A7D4F%7Clabel:H%7C" + origin
+    const hotelMarker = "&markers=color:0x2A7D4F%7Clabel:H%7C" + encodeURIComponent(hotel.address)
     const staticUrl = "https://maps.googleapis.com/maps/api/staticmap?size=640x300&scale=2"
       + "&style=feature:poi%7Cvisibility:off"
       + hotelMarker + markers + "&key=" + apiKey
