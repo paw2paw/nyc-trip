@@ -1400,14 +1400,14 @@ a.stopAddr:active {
 /* Explore filter chips */
 .guidesFilters {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 8px 20px;
+  flex-wrap: nowrap;
+  gap: 4px;
+  padding: 8px 16px;
   flex-shrink: 0;
 }
 
 .filterChip {
-  padding: 8px 14px;
+  padding: 8px 12px;
   min-height: 44px;
   border: 1px solid var(--border);
   clip-path: var(--deco-clip-sm);
@@ -1421,13 +1421,16 @@ a.stopAddr:active {
   white-space: nowrap;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  flex: 4;
 }
 
 .filterChip-icon {
-  padding: 8px 12px;
+  padding: 8px 0;
   font-size: 18px;
   line-height: 1;
   position: relative;
+  flex: 1;
+  text-align: center;
 }
 
 .chipTooltip {

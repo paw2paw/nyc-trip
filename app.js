@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "2.1.2"
+const APP_VERSION = "2.1.3"
 
 // --- SVG icons ---
 
@@ -2293,11 +2293,12 @@ function renderExplore() {
       const sectionInner = el("div", { className: "exploreSectionInner" })
       sectionBody = el("div", { className: "exploreSectionBody" + (isCollapsed ? " collapsed" : "") }, sectionInner)
       sectionBody._inner = sectionInner
+      const thisBody = sectionBody
       const head = el("div", { className: "exploreSectionHead", role: "button", tabindex: "0" },
         catIcons[item.category] + " " + item.category, chevron
       )
       head.onclick = () => {
-        const col = sectionBody.classList.toggle("collapsed")
+        const col = thisBody.classList.toggle("collapsed")
         chevron.textContent = col ? "▸" : "▾"
         localStorage.setItem(key, col ? "1" : "0")
       }
