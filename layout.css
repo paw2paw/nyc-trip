@@ -481,7 +481,7 @@ header {
   flex-shrink: 0;
   margin-right: 4px;
   padding: 0;
-  transition: all 0.1s ease;
+  transition: opacity 0.1s ease, transform 0.1s ease;
 }
 
 .doneBtn:active {
@@ -1468,30 +1468,31 @@ a.stopAddr:active {
 }
 
 .exploreSectionHead {
-  font-family: "Josefin Sans", sans-serif;
-  font-size: 11px;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 2.5px;
+  letter-spacing: 1px;
   text-transform: uppercase;
-  color: var(--gold);
-  padding: 12px 0 4px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 6px;
-}
-
-.exploreSectionHead {
+  color: var(--ink-mid);
+  padding: 14px 0 8px;
+  border-bottom: 1px solid var(--gold);
+  margin-bottom: 8px;
   cursor: pointer;
   user-select: none;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
 }
 
 .exploreSectionHead:first-child {
-  padding-top: 4px;
+  padding-top: 6px;
 }
 
 .exploreSectionChevron {
   display: inline-block;
-  width: 12px;
-  font-size: 11px;
+  width: 16px;
+  font-size: 13px;
+  color: var(--gold);
 }
 
 .exploreSectionBody {
@@ -1899,7 +1900,7 @@ a.stopAddr:active {
   text-transform: uppercase;
   color: var(--stone);
   cursor: pointer;
-  transition: all 0.15s ease, transform 0.1s ease;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
 }
 
 .toggleBtn:active {
@@ -2026,7 +2027,7 @@ a.stopAddr:active {
   clip-path: var(--deco-clip-sm);
   background: white;
   cursor: pointer;
-  transition: all 0.15s ease, transform 0.1s ease;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
 }
 
 .alertToggle:active {
@@ -3474,7 +3475,7 @@ a.stopAddr:active {
   text-transform: uppercase;
   letter-spacing: 1px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .te-reset-btn:active {

@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "1.4.5"
+const APP_VERSION = "1.4.6"
 
 // --- SVG icons ---
 
@@ -2196,7 +2196,7 @@ function renderExplore() {
       )
       nearbyNodes.push(card)
     })
-    container.replaceChildren.apply(container, nearbyNodes)
+    container.replaceChildren(...nearbyNodes)
     return
   }
 
