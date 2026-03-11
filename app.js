@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "2.1.4"
+const APP_VERSION = "2.1.5"
 
 // --- SVG icons ---
 
@@ -9,6 +9,17 @@ const SVG_PIN = '<svg class="pin-icon" viewBox="0 0 14 14" fill="currentColor"><
 const SVG_SUBWAY = '<svg class="travel-icon" viewBox="0 0 14 14" fill="currentColor"><path d="M4 1h6a2 2 0 012 2v6a2 2 0 01-2 2l1.5 2h-1.2L9 11H5l-1.3 2H2.5L4 11a2 2 0 01-2-2V3a2 2 0 012-2zm0 1.5v3h2.5v-3H4zm3.5 0v3H10v-3H7.5zM5 8a.8.8 0 100 1.6A.8.8 0 005 8zm4 0a.8.8 0 100 1.6A.8.8 0 009 8z"/></svg>'
 const SVG_CAR = '<svg class="travel-icon" viewBox="0 0 14 14" fill="currentColor"><path d="M3.5 2h7l1.5 4v5a.5.5 0 01-.5.5h-1a.5.5 0 01-.5-.5V10.5h-6V11a.5.5 0 01-.5.5h-1A.5.5 0 012 11V6l1.5-4zm.3 1.5L3 6h8l-.8-2.5H3.8zM4 7.5a1 1 0 100 2 1 1 0 000-2zm6 0a1 1 0 100 2 1 1 0 000-2z"/></svg>'
 const SVG_GPS = '<svg class="pin-icon" viewBox="0 0 14 14" fill="currentColor"><path d="M7 0v2a5 5 0 00-5 5H0v2h2a5 5 0 005 5v2h2v-2a5 5 0 005-5h2V7h-2a5 5 0 00-5-5V0H7zm1 4a3 3 0 110 6 3 3 0 010-6z"/></svg>'
+
+// --- Haptic helper ---
+
+function haptic(ms) { if (localStorage.getItem("nyc-haptics") !== "0" && navigator.vibrate) navigator.vibrate(ms || 8) }
+
+function setHaptics(on) {
+  localStorage.setItem("nyc-haptics", on ? "1" : "0")
+  document.getElementById("hapticsOn").classList.toggle("active", on)
+  document.getElementById("hapticsOff").classList.toggle("active", !on)
+  if (on) haptic(10)
+}
 
 // --- DOM helper ---
 
@@ -417,7 +428,7 @@ function toggleDone(dayIndex, stopIndex) {
   const key = dayIndex + "-" + stopIndex
   if (state.done[key]) delete state.done[key]
   else state.done[key] = true
-  if (navigator.vibrate) navigator.vibrate(8)
+  haptic(8)
   render()
 }
 
@@ -523,7 +534,7 @@ function stopCard(entry, i, dayIndex, nextUpIdx, effectiveLen) {
     ? el("span", { className: "timeBadge" }, stop.time)
     : null
 
-  const removeBtn = el("button", {
+  const removeBtn = compact ? null : el("button", {
     className: "removeBtn",
     "aria-label": "Remove this stop",
     onclick: (e) => { e.stopPropagation(); removeStop(key, stop.name) }
@@ -547,12 +558,12 @@ function stopCard(entry, i, dayIndex, nextUpIdx, effectiveLen) {
     onclick: (e) => { e.stopPropagation(); toggleExpand(expandKey) }
   })
 
-  const moveUpBtn = i > 0 ? el("button", {
+  const moveUpBtn = !compact && i > 0 ? el("button", {
     className: "moveBtn",
     "aria-label": "Move up",
     onclick: (e) => { e.stopPropagation(); moveStop(dayIndex, i, -1) }
   }, "▲") : null
-  const moveDownBtn = i < effectiveLen - 1 ? el("button", {
+  const moveDownBtn = !compact && i < effectiveLen - 1 ? el("button", {
     className: "moveBtn",
     "aria-label": "Move down",
     onclick: (e) => { e.stopPropagation(); moveStop(dayIndex, i, 1) }
@@ -794,6 +805,7 @@ function routeCard(dayIndex) {
   const toggle = el("button", {
     className: "routeToggle",
     onclick: () => {
+      haptic(6)
       const isCollapsed = body.classList.toggle("collapsed")
       chevron.textContent = isCollapsed ? "▸" : "▾"
       localStorage.setItem("nyc-map-collapsed-" + dayIndex, isCollapsed ? "1" : "0")
@@ -1102,7 +1114,7 @@ function render() {
 
 function setStop(i) {
   if (i === state.stop) return
-  if (navigator.vibrate) navigator.vibrate(6)
+  haptic(6)
   state.stop = i
   render()
   document.querySelector(".stop.active")?.scrollIntoView({ behavior: "smooth", block: "center" })
@@ -1112,6 +1124,7 @@ function setStop(i) {
 
 function switchDay(fn, dir) {
   dir = dir || 1
+  haptic(10)
   const stops = document.getElementById("stops")
   const mapC = document.getElementById("routeMapContainer")
   const title = document.getElementById("title")
@@ -1230,7 +1243,7 @@ document.addEventListener("touchend", e => {
   const elapsed = Date.now() - startTime
   // Require 100px minimum distance and at least 80ms to avoid accidental flicks
   if (Math.abs(dx) < 100 || elapsed < 80) return
-  if (navigator.vibrate) navigator.vibrate(12)
+  haptic(12)
   if (dx < 0) nextDay()
   else prevDay()
 })
@@ -1238,6 +1251,7 @@ document.addEventListener("touchend", e => {
 // --- Menu ---
 
 function toggleMenu() {
+  haptic(6)
   const menu = document.getElementById("menu")
   menu.classList.toggle("open")
   document.getElementById("menuOverlay").classList.toggle("show")
@@ -1266,6 +1280,7 @@ let subwayDrag = null
 let subwayPinch = null
 
 function openSubwayMap() {
+  haptic(6)
   closeMenu()
   resetSubwayZoom()
   document.getElementById("subwayMapSheet").classList.add("open")
@@ -1411,6 +1426,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // --- Currency converter ---
 
 function openCurrency() {
+  haptic(6)
   closeMenu()
   const input = document.getElementById("currencyInput")
   const result = document.getElementById("currencyResult")
@@ -1562,6 +1578,7 @@ function sendMyLocation() {
 // --- Emergency sheet ---
 
 function openEmergency() {
+  haptic(6)
   closeMenu()
   const day = data.days[state.day]
   const hotel = getHotel(day.date)
@@ -1613,6 +1630,7 @@ function closeEmergency() {
 // --- Settings sheet ---
 
 function openSettings() {
+  haptic(6)
   closeMenu()
   const user = getUser()
   document.getElementById("starPaw").classList.toggle("active", user === "PAW")
@@ -1627,6 +1645,9 @@ function openSettings() {
   document.getElementById("themeDark").classList.toggle("active", theme === "dark")
   document.getElementById("themeSystem").classList.toggle("active", theme === "system")
   document.getElementById("gmapsKeyInput").value = localStorage.getItem("nyc-gmaps-key") || ""
+  const hapticsOn = localStorage.getItem("nyc-haptics") !== "0"
+  document.getElementById("hapticsOn").classList.toggle("active", hapticsOn)
+  document.getElementById("hapticsOff").classList.toggle("active", !hapticsOn)
   initAlertSettings()
   document.getElementById("settingsVersion").textContent = "v" + APP_VERSION
   document.getElementById("settingsSheet").classList.add("open")
@@ -1720,6 +1741,7 @@ function applyTripEdits() {
 }
 
 function openTripEditor() {
+  haptic(6)
   closeMenu()
   teStopFilter = "reserved"
   renderTripEditor()
@@ -2062,6 +2084,7 @@ let exploreOriginMode = "auto" // "auto" (geo then fallback), "geo", "stop"
 let exploreRenderTimer = null
 
 function openGuides() {
+  haptic(6)
   closeMenu()
   swapTarget = null
   exploreFilter = new Set()
@@ -2118,6 +2141,7 @@ function isAllFilters() {
 }
 
 function toggleFilter(cat) {
+  haptic(6)
   if (isAllFilters()) {
     // From "All" mode, tapping a chip enters filter mode with just that category
     exploreFilter = new Set([cat])
@@ -2298,6 +2322,7 @@ function renderExplore() {
         catIcons[item.category] + " " + item.category, chevron
       )
       head.onclick = () => {
+        haptic(6)
         const col = thisBody.classList.toggle("collapsed")
         chevron.textContent = col ? "▸" : "▾"
         localStorage.setItem(key, col ? "1" : "0")
@@ -2606,6 +2631,7 @@ function initAlertSettings() {
 // --- Add Place sheet ---
 
 function openAddPlace() {
+  haptic(6)
   closeMenu()
   const effective = getEffectiveStops(state.day)
   const sel = document.getElementById("addPlacePos")
@@ -2666,6 +2692,7 @@ function submitAddPlace() {
 // --- Removed Places sheet ---
 
 function openRemoved() {
+  haptic(6)
   closeMenu()
   renderRemoved()
   document.getElementById("removedSheet").classList.add("open")
@@ -2932,6 +2959,7 @@ function syncCancel() {
 // --- Search ---
 
 function openSearch() {
+  haptic(6)
   document.getElementById("searchSheet").classList.add("open")
   document.getElementById("searchOverlay").classList.add("show")
   const input = document.getElementById("searchInput")
@@ -3111,7 +3139,7 @@ function renderSearchResults() {
       if (currentY > 80) {
         sheet.style.transform = "translateY(100%)"
         setTimeout(() => { sheet.style.transform = ""; close() }, 300)
-        if (navigator.vibrate) navigator.vibrate(8)
+        haptic(8)
       } else {
         sheet.style.transform = "translateY(0)"
       }

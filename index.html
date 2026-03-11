@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Josefin+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="layout.css?v=2.1.4">
+<link rel="stylesheet" href="layout.css?v=2.1.5">
 </head>
 
 <body>
@@ -190,6 +190,11 @@
 <button id="compactOff" class="toggleBtn active" onclick="setCompact(false)">Full</button>
 <button id="compactOn" class="toggleBtn" onclick="setCompact(true)">Compact</button>
 </div>
+<label class="settingsLabel">Haptics</label>
+<div class="settingsToggle">
+<button id="hapticsOn" class="toggleBtn active" onclick="setHaptics(true)">On</button>
+<button id="hapticsOff" class="toggleBtn" onclick="setHaptics(false)">Off</button>
+</div>
 <label for="gmapsKeyInput" class="settingsLabel">Google Maps API Key</label>
 <div class="settingsInputRow">
 <input id="gmapsKeyInput" type="text" class="settingsInput" placeholder="AIza..." oninput="saveGmapsKey()">
@@ -299,7 +304,7 @@
 <div id="tripEditorContent"></div>
 </div>
 
-<script src="app.js?v=2.1.4" defer></script>
+<script src="app.js?v=2.1.5" defer></script>
 
 </body>
 </html>

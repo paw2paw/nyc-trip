@@ -322,7 +322,7 @@ header.scrolled #title {
   filter: drop-shadow(0 2px 4px rgba(26, 26, 26, 0.08));
   line-height: 1.4;
   position: relative;
-  transition: transform 0.1s ease;
+  transition: transform 0.1s ease, box-shadow 0.3s ease, border-left 0.3s ease;
   animation: cardReveal 0.35s ease both;
 }
 
@@ -2866,8 +2866,8 @@ a.stopAddr:active {
   bottom: 24px;
   left: 24px;
   z-index: 90;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: var(--cream-warm);
   color: var(--gold);
@@ -2934,8 +2934,8 @@ a.stopAddr:active {
 }
 
 .moveBtn {
-  width: 32px;
-  height: 24px;
+  width: 44px;
+  height: 44px;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--stone);
@@ -2980,8 +2980,8 @@ a.stopAddr:active {
 /* === Remove Button === */
 
 .removeBtn {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--stone);
@@ -3060,11 +3060,12 @@ a.stopAddr:active {
   width: 100%;
   margin-top: 12px;
   padding: 12px;
+  min-height: 48px;
   background: var(--gold);
   color: var(--ink);
   border: none;
   clip-path: var(--deco-clip-sm);
-  font-family: var(--font);
+  font-family: "Josefin Sans", sans-serif;
   font-size: 1rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -3084,7 +3085,7 @@ a.stopAddr:active {
 }
 
 .removedDayHead {
-  font-family: var(--font);
+  font-family: "Josefin Sans", sans-serif;
   font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
