@@ -74,20 +74,24 @@
 
 <div class="headerRow">
 
-<button class="headerBtn" onclick="toggleMenu()" aria-label="Menu"><svg viewBox="0 0 24 32" fill="currentColor"><path d="M11 2h2v3h-2zM10 5h4v2h-4zM9 7h6v2h-6zM8 9h8v3h-8zM9 12h6v2h-6zM10 14h4v2h-4zM7 16h10v2h-10zM6 18h12v3h-12zM5 21h14v3h-14zM4 24h16v3h-16zM3 27h18v3h-18z"/></svg></button>
+<button id="menuToggleBtn" class="headerBtn" onclick="toggleMenu()" aria-label="Menu" aria-expanded="false"><svg viewBox="0 0 24 32" fill="currentColor"><path d="M11 2h2v3h-2zM10 5h4v2h-4zM9 7h6v2h-6zM8 9h8v3h-8zM9 12h6v2h-6zM10 14h4v2h-4zM7 16h10v2h-10zM6 18h12v3h-12zM5 21h14v3h-14zM4 24h16v3h-16zM3 27h18v3h-18z"/></svg></button>
 
 <div id="dayCarousel" role="tablist" aria-label="Trip days"></div>
 
 <button class="headerBtn" onclick="sendMyLocation()" aria-label="Send my location"><svg viewBox="0 0 24 32" fill="currentColor"><path d="M12 2C8 2 5 5.6 5 10c0 6 7 16 7 16s7-10 7-16c0-4.4-3-8-7-8zm0 11a3 3 0 110-6 3 3 0 010 6z"/></svg></button>
 
+<button id="compactBtn" class="headerBtn" onclick="toggleCompact()" aria-label="Toggle compact view"><svg viewBox="0 0 24 32" fill="currentColor"><path d="M4 8h16v2H4zm0 6h16v2H4zm0 6h16v2H4z"/></svg></button>
+
 </div>
 
-<div id="title"></div>
+<h1 id="title"></h1>
 
 </header>
 
+<main>
 <div id="routeMapContainer"></div>
 <div id="stops"></div>
+</main>
 
 <div id="guidesOverlay" onclick="closeGuides()"></div>
 <div id="guidesSheet">
@@ -155,9 +159,9 @@
 <button id="iAmPaw" class="toggleBtn active" onclick="setUser('PAW')">PAW</button>
 <button id="iAmLaw" class="toggleBtn" onclick="setUser('LAW')">LAW</button>
 </div>
-<label class="settingsLabel">PAW Phone</label>
+<label for="pawPhoneInput" class="settingsLabel">PAW Phone</label>
 <input id="pawPhoneInput" type="tel" class="settingsInput" placeholder="+44 ..." oninput="savePhones()">
-<label class="settingsLabel">LAW Phone</label>
+<label for="lawPhoneInput" class="settingsLabel">LAW Phone</label>
 <input id="lawPhoneInput" type="tel" class="settingsInput" placeholder="+44 ..." oninput="savePhones()">
 <p class="settingsNote">Used for the 📍 Send Location feature. Update when you get your eSIMs.</p>
 <label class="settingsLabel">Theme</label>
@@ -171,7 +175,12 @@
 <button id="tempC" class="toggleBtn active" onclick="setTempUnit('celsius')">°C</button>
 <button id="tempF" class="toggleBtn" onclick="setTempUnit('fahrenheit')">°F</button>
 </div>
-<label class="settingsLabel">Google Maps API Key</label>
+<label class="settingsLabel">View</label>
+<div class="settingsToggle">
+<button id="viewFull" class="toggleBtn active" onclick="setCompact(false)">Full</button>
+<button id="viewCompact" class="toggleBtn" onclick="setCompact(true)">Compact</button>
+</div>
+<label for="gmapsKeyInput" class="settingsLabel">Google Maps API Key</label>
 <div class="settingsInputRow">
 <input id="gmapsKeyInput" type="text" class="settingsInput" placeholder="AIza..." value="AIzaSyBql5cJfu7zX3___6-jB6TlXvCLOAvxYKo" oninput="saveGmapsKey()">
 <button class="copyBtn" onclick="copyGmapsKey()" aria-label="Copy API key">Copy</button>

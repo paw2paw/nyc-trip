@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "1.3.0"
+const APP_VERSION = "0.9.001"
 
 // --- SVG icons ---
 
@@ -8,6 +8,7 @@ const SVG_WALK = '<svg class="travel-icon" viewBox="0 0 14 14" fill="currentColo
 const SVG_PIN = '<svg class="pin-icon" viewBox="0 0 14 14" fill="currentColor"><path d="M7 1C4.8 1 3 2.9 3 5.3 3 8.5 7 13 7 13s4-4.5 4-7.7C11 2.9 9.2 1 7 1zm0 5.8a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/></svg>'
 const SVG_SUBWAY = '<svg class="travel-icon" viewBox="0 0 14 14" fill="currentColor"><path d="M4 1h6a2 2 0 012 2v6a2 2 0 01-2 2l1.5 2h-1.2L9 11H5l-1.3 2H2.5L4 11a2 2 0 01-2-2V3a2 2 0 012-2zm0 1.5v3h2.5v-3H4zm3.5 0v3H10v-3H7.5zM5 8a.8.8 0 100 1.6A.8.8 0 005 8zm4 0a.8.8 0 100 1.6A.8.8 0 009 8z"/></svg>'
 const SVG_CAR = '<svg class="travel-icon" viewBox="0 0 14 14" fill="currentColor"><path d="M3.5 2h7l1.5 4v5a.5.5 0 01-.5.5h-1a.5.5 0 01-.5-.5V10.5h-6V11a.5.5 0 01-.5.5h-1A.5.5 0 012 11V6l1.5-4zm.3 1.5L3 6h8l-.8-2.5H3.8zM4 7.5a1 1 0 100 2 1 1 0 000-2zm6 0a1 1 0 100 2 1 1 0 000-2z"/></svg>'
+const SVG_GPS = '<svg class="pin-icon" viewBox="0 0 14 14" fill="currentColor"><path d="M7 0v2a5 5 0 00-5 5H0v2h2a5 5 0 005 5v2h2v-2a5 5 0 005-5h2V7h-2a5 5 0 00-5-5V0H7zm1 4a3 3 0 110 6 3 3 0 010-6z"/></svg>'
 
 // --- DOM helper ---
 
@@ -35,6 +36,7 @@ const STORAGE_KEY = "nyc-trip-state"
 let data
 let state = { day: 0, stop: 0, swaps: {}, done: {} }
 let hourlyWeather = null
+let weatherController = null // AbortController for weather fetch
 let travelTimes = {}
 let travelRenderTimer = null
 let swapTarget = null // index of stop being swapped
@@ -66,8 +68,10 @@ function autoSelectToday() {
 }
 
 function clampState() {
+  if (!data || !data.days || !data.days.length) return
   state.day = Math.max(0, Math.min(state.day, data.days.length - 1))
-  const stops = data.days[state.day].stops
+  const stops = data.days[state.day]?.stops
+  if (!stops || !stops.length) return
   state.stop = Math.max(0, Math.min(state.stop, stops.length - 1))
 }
 
@@ -120,6 +124,28 @@ function applyTheme() {
   document.documentElement.setAttribute("data-theme", dark ? "dark" : "light")
 }
 
+// --- Compact mode ---
+
+function isCompact() {
+  return localStorage.getItem("nyc-compact") === "1"
+}
+
+function toggleCompact() {
+  setCompact(!isCompact())
+}
+
+function setCompact(on) {
+  localStorage.setItem("nyc-compact", on ? "1" : "0")
+  document.getElementById("compactBtn").classList.toggle("active", on)
+  document.getElementById("viewFull").classList.toggle("active", !on)
+  document.getElementById("viewCompact").classList.toggle("active", on)
+  render()
+}
+
+function applyCompact() {
+  document.getElementById("compactBtn").classList.toggle("active", isCompact())
+}
+
 // Listen for system theme changes
 window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
   if (getTheme() === "system") applyTheme()
@@ -135,6 +161,7 @@ fetch("data.json")
     autoSelectToday()
     clampState()
     applyTheme()
+    applyCompact()
     if (!localStorage.getItem("nyc-gmaps-key")) {
       localStorage.setItem("nyc-gmaps-key", "AIzaSyBql5cJfu7zX3___6-jB6TlXvCLOAvxYKo")
     }
@@ -163,17 +190,19 @@ function setTempUnit(unit) {
 }
 
 function loadWeather() {
+  if (weatherController) weatherController.abort()
+  weatherController = new AbortController()
   const day = data.days[state.day]
   hourlyWeather = null
   const tempUnit = getTempUnit()
   const unitParam = tempUnit === "fahrenheit" ? "&temperature_unit=fahrenheit" : ""
-  fetch("https://api.open-meteo.com/v1/forecast?latitude=40.72&longitude=-74.00&hourly=temperature_2m,precipitation_probability,weather_code&start_date=" + day.date + "&end_date=" + day.date + unitParam)
+  fetch("https://api.open-meteo.com/v1/forecast?latitude=40.72&longitude=-74.00&hourly=temperature_2m,precipitation_probability,weather_code&start_date=" + day.date + "&end_date=" + day.date + unitParam, { signal: weatherController.signal })
     .then(r => r.json())
     .then(w => {
       hourlyWeather = w.hourly
       render()
     })
-    .catch(() => { hourlyWeather = null })
+    .catch(e => { if (e.name !== "AbortError") hourlyWeather = null })
 }
 
 function getStopHour(stopIndex, totalStops) {
@@ -298,19 +327,22 @@ function stopCard(stop, i, dayIndex) {
     ? el("div", { className: "stopNote" }, stop.note)
     : null
 
-  const content = el("div", { className: "stopContent" }, topRow, addr, note, restore)
+  const compact = isCompact()
+  const content = el("div", { className: "stopContent" }, topRow, compact ? null : addr, compact ? null : note, restore)
 
   let wthr = null
   if (hourlyWeather) {
     const hour = stop.time ? parseInt(stop.time.split(":")[0], 10) : getStopHour(i, data.days[dayIndex].stops.length)
-    const temp = Math.round(hourlyWeather.temperature_2m[hour])
-    const rain = hourlyWeather.precipitation_probability[hour]
-    const icon = weatherIcon(hourlyWeather.weather_code[hour])
+    const maxHour = hourlyWeather.temperature_2m.length - 1
+    const safeHour = Math.max(0, Math.min(hour, maxHour))
+    const temp = Math.round(hourlyWeather.temperature_2m[safeHour])
+    const rain = hourlyWeather.precipitation_probability[safeHour]
+    const icon = weatherIcon(hourlyWeather.weather_code[safeHour])
     const unitLabel = getTempUnit() === "fahrenheit" ? "°F" : "°C"
     wthr = el("div", { className: "weatherBadge" },
       el("div", { className: "weatherIcon" }, icon),
-      el("div", { className: "weatherTemp" }, temp + unitLabel),
-      el("div", { className: "weatherRain" }, "💧" + rain + "%")
+      el("div", { className: "weatherTemp" }, (isNaN(temp) ? "--" : temp) + unitLabel),
+      el("div", { className: "weatherRain" }, "💧" + (rain != null ? rain : "--") + "%")
     )
   } else {
     wthr = el("div", { className: "weatherSkeleton" })
@@ -414,19 +446,20 @@ function travelRow(a, b, travelKey) {
   const times = travelTimes[travelKey] || {}
 
   const hasKey = !!localStorage.getItem("nyc-gmaps-key")
-  const loading = hasKey && !times.walk ? ' <span class="travelLoading">···</span>' : ""
-  const walkDur = times.walk ? " " + times.walk : loading
-  const transitDur = times.transit ? " " + times.transit : loading
-  const uberDur = times.drive ? " " + times.drive : loading
+  const loadingDot = hasKey ? " ···" : ""
 
   // Distance badge (walk distance)
   const distBadge = times.walkDist
-    ? el("span", { className: "travelDist", innerHTML: SVG_PIN + " " + times.walkDist })
+    ? el("span", { className: "travelDist", innerHTML: SVG_PIN })
     : null
+  if (distBadge) distBadge.append(" " + times.walkDist)
 
-  const walkLink = el("a", { href: mapsBase + "&travelmode=walking", target: "_blank", innerHTML: SVG_WALK + walkDur, onclick: (e) => e.stopPropagation() })
-  const transitLink = el("a", { href: mapsBase + "&travelmode=transit", target: "_blank", innerHTML: SVG_SUBWAY + transitDur, onclick: (e) => e.stopPropagation() })
-  const uberLink = el("a", { href: uberUrl, target: "_blank", className: "uberLink", innerHTML: SVG_CAR + uberDur, onclick: (e) => e.stopPropagation() })
+  const walkLink = el("a", { href: mapsBase + "&travelmode=walking", target: "_blank", innerHTML: SVG_WALK, onclick: (e) => e.stopPropagation() })
+  walkLink.append(times.walk ? " " + times.walk : loadingDot)
+  const transitLink = el("a", { href: mapsBase + "&travelmode=transit", target: "_blank", innerHTML: SVG_SUBWAY, onclick: (e) => e.stopPropagation() })
+  transitLink.append(times.transit ? " " + times.transit : loadingDot)
+  const uberLink = el("a", { href: uberUrl, target: "_blank", className: "uberLink", innerHTML: SVG_CAR, onclick: (e) => e.stopPropagation() })
+  uberLink.append(times.drive ? " " + times.drive : loadingDot)
 
   return el("div", { className: "travel" }, distBadge, walkLink, transitLink, uberLink)
 }
@@ -447,8 +480,9 @@ function weatherAlertRow(dayIndex) {
   day.stops.forEach((_, i) => {
     const stop = getStop(dayIndex, i)
     const hour = stop.time ? parseInt(stop.time.split(":")[0], 10) : getStopHour(i, day.stops.length)
-    const rain = hourlyWeather.precipitation_probability[hour]
-    if (rain >= 50) rainy.push({ rain, name: stop.name, hour })
+    const safeH = Math.max(0, Math.min(hour, hourlyWeather.precipitation_probability.length - 1))
+    const rain = hourlyWeather.precipitation_probability[safeH]
+    if (rain != null && rain >= 50) rainy.push({ rain, name: stop.name, hour: safeH })
   })
   if (rainy.length === 0) return null
   const worst = rainy.reduce((a, b) => a.rain > b.rain ? a : b)
@@ -456,21 +490,33 @@ function weatherAlertRow(dayIndex) {
   return alertRow("🌧", "Rain " + worst.rain + "% at " + hourLabel + " (" + worst.name + ") — bring an umbrella", "alertWeather")
 }
 
-function reservationAlertRow(stop) {
+function getWalkMins(travelKey) {
+  const times = travelTimes[travelKey]
+  if (!times || !times.walk) return 0
+  const walkMatch = times.walk.match(/(\d+)/)
+  return walkMatch ? parseInt(walkMatch[1], 10) : 0
+}
+
+function reservationAlertRow(stop, travelKey) {
   if (!getAlertPref("reservations")) return null
   if (stop.type !== "reserved" || !stop.time) return null
-  return alertRow("🔔", "Alerts at " + subtractTime(stop.time, 60) + " & " + subtractTime(stop.time, 15) + " — " + stop.name + " at " + stop.time, "alertReservation")
+  const walkMins = getWalkMins(travelKey)
+  const getReadyMins = walkMins + 15
+  const leaveMins = walkMins + 5
+  const getReadyTime = subtractTime(stop.time, getReadyMins)
+  const leaveTime = subtractTime(stop.time, leaveMins)
+  const travelNote = walkMins > 0 ? " (" + walkMins + " min walk)" : ""
+  return alertRow("🔔", "Get ready " + getReadyTime + ", leave " + leaveTime + " — " + stop.name + " at " + stop.time + travelNote, "alertReservation")
 }
 
 function leaveNowAlertRow(stop, travelKey) {
   if (!getAlertPref("leaveNow")) return null
   if (!stop.time) return null
-  const times = travelTimes[travelKey]
-  if (!times || !times.walk) return null
-  const walkMatch = times.walk.match(/(\d+)/)
-  if (!walkMatch) return null
-  const walkMins = parseInt(walkMatch[1], 10)
+  if (stop.type === "reserved") return null
+  const walkMins = getWalkMins(travelKey)
+  if (walkMins === 0) return null
   const leaveTime = subtractTime(stop.time, walkMins + 5)
+  const times = travelTimes[travelKey]
   return alertRow("🚶", "Leave by " + leaveTime + " (" + times.walk + " walk to arrive by " + stop.time + ")", "alertLeave")
 }
 
@@ -507,37 +553,44 @@ function render() {
   }
 
   const nodes = []
+  const compact = isCompact()
 
   // Weather alert banner
-  const wxRow = weatherAlertRow(state.day)
-  if (wxRow) nodes.push(wxRow)
+  if (!compact) {
+    const wxRow = weatherAlertRow(state.day)
+    if (wxRow) nodes.push(wxRow)
+  }
 
   nodes.push(hotelRow(hotel.name, hotel.address))
 
-  const firstStop = getStop(state.day, 0)
-  nodes.push(travelRow(hotel, firstStop, state.day + "-h0"))
+  if (!compact) {
+    const firstStop = getStop(state.day, 0)
+    nodes.push(travelRow(hotel, firstStop, state.day + "-h0"))
+  }
 
   day.stops.forEach((s, i) => {
     const effective = getStop(state.day, i)
 
     // Alert rows before each stop
-    const tKey = i === 0 ? state.day + "-h0" : state.day + "-" + (i - 1)
-    const resRow = reservationAlertRow(effective)
-    if (resRow) nodes.push(resRow)
-    const leaveRow = leaveNowAlertRow(effective, tKey)
-    if (leaveRow) nodes.push(leaveRow)
-    const sunRow = sunsetAlertRow(effective)
-    if (sunRow) nodes.push(sunRow)
+    if (!compact) {
+      const tKey = i === 0 ? state.day + "-h0" : state.day + "-" + (i - 1)
+      const resRow = reservationAlertRow(effective, tKey)
+      if (resRow) nodes.push(resRow)
+      const leaveRow = leaveNowAlertRow(effective, tKey)
+      if (leaveRow) nodes.push(leaveRow)
+      const sunRow = sunsetAlertRow(effective)
+      if (sunRow) nodes.push(sunRow)
+    }
 
     nodes.push(stopCard(effective, i, state.day))
-    if (i < day.stops.length - 1) {
+    if (!compact && i < day.stops.length - 1) {
       const next = getStop(state.day, i + 1)
       nodes.push(travelRow(effective, next, state.day + "-" + i))
     }
   })
 
   const lastStop = getStop(state.day, day.stops.length - 1)
-  nodes.push(travelRow(lastStop, hotel, state.day + "-h1"))
+  if (!compact) nodes.push(travelRow(lastStop, hotel, state.day + "-h1"))
   nodes.push(hotelRow("Return to " + hotel.name, hotel.address))
 
   document.getElementById("stops").replaceChildren(...nodes)
@@ -599,13 +652,18 @@ document.addEventListener("touchend", e => {
 // --- Menu ---
 
 function toggleMenu() {
-  document.getElementById("menu").classList.toggle("open")
+  const menu = document.getElementById("menu")
+  menu.classList.toggle("open")
   document.getElementById("menuOverlay").classList.toggle("show")
+  const btn = document.getElementById("menuToggleBtn")
+  if (btn) btn.setAttribute("aria-expanded", menu.classList.contains("open"))
 }
 
 function closeMenu() {
   document.getElementById("menu").classList.remove("open")
   document.getElementById("menuOverlay").classList.remove("show")
+  const btn = document.getElementById("menuToggleBtn")
+  if (btn) btn.setAttribute("aria-expanded", "false")
 }
 
 function returnHotel() {
@@ -968,6 +1026,9 @@ function openSettings() {
   document.getElementById("themeLight").classList.toggle("active", theme === "light")
   document.getElementById("themeDark").classList.toggle("active", theme === "dark")
   document.getElementById("themeSystem").classList.toggle("active", theme === "system")
+  const compact = isCompact()
+  document.getElementById("viewFull").classList.toggle("active", !compact)
+  document.getElementById("viewCompact").classList.toggle("active", compact)
   document.getElementById("gmapsKeyInput").value = localStorage.getItem("nyc-gmaps-key") || "AIzaSyBql5cJfu7zX3___6-jB6TlXvCLOAvxYKo"
   initAlertSettings()
   document.getElementById("settingsVersion").textContent = "v" + APP_VERSION
@@ -1071,7 +1132,7 @@ function fetchTravelTimes() {
         })
       })
     })
-  }).catch(() => {})
+  }).catch(e => { if (e && e.name !== "AbortError") console.warn(e) })
 }
 
 // --- Explore sheet (browse + swap) ---
@@ -1210,17 +1271,21 @@ function renderExplore() {
   if (swapTarget != null) {
     const original = data.days[state.day].stops[swapTarget]
     headerEl.textContent = "Swap"
-    originBtn.innerHTML = SVG_PIN + " from " + (original.icon || "") + " " + original.name
+    originBtn.textContent = ""
+    originBtn.innerHTML = SVG_PIN
+    originBtn.append(" from " + (original.icon || "") + " " + original.name)
     originBtn.style.display = ""
     originBtn.dataset.swapMode = "1"
     originBtn.style.cursor = "default"
   } else {
-    headerEl.innerHTML = "&#9733;"
+    headerEl.textContent = "\u2605"
     originBtn.dataset.swapMode = ""
     originBtn.style.cursor = ""
     if (exploreOriginLabel) {
       const isGeo = exploreOriginLabel === "You"
-      originBtn.innerHTML = (isGeo ? SVG_PIN : SVG_PIN) + " " + exploreOriginLabel
+      originBtn.textContent = ""
+      originBtn.innerHTML = isGeo ? SVG_GPS : SVG_PIN
+      originBtn.append(" " + exploreOriginLabel)
       originBtn.title = isGeo ? "From your location — tap for selected stop" : "From " + exploreOriginLabel + " — tap for your location"
       originBtn.style.display = ""
     } else {
@@ -1266,9 +1331,9 @@ function renderExplore() {
     const mapsUrl = "https://www.google.com/maps/search/" + encodeURIComponent(item.name + ", " + item.address)
 
     const rightSide = dist
-      ? el("div", { className: "exploreDist" })
+      ? el("div", { className: "exploreDist", innerHTML: SVG_PIN })
       : (hasDistances ? el("div", { className: "exploreDist travelLoading" }, "...") : null)
-    if (dist) rightSide.innerHTML = SVG_PIN + " " + dist.text
+    if (dist) rightSide.append(" " + dist.text)
 
     const card = el("div", {
       className: "guideItem" + (swapTarget != null ? " swappable" : ""),
@@ -1363,13 +1428,14 @@ function fetchExploreDistancesFrom(origin) {
         exploreRenderTimer = setTimeout(renderExplore, 200)
       })
     }
-  }).catch(() => {})
+  }).catch(e => { if (e && e.name !== "AbortError") console.warn(e) })
 }
 
 function selectAlternative(altIndex) {
   if (swapTarget == null) return
   const original = data.days[state.day].stops[swapTarget]
   if (original.type === "reserved") return
+  if (!getAllAlternatives()[altIndex]) return
   state.swaps[state.day + "-" + swapTarget] = altIndex
   closeGuides()
   render()
@@ -1383,7 +1449,7 @@ function restoreStop(dayIndex, stopIndex) {
 // --- Alerts ---
 
 const ALERT_TYPES = {
-  reservations: { label: "Reservations", desc: "60 & 15 min before booked events" },
+  reservations: { label: "Reservations", desc: "Get ready & leave alerts based on travel time" },
   leaveNow:    { label: "Leave Now",    desc: "Travel time reminders to next stop" },
   weather:     { label: "Weather",      desc: "Rain alerts for today's stops" },
   sunset:      { label: "Sunset",       desc: "Golden hour reminder at sunset spots" }
@@ -1442,7 +1508,7 @@ function checkAlerts() {
   const now = new Date()
   const nowMins = now.getHours() * 60 + now.getMinutes()
 
-  // --- Reservation alerts (60 min & 15 min before) ---
+  // --- Reservation alerts (travel-time-aware: "get ready" & "leave now") ---
   if (getAlertPref("reservations")) {
     day.stops.forEach((_, i) => {
       const stop = getStop(dayIndex, i)
@@ -1450,34 +1516,38 @@ function checkAlerts() {
       const [h, m] = stop.time.split(":").map(Number)
       const eventMins = h * 60 + m
 
-      ;[{ mins: 60, label: "in 1 hour" }, { mins: 15, label: "in 15 minutes" }].forEach(({ mins, label }) => {
-        const alertAt = eventMins - mins
-        if (nowMins >= alertAt && nowMins < alertAt + 2) {
-          const tag = "nyc-a-res-" + day.date + "-" + i + "-" + mins
-          sendAlert(tag, (stop.icon || "") + " " + stop.name + " " + label + " (" + stop.time + ")")
-        }
-      })
+      const tKey = i === 0 ? dayIndex + "-h0" : dayIndex + "-" + (i - 1)
+      const walkMins = getWalkMins(tKey)
+      const getReadyAt = eventMins - walkMins - 15
+      const leaveAt = eventMins - walkMins - 5
+      const travelNote = walkMins > 0 ? " (" + walkMins + " min walk)" : ""
+
+      if (nowMins >= getReadyAt && nowMins < getReadyAt + 2) {
+        const tag = "nyc-a-res-" + day.date + "-" + i + "-ready"
+        sendAlert(tag, "Get ready! " + (stop.icon || "") + " " + stop.name + " at " + stop.time + travelNote + " — leave in ~10 min")
+      }
+      if (nowMins >= leaveAt && nowMins < leaveAt + 2) {
+        const tag = "nyc-a-res-" + day.date + "-" + i + "-leave"
+        sendAlert(tag, "Leave now for " + (stop.icon || "") + " " + stop.name + " at " + stop.time + travelNote)
+      }
     })
   }
 
-  // --- Leave Now alerts (based on travel time to next timed stop) ---
+  // --- Leave Now alerts (based on travel time to next non-reserved timed stop) ---
   if (getAlertPref("leaveNow")) {
     day.stops.forEach((_, i) => {
       const stop = getStop(dayIndex, i)
-      if (!stop.time) return
+      if (!stop.time || stop.type === "reserved") return
       const [h, m] = stop.time.split(":").map(Number)
       const eventMins = h * 60 + m
 
       const tKey = i === 0 ? dayIndex + "-h0" : dayIndex + "-" + (i - 1)
-      const times = travelTimes[tKey]
-      if (!times || !times.walk) return
-
-      const walkMatch = times.walk.match(/(\d+)/)
-      if (!walkMatch) return
-      const walkMins = parseInt(walkMatch[1], 10)
+      const walkMins = getWalkMins(tKey)
+      if (walkMins === 0) return
       const leaveAt = eventMins - walkMins - 5
 
       if (nowMins >= leaveAt && nowMins < leaveAt + 2) {
+        const times = travelTimes[tKey]
         const tag = "nyc-a-leave-" + day.date + "-" + i
         sendAlert(tag, "Leave now for " + (stop.icon || "") + " " + stop.name + " (" + times.walk + " walk, arrives " + stop.time + ")")
       }
@@ -1535,5 +1605,5 @@ function initAlertSettings() {
 // --- Service worker ---
 
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js").catch(() => {})
+  navigator.serviceWorker.register("sw.js").catch(e => { if (e && e.name !== "AbortError") console.warn(e) })
 }

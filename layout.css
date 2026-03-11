@@ -45,6 +45,15 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* === Focus indicators for keyboard navigation === */
+
+button:focus-visible,
+a:focus-visible,
+[role="tab"]:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
 /* === Skeleton pulse for loading states === */
 
 @keyframes shimmer {
@@ -128,6 +137,11 @@ header {
   width: 24px;
   height: 28px;
   display: block;
+}
+
+.headerBtn.active {
+  background: var(--gold);
+  color: var(--ink);
 }
 
 /* === Day Carousel === */
@@ -1545,12 +1559,13 @@ a.stopAddr:active {
   font-size: 16px;
   font-family: inherit;
   color: var(--ink-mid);
-  outline: none;
   transition: border-color 0.15s ease;
 }
 
 .settingsInput:focus {
   border-color: var(--gold);
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
 }
 
 .settingsInputRow {
