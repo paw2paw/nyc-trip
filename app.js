@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "1.4.0"
+const APP_VERSION = "1.4.1"
 
 // --- SVG icons ---
 
@@ -721,7 +721,7 @@ function dayWalkSummary(dayIndex) {
 
 function routeCardLabel(stopCount, dayIndex) {
   const ws = dayWalkSummary(dayIndex)
-  let text = "🗺 Day route · " + stopCount + " stops"
+  let text = "🗺 " + stopCount + " stops"
   if (ws) text += "  ·  🚶 " + ws.dist + "  ·  ~" + ws.time
   return text
 }
