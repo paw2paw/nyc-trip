@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "1.3.5"
+const APP_VERSION = "1.3.6"
 
 // --- SVG icons ---
 
@@ -368,8 +368,7 @@ function renderCarousel() {
   if (items[state.day]) {
     const active = items[state.day]
     requestAnimationFrame(() => {
-      const offset = active.offsetLeft - container.offsetWidth / 2 + active.offsetWidth / 2
-      container.scrollTo({ left: offset, behavior: "smooth" })
+      active.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" })
     })
   }
 }

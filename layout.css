@@ -150,13 +150,13 @@ header {
 .headerRow {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 6px;
 }
 
 .headerBtn {
-  width: 48px;
-  height: 48px;
+  width: 36px;
+  height: 44px;
+  flex-shrink: 0;
   clip-path: var(--deco-clip);
   border: none;
   background: var(--cream);
@@ -170,14 +170,24 @@ header {
   padding: 0;
 }
 
+#menuToggleBtn {
+  width: 44px;
+  height: 48px;
+}
+
 .headerBtn:active {
   transform: scale(0.9);
 }
 
 .headerBtn svg {
+  width: 20px;
+  height: 24px;
+  display: block;
+}
+
+#menuToggleBtn svg {
   width: 24px;
   height: 28px;
-  display: block;
 }
 
 .headerBtn.active {
@@ -2676,21 +2686,15 @@ a.stopAddr:active {
 }
 
 .expandBtn svg {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   display: block;
+  transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.expandBtn .compact-line {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.expandBtn.open .cl1 {
-  transform: translateY(3px);
-}
-
-.expandBtn.open .cl3 {
-  transform: translateY(-3px);
+.expandBtn.open svg {
+  opacity: 0.45;
+  transform: scaleY(0.65) translateY(3px);
 }
 
 .expandBtn:active {
