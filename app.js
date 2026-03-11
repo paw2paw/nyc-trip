@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "1.4.4"
+const APP_VERSION = "1.4.5"
 
 // --- SVG icons ---
 
@@ -2962,33 +2962,36 @@ function renderSearchResults() {
   const spinner = indicator && indicator.firstElementChild
   if (!indicator) return
 
-  const THRESHOLD = 90
+  const THRESHOLD = 140
+  const DEAD_ZONE = 30
   let startY = 0
   let pulling = false
+  let committed = false
 
   document.addEventListener("touchstart", e => {
     if (window.scrollY === 0 && e.touches.length === 1) {
       startY = e.touches[0].clientY
       pulling = true
+      committed = false
     }
   }, { passive: true })
 
   document.addEventListener("touchmove", e => {
     if (!pulling) return
     const dy = e.touches[0].clientY - startY
-    if (dy < 0 || window.scrollY > 0) { pulling = false; indicator.className = ""; return }
-    const progress = Math.min(dy / THRESHOLD, 1)
+    if (dy < 0 || window.scrollY > 0) { pulling = false; indicator.className = ""; spinner.style.transform = ""; spinner.style.opacity = "0"; return }
+    if (dy < DEAD_ZONE) return
+    const progress = Math.min((dy - DEAD_ZONE) / (THRESHOLD - DEAD_ZONE), 1)
+    committed = true
     indicator.className = "pulling"
     spinner.style.transform = "translateY(" + (progress * 50 - 40) + "px)"
-    spinner.style.opacity = progress
+    spinner.style.opacity = String(progress)
   }, { passive: true })
 
   document.addEventListener("touchend", () => {
     if (!pulling) return
-    const wasPulling = indicator.classList.contains("pulling")
-    const opacity = parseFloat(spinner.style.opacity || 0)
     pulling = false
-    if (wasPulling && opacity >= 1) {
+    if (committed && parseFloat(spinner.style.opacity || 0) >= 1) {
       indicator.className = "refreshing"
       spinner.style.transform = ""
       spinner.style.opacity = ""
@@ -2996,8 +2999,9 @@ function renderSearchResults() {
     } else {
       indicator.className = ""
       spinner.style.transform = ""
-      spinner.style.opacity = ""
+      spinner.style.opacity = "0"
     }
+    committed = false
   }, { passive: true })
 })()
 
