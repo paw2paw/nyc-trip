@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Josefin+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="layout.css?v=1.2.1">
+<link rel="stylesheet" href="layout.css?v=1.2.2">
 </head>
 
 <body>
@@ -110,6 +110,7 @@
 <div class="sheetHeader">
 <span id="guidesTitle">&#9733;</span>
 <button id="guidesOriginBtn" class="originBtn" onclick="cycleExploreOrigin()" aria-label="Change origin"></button>
+<button id="guidesNearbyBtn" class="nearbyBtn" onclick="toggleFilter('__nearby__')" aria-label="Around Me" title="Around Me">&#x1F9ED;</button>
 <button onclick="closeGuides()" aria-label="Close">✕</button>
 </div>
 <div id="guidesFilters" class="guidesFilters"></div>
@@ -292,7 +293,7 @@
 <div id="tripEditorContent"></div>
 </div>
 
-<script src="app.js?v=1.2.1" defer></script>
+<script src="app.js?v=1.2.2" defer></script>
 
 </body>
 </html>

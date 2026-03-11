@@ -1113,6 +1113,11 @@ a.stopAddr:active {
 .sheetHeader button:active {
   transform: scale(0.88);
 }
+.nearbyBtn.active {
+  background: var(--gold) !important;
+  color: white !important;
+  border-color: var(--gold) !important;
+}
 
 #backupContent {
   overflow-y: auto;

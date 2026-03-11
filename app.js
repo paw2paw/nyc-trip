@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "1.2.1"
+const APP_VERSION = "1.2.2"
 
 // --- SVG icons ---
 
@@ -971,6 +971,7 @@ function render() {
   if (effective.length) {
     const lastStop = effective[effective.length - 1].stop
     if (!compact) nodes.push(travelRow(lastStop, hotel, state.day + "-h1"))
+    nodes.push(hotelRow(hotel.name, hotel.address))
   }
 
   document.getElementById("stops").replaceChildren(...nodes)
@@ -1938,14 +1939,6 @@ function renderExploreFilters() {
     onclick: () => { exploreFilter = new Set(); renderExploreFilters(); renderExplore() }
   }, "All"))
 
-  // "Nearby" chip — opens Google Maps near-me links
-  const nearbyOn = !allOn && exploreFilter.has("__nearby__")
-  chips.push(el("button", {
-    className: "filterChip filterChip-icon" + (nearbyOn ? " active" : ""),
-    title: "Around Me",
-    onclick: () => toggleFilter("__nearby__")
-  }, "\uD83E\uDDED"))
-
   cats.forEach(cat => {
     const isOn = !allOn && exploreFilter.has(cat.title)
     const chip = el("button", {
@@ -1989,6 +1982,7 @@ function renderExplore() {
   const container = document.getElementById("guidesContent")
   const headerEl = document.getElementById("guidesTitle")
   const originBtn = document.getElementById("guidesOriginBtn")
+  const nearbyBtn = document.getElementById("guidesNearbyBtn")
 
   if (swapTarget != null) {
     const original = data.days[state.day].stops[swapTarget]
@@ -1999,10 +1993,14 @@ function renderExplore() {
     originBtn.style.display = ""
     originBtn.dataset.swapMode = "1"
     originBtn.style.cursor = "default"
+    nearbyBtn.style.display = "none"
   } else {
     headerEl.textContent = "\u2605"
     originBtn.dataset.swapMode = ""
     originBtn.style.cursor = ""
+    const nearbyOn = !isAllFilters() && exploreFilter.has("__nearby__")
+    nearbyBtn.style.display = ""
+    nearbyBtn.classList.toggle("active", nearbyOn)
     if (exploreOriginLabel) {
       const isGeo = exploreOriginLabel === "You"
       originBtn.textContent = ""
