@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "1.3.2"
+const APP_VERSION = "1.3.3"
 
 // --- SVG icons ---
 
@@ -1014,6 +1014,7 @@ function render() {
 
   document.getElementById("title").innerText = day.title
   document.getElementById("menuHotel").lastChild.textContent = " Back to " + hotel.name
+  document.getElementById("menuVersion").textContent = "v" + APP_VERSION
   renderCarousel()
 
   const mapContainer = document.getElementById("routeMapContainer")

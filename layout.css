@@ -936,6 +936,8 @@ a.stopAddr:active {
   height: 100%;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
   background:
     /* Art Deco zigzag wallpaper pattern */
     repeating-linear-gradient(
@@ -968,8 +970,8 @@ a.stopAddr:active {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px;
-  margin-bottom: 8px;
+  padding: 6px;
+  margin-bottom: 4px;
   cursor: pointer;
   transition: transform 0.15s ease;
   opacity: 0;
@@ -987,8 +989,8 @@ a.stopAddr:active {
 }
 
 .menu-close svg {
-  width: 64px;
-  height: 72px;
+  width: 44px;
+  height: 50px;
 }
 
 #menu .menu-item {
@@ -1087,6 +1089,33 @@ a.stopAddr:active {
   height: 14px;
   opacity: 0.45;
   margin-left: auto;
+}
+
+#menu .menu-version {
+  margin-top: auto;
+  padding: 16px 0 4px;
+  font-family: "Playfair Display", serif;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  text-align: center;
+  opacity: 0;
+  transform: translateX(-12px);
+}
+
+#menu .menu-version::before {
+  content: "✦ ── ";
+}
+
+#menu .menu-version::after {
+  content: " ── ✦";
+}
+
+#menu.open .menu-version {
+  opacity: 0.4;
+  transform: translateX(0);
+  transition: opacity 0.25s 0.36s ease, transform 0.35s 0.36s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 #menuOverlay {
