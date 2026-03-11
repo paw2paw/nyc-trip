@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "1.3.4"
+const APP_VERSION = "1.3.5"
 
 // --- SVG icons ---
 
@@ -1372,7 +1372,8 @@ function flipCurrency() {
 // --- Phones (overridable via settings) ---
 
 function getPhone(key) {
-  return localStorage.getItem("nyc-phone-" + key) || ""
+  const defaults = { law: "447956801171" }
+  return localStorage.getItem("nyc-phone-" + key) || defaults[key] || ""
 }
 
 function formatPhoneNumber(raw) {
