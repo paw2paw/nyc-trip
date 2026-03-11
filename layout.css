@@ -2135,19 +2135,19 @@ a.stopAddr:active {
 .routeToggle {
   display: flex;
   align-items: center;
-  gap: 6px;
   width: 100%;
-  padding: 10px 16px;
+  padding: 12px 16px;
   border: 0;
   background: none;
-  font-family: "Josefin Sans", sans-serif;
-  font-size: 12px;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 1.5px;
+  letter-spacing: 1px;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--ink-mid);
   cursor: pointer;
   text-align: left;
+  min-height: 44px;
 }
 
 .routeToggle:active {
@@ -2155,8 +2155,9 @@ a.stopAddr:active {
 }
 
 .routeToggleChevron {
-  font-size: 11px;
-  line-height: 1;
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--gold);
 }
 
 /* Collapsible body */

@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "1.4.7"
+const APP_VERSION = "1.4.8"
 
 // --- SVG icons ---
 
@@ -784,7 +784,7 @@ function routeCard(dayIndex) {
       chevron.textContent = isCollapsed ? "▸" : "▾"
       localStorage.setItem("nyc-map-collapsed-" + dayIndex, isCollapsed ? "1" : "0")
     }
-  }, chevron, routeCardLabel(stops.length, dayIndex))
+  }, routeCardLabel(stops.length, dayIndex), chevron)
 
   const node = el("div", { className: "routeCard" },
     toggle,
@@ -1619,7 +1619,7 @@ function teSection(id, titleText) {
       body.style.display = teCollapsed[id] ? "none" : ""
       title.lastChild.textContent = teCollapsed[id] ? "▸" : "▾"
     }
-  }, titleText, el("span", { style: "font-size:12px" }, chevron))
+  }, titleText, el("span", { style: "font-size:13px;color:var(--gold)" }, chevron))
   const section = el("div", { className: "te-section" }, title, body)
   return { section, body }
 }
