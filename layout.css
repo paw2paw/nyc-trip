@@ -1105,7 +1105,7 @@ a.stopAddr:active {
   margin-top: auto;
   padding: 16px 0 4px;
   font-family: "Playfair Display", serif;
-  font-size: 10px;
+  font-size: 16px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--gold-dark);
@@ -1123,7 +1123,7 @@ a.stopAddr:active {
 }
 
 #menu.open .menu-version {
-  opacity: 0.4;
+  opacity: 0.6;
   transform: translateX(0);
   transition: opacity 0.25s 0.36s ease, transform 0.35s 0.36s cubic-bezier(0.16, 1, 0.3, 1);
 }
