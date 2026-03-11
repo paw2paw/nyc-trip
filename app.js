@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "1.3.3"
+const APP_VERSION = "1.3.4"
 
 // --- SVG icons ---
 
@@ -526,7 +526,7 @@ function stopCard(entry, i, dayIndex, nextUpIdx, effectiveLen) {
   const expandBtn = compact ? null : el("button", {
     className: "expandBtn" + (expanded ? " open" : ""),
     "aria-label": expanded ? "Collapse" : "Expand",
-    innerHTML: '<svg viewBox="0 0 24 24" fill="currentColor"><rect class="compact-line cl1" x="4" y="6" width="16" height="2" rx="1"/><rect class="compact-line cl2" x="4" y="11" width="16" height="2" rx="1"/><rect class="compact-line cl3" x="4" y="16" width="16" height="2" rx="1"/></svg>',
+    innerHTML: '<svg viewBox="0 0 24 24" fill="currentColor" class="skyline-icon"><rect x="1" y="14" width="3.5" height="9" rx="0.4"/><rect x="5.5" y="9" width="3.5" height="14" rx="0.4"/><rect x="10" y="4" width="4" height="19" rx="0.4"/><rect x="11.5" y="1" width="1" height="4"/><rect x="15" y="10" width="3.5" height="13" rx="0.4"/><rect x="19.5" y="13" width="3.5" height="10" rx="0.4"/></svg>',
     onclick: (e) => { e.stopPropagation(); toggleExpand(expandKey) }
   })
 
@@ -862,8 +862,8 @@ function showRidePicker(anchor, uberUrl, lyftUrl) {
     el("a", { href: uberUrl, target: "_blank", onclick: (e) => { e.stopPropagation(); picker.remove() } }, "Uber"),
     el("a", { href: lyftUrl, target: "_blank", onclick: (e) => { e.stopPropagation(); picker.remove() } }, "Lyft")
   )
-  anchor.style.position = "relative"
-  anchor.appendChild(picker)
+  anchor.parentElement.style.position = "relative"
+  anchor.parentElement.appendChild(picker)
 
   // Flip below if not enough room above
   requestAnimationFrame(() => {
@@ -1451,8 +1451,8 @@ function sendMyLocation() {
     const lat = p.coords.latitude
     const lon = p.coords.longitude
     const msg = "Meet here https://maps.google.com/?q=" + lat + "," + lon
-    const url = "whatsapp://send?phone=" + phone + "&text=" + encodeURIComponent(msg)
-    window.open(url, "_blank")
+    const url = "https://wa.me/" + phone + "?text=" + encodeURIComponent(msg)
+    window.location.href = url
   }, err => {
     const reasons = {1: "Permission denied", 2: "Position unavailable", 3: "Timed out"}
     if (confirm("Could not get location: " + (reasons[err.code] || "Unknown error") + "\n\nCheck your browser/device location permissions.\n\nOpen Settings?")) {
