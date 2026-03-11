@@ -20,6 +20,7 @@ html {
   --ink-mid: #2a2a2a;
   --ink-light: #3a3a3a;
   --stone: #8a8078;
+  --text-secondary: #8a8078;
   --border: #ddd5c8;
   --deco-clip: polygon(
     0 8px, 8px 0, calc(100% - 8px) 0, 100% 8px,
@@ -142,19 +143,6 @@ header {
 .headerBtn.active {
   background: var(--gold);
   color: var(--ink);
-}
-
-/* Compact button line animation */
-.compact-line {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-#compactBtn.active .cl1 {
-  transform: translateY(4px);
-}
-
-#compactBtn.active .cl3 {
-  transform: translateY(-4px);
 }
 
 /* === Day Carousel === */
@@ -423,8 +411,8 @@ header {
 }
 
 .doneBtn {
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: 2px solid var(--gold);
   background: transparent;
@@ -2275,6 +2263,10 @@ a.stopAddr:active {
 
 [data-theme="dark"] .daySummary {
   color: var(--stone);
+}
+
+[data-theme="dark"] .dayViewToggle {
+  border-color: var(--border);
 }
 
 [data-theme="dark"] .dayViewBtn {

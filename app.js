@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "1.3.0"
+const APP_VERSION = "1.3.1"
 
 // --- SVG icons ---
 
@@ -62,9 +62,15 @@ function loadState() {
       state.added = saved.added ?? {}
       state.reorder = saved.reorder ?? {}
       state.userNotes = saved.userNotes ?? {}
-      // Clear swaps if version changed (indices may have shifted)
-      if (saved.version !== APP_VERSION) state.swaps = {}
-      else state.swaps = saved.swaps ?? {}
+      // Clear index-dependent state if version changed (indices may have shifted)
+      if (saved.version !== APP_VERSION) {
+        state.swaps = {}
+        state.added = {}
+        state.removed = {}
+        state.reorder = {}
+      } else {
+        state.swaps = saved.swaps ?? {}
+      }
     }
   } catch (e) { /* ignore */ }
 }
@@ -106,6 +112,7 @@ function getStop(dayIndex, stopIndex) {
   if (swapIdx != null) {
     const alts = getAllAlternatives()
     if (alts[swapIdx]) return alts[swapIdx]
+    delete state.swaps[key] // stale swap — alternative no longer exists
   }
   return data.days[dayIndex].stops[stopIndex]
 }
@@ -680,6 +687,42 @@ function stopCard(entry, i, dayIndex, nextUpIdx, effectiveLen) {
 
 // --- Route overview card ---
 
+function dayWalkSummary(dayIndex) {
+  const effective = getEffectiveStops(dayIndex)
+  const keys = [dayIndex + "-h0"]
+  for (let i = 0; i < effective.length - 1; i++) keys.push(dayIndex + "-e" + i)
+  keys.push(dayIndex + "-h1")
+  let totalMeters = 0, totalMins = 0, hasAny = false
+  keys.forEach(k => {
+    const t = travelTimes[k]
+    if (!t) return
+    if (t.walkDist) {
+      hasAny = true
+      const km = t.walkDist.match(/([\d.]+)\s*km/i)
+      if (km) totalMeters += parseFloat(km[1]) * 1000
+      const mi = t.walkDist.match(/([\d.]+)\s*mi/i)
+      if (mi) totalMeters += parseFloat(mi[1]) * 1609
+    }
+    if (t.walk) {
+      const m = t.walk.match(/(\d+)/)
+      if (m) totalMins += parseInt(m[1], 10)
+    }
+  })
+  if (!hasAny) return null
+  const dist = (totalMeters / 1000).toFixed(1) + " km"
+  const hrs = Math.floor(totalMins / 60)
+  const mins = totalMins % 60
+  const time = hrs > 0 ? hrs + "h " + (mins > 0 ? mins + "m" : "") : mins + "m"
+  return { dist, time }
+}
+
+function routeCardLabel(stopCount, dayIndex) {
+  const ws = dayWalkSummary(dayIndex)
+  let text = "🗺 Day route · " + stopCount + " stops"
+  if (ws) text += "  ·  🚶 " + ws.dist + "  ·  ~" + ws.time + " walking"
+  return text
+}
+
 function routeCard(dayIndex) {
   const day = data.days[dayIndex]
   const stops = getEffectiveStops(dayIndex).map(e => e.stop)
@@ -738,7 +781,7 @@ function routeCard(dayIndex) {
       chevron.textContent = isCollapsed ? "▸" : "▾"
       localStorage.setItem("nyc-map-collapsed-" + dayIndex, isCollapsed ? "1" : "0")
     }
-  }, chevron, "🗺 Day route · " + stops.length + " stops")
+  }, chevron, routeCardLabel(stops.length, dayIndex))
 
   const node = el("div", { className: "routeCard" },
     toggle,
@@ -763,9 +806,8 @@ function getFlights(date) {
 }
 
 function flightRow(flight) {
-  const inbound = flight.direction === "inbound"
   const icon = "✈️"
-  const label = inbound
+  const label = flight.direction === "inbound"
     ? flight.from + " → " + flight.to + "  ·  Lands " + flight.arrive
     : flight.from + " → " + flight.to + "  ·  Departs " + flight.depart
   const sub = flight.code + (flight.note ? "  ·  " + flight.note : "")
@@ -1301,8 +1343,7 @@ function fetchExchangeRate() {
       }
     })
     .catch(() => {
-      document.getElementById("currencyRate").textContent = "Rate unavailable — using 1.27"
-      exchangeRate = 1.27
+      document.getElementById("currencyRate").textContent = "Rate unavailable (offline)"
     })
 }
 
@@ -1837,16 +1878,12 @@ function resetTripEdits() {
 
 function forceReload() {
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.getRegistrations().then(regs => {
-      const promises = regs.map(r => r.unregister())
-      Promise.all(promises).then(() => {
-        caches.keys().then(keys => {
-          Promise.all(keys.map(k => caches.delete(k))).then(() => {
-            location.reload()
-          })
-        })
-      })
-    })
+    navigator.serviceWorker.getRegistrations()
+      .then(regs => Promise.all(regs.map(r => r.unregister())))
+      .then(() => caches.keys())
+      .then(keys => Promise.all(keys.map(k => caches.delete(k))))
+      .then(() => location.reload())
+      .catch(() => location.reload())
   } else {
     location.reload()
   }
@@ -1907,7 +1944,7 @@ function fetchTravelTimes() {
             travelTimes[key][localKey] = res.rows[0].elements[0].duration.text
             if (localKey === "walk") travelTimes[key].walkDist = res.rows[0].elements[0].distance.text
             clearTimeout(travelRenderTimer)
-            travelRenderTimer = setTimeout(render, 200)
+            travelRenderTimer = setTimeout(() => { mapCache = {}; render() }, 200)
           }
         })
       })
@@ -2340,29 +2377,30 @@ function checkAlerts() {
   if (dayIndex < 0) return
 
   const day = data.days[dayIndex]
+  const effective = getEffectiveStops(dayIndex)
   const now = new Date()
   const nowMins = now.getHours() * 60 + now.getMinutes()
 
   // --- Reservation alerts (travel-time-aware: "get ready" & "leave now") ---
   if (getAlertPref("reservations")) {
-    day.stops.forEach((_, i) => {
-      const stop = getStop(dayIndex, i)
+    effective.forEach((entry, ei) => {
+      const stop = entry.stop
       if (stop.type !== "reserved" || !stop.time) return
       const [h, m] = stop.time.split(":").map(Number)
       const eventMins = h * 60 + m
 
-      const tKey = i === 0 ? dayIndex + "-h0" : dayIndex + "-" + (i - 1)
+      const tKey = ei === 0 ? dayIndex + "-h0" : dayIndex + "-e" + (ei - 1)
       const walkMins = getWalkMins(tKey)
       const getReadyAt = eventMins - walkMins - 15
       const leaveAt = eventMins - walkMins - 5
       const travelNote = walkMins > 0 ? " (" + walkMins + " min walk)" : ""
 
       if (nowMins >= getReadyAt && nowMins < getReadyAt + 2) {
-        const tag = "nyc-a-res-" + day.date + "-" + i + "-ready"
+        const tag = "nyc-a-res-" + day.date + "-" + entry.key + "-ready"
         sendAlert(tag, "Get ready! " + (stop.icon || "") + " " + stop.name + " at " + stop.time + travelNote + " — leave in ~10 min")
       }
       if (nowMins >= leaveAt && nowMins < leaveAt + 2) {
-        const tag = "nyc-a-res-" + day.date + "-" + i + "-leave"
+        const tag = "nyc-a-res-" + day.date + "-" + entry.key + "-leave"
         sendAlert(tag, "Leave now for " + (stop.icon || "") + " " + stop.name + " at " + stop.time + travelNote)
       }
     })
@@ -2370,21 +2408,21 @@ function checkAlerts() {
 
   // --- Leave Now alerts (based on travel time to next non-reserved timed stop) ---
   if (getAlertPref("leaveNow")) {
-    day.stops.forEach((_, i) => {
-      const stop = getStop(dayIndex, i)
+    effective.forEach((entry, ei) => {
+      const stop = entry.stop
       if (!stop.time || stop.type === "reserved") return
       const [h, m] = stop.time.split(":").map(Number)
       const eventMins = h * 60 + m
 
-      const tKey = i === 0 ? dayIndex + "-h0" : dayIndex + "-" + (i - 1)
+      const tKey = ei === 0 ? dayIndex + "-h0" : dayIndex + "-e" + (ei - 1)
       const walkMins = getWalkMins(tKey)
       if (walkMins === 0) return
       const leaveAt = eventMins - walkMins - 5
 
       if (nowMins >= leaveAt && nowMins < leaveAt + 2) {
         const times = travelTimes[tKey]
-        const tag = "nyc-a-leave-" + day.date + "-" + i
-        sendAlert(tag, "Leave now for " + (stop.icon || "") + " " + stop.name + " (" + times.walk + " walk, arrives " + stop.time + ")")
+        const tag = "nyc-a-leave-" + day.date + "-" + entry.key
+        sendAlert(tag, "Leave now for " + (stop.icon || "") + " " + stop.name + " (" + (times && times.walk ? times.walk : "?") + " walk, arrives " + stop.time + ")")
       }
     })
   }
@@ -2392,9 +2430,9 @@ function checkAlerts() {
   // --- Weather alerts (morning rain warning) ---
   if (getAlertPref("weather") && hourlyWeather) {
     const rainyStops = []
-    day.stops.forEach((_, i) => {
-      const stop = getStop(dayIndex, i)
-      const hour = stop.time ? parseInt(stop.time.split(":")[0], 10) : getStopHour(i, day.stops.length)
+    effective.forEach((entry, ei) => {
+      const stop = entry.stop
+      const hour = stop.time ? parseInt(stop.time.split(":")[0], 10) : getStopHour(ei, effective.length)
       const rain = hourlyWeather.precipitation_probability[hour]
       if (rain >= 50) rainyStops.push({ rain, name: stop.name })
     })
@@ -2411,20 +2449,21 @@ function checkAlerts() {
     const sunsetMins = 19 * 60 + 10  // ~7:10pm mid-March NYC
     const goldenStart = sunsetMins - 45
 
-    day.stops.forEach((_, i) => {
-      const stop = getStop(dayIndex, i)
+    effective.forEach((entry) => {
+      const stop = entry.stop
       const text = (stop.note || "") + " " + (stop.name || "")
       if (!/sunset|rooftop|skyline|golden/i.test(text)) return
 
       if (nowMins >= goldenStart && nowMins < goldenStart + 2) {
-        const tag = "nyc-a-sun-" + day.date + "-" + i
+        const tag = "nyc-a-sun-" + day.date + "-" + entry.key
         sendAlert(tag, "Golden hour starting! Head to " + (stop.icon || "") + " " + stop.name + " for sunset")
       }
     })
   }
 }
 
-setInterval(checkAlerts, 60000)
+let alertInterval = null
+if (!alertInterval) alertInterval = setInterval(checkAlerts, 60000)
 
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden) checkAlerts()

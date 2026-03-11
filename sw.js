@@ -1,4 +1,4 @@
-const CACHE = "nyc-trip-v26"
+const CACHE = "nyc-trip-v27"
 
 const SHELL = [
   "./",
@@ -45,6 +45,20 @@ self.addEventListener("fetch", e => {
 
   // Network-first for Google Fonts (cache for offline)
   if (url.includes("fonts.googleapis.com") || url.includes("fonts.gstatic.com")) {
+    e.respondWith(
+      fetch(e.request)
+        .then(r => {
+          const clone = r.clone()
+          caches.open(CACHE).then(c => c.put(e.request, clone))
+          return r
+        })
+        .catch(() => caches.match(e.request))
+    )
+    return
+  }
+
+  // Network-first for data.json (trip data may change between deploys)
+  if (url.includes("data.json")) {
     e.respondWith(
       fetch(e.request)
         .then(r => {

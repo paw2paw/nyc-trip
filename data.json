@@ -1,7 +1,4 @@
 {
-"pawPhoneHash": "704d0e9063abd2db33abd001442e6a0638f9c9f25827930ec7c7cdfe5190e5f0",
-"lawPhoneHash": "37bbe1857bb07333b2dc7d3997995c315faa116ae41355d2116c99c01941448c",
-
 "flights": [
   {"date": "2026-03-12", "direction": "inbound", "code": "BA173", "depart": "11:20", "arrive": "14:20", "from": "LHR", "to": "JFK", "note": "British Airways · LHR T5 → JFK T8"},
   {"date": "2026-03-18", "direction": "outbound", "code": "BA172", "depart": "21:40", "arrive": "08:40+1", "from": "JFK", "to": "LHR", "note": "British Airways · JFK T8 → LHR T5"}

@@ -1,0 +1,13 @@
+{
+  "name": "NYC Trip App",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "postCreateCommand": "npm install -g @anthropic-ai/claude-code",
+  "features": {},
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  }
+}
