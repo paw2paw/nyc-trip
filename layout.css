@@ -55,6 +55,46 @@ a:focus-visible,
   outline-offset: 2px;
 }
 
+/* === Pull-to-refresh indicator (standalone PWA) === */
+
+@keyframes ptr-spin {
+  to { transform: rotate(360deg); }
+}
+
+#ptrIndicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+#ptrIndicator .ptr-spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid var(--gold-dark);
+  border-top-color: var(--gold);
+  opacity: 0;
+  transform: translateY(-40px);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+#ptrIndicator.pulling .ptr-spinner {
+  opacity: 1;
+  transition: none;
+}
+
+#ptrIndicator.refreshing .ptr-spinner {
+  opacity: 1;
+  transform: translateY(12px);
+  animation: ptr-spin 0.6s linear infinite;
+}
+
 /* === Skeleton pulse for loading states === */
 
 @keyframes shimmer {
@@ -98,8 +138,8 @@ header {
   background:
     /* geometric Deco line along bottom */
     linear-gradient(var(--gold), var(--gold)) 0 100% / 100% 1px no-repeat,
-    var(--ink-mid);
-  color: var(--cream);
+    var(--cream-warm);
+  color: var(--ink-mid);
   padding: 14px;
   padding-top: calc(14px + env(safe-area-inset-top));
   position: sticky;
@@ -119,8 +159,8 @@ header {
   height: 48px;
   clip-path: var(--deco-clip);
   border: none;
-  background: var(--ink-light);
-  color: var(--gold);
+  background: var(--cream);
+  color: var(--gold-dark);
   font-size: 20px;
   display: flex;
   align-items: center;

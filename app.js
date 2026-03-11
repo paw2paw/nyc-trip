@@ -1,6 +1,6 @@
 "use strict"
 
-const APP_VERSION = "1.3.1"
+const APP_VERSION = "1.3.2"
 
 // --- SVG icons ---
 
@@ -177,7 +177,7 @@ function applyTheme() {
   else dark = window.matchMedia("(prefers-color-scheme: dark)").matches
   document.documentElement.setAttribute("data-theme", dark ? "dark" : "light")
   const meta = document.querySelector('meta[name="theme-color"]')
-  if (meta) meta.setAttribute("content", dark ? "#111" : "#2a2a2a")
+  if (meta) meta.setAttribute("content", dark ? "#111" : "#fffdf6")
 }
 
 // --- Compact mode ---
@@ -719,7 +719,7 @@ function dayWalkSummary(dayIndex) {
 function routeCardLabel(stopCount, dayIndex) {
   const ws = dayWalkSummary(dayIndex)
   let text = "🗺 Day route · " + stopCount + " stops"
-  if (ws) text += "  ·  🚶 " + ws.dist + "  ·  ~" + ws.time + " walking"
+  if (ws) text += "  ·  🚶 " + ws.dist + "  ·  ~" + ws.time
   return text
 }
 
@@ -985,7 +985,7 @@ function daySummaryRow(dayIndex, effective) {
     }
   })
   if (hasAnyDist && totalMeters > 0) {
-    parts.push((totalMeters / 1000).toFixed(1) + " km walking")
+    parts.push("🚶 " + (totalMeters / 1000).toFixed(1) + " km")
   }
 
   reserved.forEach(e => {
@@ -2881,6 +2881,55 @@ function renderSearchResults() {
 
   container.replaceChildren(...nodes)
 }
+
+// --- Pull-to-refresh (standalone PWA) ---
+
+;(function initPullToRefresh() {
+  const isStandalone = window.navigator.standalone || window.matchMedia("(display-mode: standalone)").matches
+  if (!isStandalone) return
+
+  const indicator = document.getElementById("ptrIndicator")
+  const spinner = indicator && indicator.firstElementChild
+  if (!indicator) return
+
+  const THRESHOLD = 90
+  let startY = 0
+  let pulling = false
+
+  document.addEventListener("touchstart", e => {
+    if (window.scrollY === 0 && e.touches.length === 1) {
+      startY = e.touches[0].clientY
+      pulling = true
+    }
+  }, { passive: true })
+
+  document.addEventListener("touchmove", e => {
+    if (!pulling) return
+    const dy = e.touches[0].clientY - startY
+    if (dy < 0 || window.scrollY > 0) { pulling = false; indicator.className = ""; return }
+    const progress = Math.min(dy / THRESHOLD, 1)
+    indicator.className = "pulling"
+    spinner.style.transform = "translateY(" + (progress * 50 - 40) + "px)"
+    spinner.style.opacity = progress
+  }, { passive: true })
+
+  document.addEventListener("touchend", () => {
+    if (!pulling) return
+    const wasPulling = indicator.classList.contains("pulling")
+    const opacity = parseFloat(spinner.style.opacity || 0)
+    pulling = false
+    if (wasPulling && opacity >= 1) {
+      indicator.className = "refreshing"
+      spinner.style.transform = ""
+      spinner.style.opacity = ""
+      setTimeout(() => location.reload(), 300)
+    } else {
+      indicator.className = ""
+      spinner.style.transform = ""
+      spinner.style.opacity = ""
+    }
+  }, { passive: true })
+})()
 
 // --- Service worker ---
 
